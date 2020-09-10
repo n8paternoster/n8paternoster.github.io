@@ -1,0 +1,23 @@
+library ieee;  
+use ieee.std_logic_1164.all; 
+ 
+entity FULLADDER is 	
+     port(A, B, C : in std_logic; 				
+       sum, carry : out std_logic); 
+end FULLADDER;  
+
+architecture fulladder_behav of FULLADDER is 	
+     signal D, E, F, G, H, I, J, K : std_logic; 
+begin 	
+     D <= A OR B; 	
+     F <= A AND B; 	
+     E <= D AND C; 	
+     G <= E NOR F; 	
+     H <= A OR B OR C; 	
+     I <= A AND B AND C; 	
+     J <= H AND G; 	
+     K <= J NOR I; 	
+     sum <= NOT K; 	
+     carry <= NOT G; 
+end fulladder_behav;
+

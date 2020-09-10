@@ -1,0 +1,248 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+html, body {    
+    height: 100%;   /* allows footer to stay on bottom */
+}
+
+body {
+    background-color: #ddd;
+    margin: 0;
+}
+
+#page-wrapper {
+    min-height: 100%;
+    margin-bottom: -50px;   /* leave space for footer */
+}
+
+footer, #push {
+    height: 50px;
+}
+
+footer {
+    position: relative;     /* to center footer p */
+    width: 100%;
+    background-color: #333;
+}
+
+footer p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ddd;
+    text-align: center;
+    margin: 0;
+}
+
+header {
+    display: block;
+    height: 400px;
+    background-size: cover;
+    background-position: center center;
+    width: 100%;
+}
+
+.topnav {
+    position: -webkit-sticky;   /* Safari */
+    position: sticky;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: black;
+    list-style-type: none;
+    z-index: 1;
+}
+
+.topnav li {
+    float: left;
+    border-right: 1px solid #ddd;
+    height: 46px;
+}
+
+.topnav li a {
+    display: block;
+    padding: 14px 16px;
+    height: inherit;
+    text-decoration: none;
+    text-align: center;
+    color: #ddd;
+}
+
+#home-icon {
+    /*position: relative;*/
+}
+
+#home-icon img {
+    /*position: absolute;
+    top: 50%;
+    transform: translateY(-50%);*/
+}
+
+.topnav li a:hover {
+    background-color: #666;
+}
+
+.content {
+    margin: 50px auto;
+    width: 85%;
+    max-width: 800px;
+}
+
+.content::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.col {
+    float: left;
+    width: 50%;
+}
+
+.card {
+    display: block;
+    height: 700px;
+    position: relative;         /* to position the splash images & the view button */
+    text-decoration: none;
+    color: black;
+    padding: 20px;
+    margin: 20px;
+    background-color: white;
+    border: 1px solid #333;
+}
+
+.col:last-of-type .card {
+    margin-left: 0;         /* to keep even space between the columns */
+}
+
+#splash-content {   /* override content dimensions for the home page */
+    max-width: unset;
+}
+
+.splash-container {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    height: 500px;
+}
+
+.splash-img {
+    transition: 0.5s ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+}
+
+.splash-view {
+    transition: 0.5s ease;
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+
+.splash-view-link {
+    transition: 0.5s ease;
+    background-color: #868686;
+    color: white;
+    font-size: 16px;
+    padding: 16px 32px;
+    text-decoration: none;
+}
+
+.splash-container:hover .splash-img {
+    opacity: 0.3;
+}
+
+.splash-container:hover .splash-view {
+    opacity: 1.0;
+}
+
+.splash-view-link:hover {
+    background-color: black;
+}
+
+.accordion {
+    background-color: #91c48d;  /* light green */
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+}
+
+.accordion::after {
+    content: '\002B';
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.accordion:hover, .accordion-active {
+    background-color: #45aa3d;  /* dark green */
+}
+
+.accordion-active::after {
+    content: "\2212";
+}
+
+.accordion-panel {
+    overflow: hidden;
+    max-height: 0;
+    margin: 0;
+    transition: max-height 0.3s ease-out;
+}
+
+.courselist {
+    list-style-type: none;
+    padding: 0;
+}
+
+.courselist li * {      /* clear the margin on every child of each list item */
+    margin: 0;
+}
+
+.courselist p {
+    margin-top: 15px;
+    padding-left: 15px;
+}
+
+.courselist li a {
+    display: block;
+    padding: 15px;
+    color: black;
+    text-decoration: none;
+}
+
+.courselist li:hover {
+    background-color: #e09a72;  /* light orange */
+    transition: 0.3s ease-out;
+}
+
+.courselist li:active {
+    background-color: #d96a20;  /* dark orange */
+}
+
+@media screen and (max-width: 768px) {  /* change the splash cards to a single column */
+    .col {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 600px) {  /* change the top nav menu to vertical buttons */
+    .topnav li {
+        float: none;
+        width: 100%;
+    }
+}

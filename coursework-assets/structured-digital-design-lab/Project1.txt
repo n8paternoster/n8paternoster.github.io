@@ -1,0 +1,247 @@
+--Top-Level ALU circuit
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+
+entity ALUsixteen is
+	port(DMD, R : inout std_logic_vector(15 downto 0);
+		PMD : in std_logic_vector(23 downto 0);
+	  load, sel : in std_logic_vector(5 downto 0);
+		 en : in std_logic_vector(3 downto 0);
+		opc : in std_logic_vector(4 downto 0);
+	    CI, clk : in std_logic;
+		AZ, AN, AC, AV ,AS, AQ : out std_logic);
+end entity;
+
+architecture struct of ALUsixteen is
+	component sixteenbitregister is
+		port(inp : in  std_logic_vector(15 downto 0);
+		    load : in std_logic;
+		     clk : in std_logic;
+		    outp : out std_logic_vector(15 downto 0));
+  	end component;
+	component sixteenbitTSB is
+    		port(data : in std_logic_vector(15 downto 0);
+		      ctr : in std_logic;
+		     outp : out std_logic_vector(15 downto 0));
+  	end component;
+ 	component sixteenbitMUX21 is
+    		port(inp1,inp2 : in std_logic_vector(15 downto 0);
+			   sel : in std_logic;
+			  outp : out std_logic_vector(15 downto 0));
+  	end component;
+ 	component sixteenbitKernel is
+    		port(X, Y : in std_logic_vector(15 downto 0);
+        	       CI : in std_logic;
+         	      opc : in std_logic_vector(4 downto 0);
+          	        R : out std_logic_vector(15 downto 0);
+          		AZ, AN, AC, AV, AS, AQ : out std_logic);
+  	end component;
+  	signal s1, s2, s3, X	 : std_logic_vector(15 downto 0);
+  	signal s5, s6, s7, s8, Y : std_logic_vector(15 downto 0);
+  	signal result, s11	 : std_logic_vector(15 downto 0);
+  	signal s12, s13		 : std_logic_vector(15 downto 0);
+begin
+  	-- X input
+  	ax0	: sixteenbitregister port map (DMD, load(0), clk, s1);
+  	ax1	: sixteenbitregister port map (DMD, load(1), clk, s2);   
+  	muxX1	: sixteenbitMUX21 port map (s1, s2, sel(1), s3);
+  	muxX2	: sixteenbitMUX21 port map (R, s3, sel(3), X);    
+  	tsbX	: sixteenbitTSB port map (s3, en(0), DMD);
+  	
+       -- Y input
+  	muxY0	: sixteenbitMUX21 port map (DMD, PMD(23 downto 8), sel(0), s5);      
+  	aY0	: sixteenbitregister port map (s5, load(2), clk, s6);
+  	aY1	: sixteenbitregister port map (s5, load(3), clk, s7);      
+  	muxY1	: sixteenbitMUX21 port map (s6, s7, sel(2), s8); 
+  	muxY2	: sixteenbitMUX21 port map (s8, s11, sel(4), Y);  
+  	tsbY	: sixteenbitTSB port map (s8, en(1), DMD);
+  	
+       -- ALU
+  	ALU	: sixteenbitKernel port map (X, Y, CI, opc, result, AZ, AN, AC, AV, AS, AQ);
+  	FBreg	: sixteenbitregister port map (result, load(5), clk, s11);
+  	
+       -- Output
+  	muxOut	: sixteenbitMUX21 port map (result, DMD, sel(5), s12);
+  	regOut	: sixteenbitregister port map (s12, load(4), clk, s13); 
+  	outBuff0: sixteenbitTSB port map (s13, en(3), R);
+  	outBuff1: sixteenbitTSB port map (s13, en(2), DMD);
+end architecture;
+
+
+
+
+--16-bit ALU Kernel Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+
+entity sixteenbitKernel is
+	port(X, Y : in std_logic_vector(15 downto 0);
+	       CI : in std_logic;
+              opc : in std_logic_vector(4 downto 0);
+		R : out std_logic_vector(15 downto 0);
+		AZ, AN, AC, AV, AS, AQ : out std_logic);
+end entity;
+
+architecture behavioral of sixteenbitKernel is
+	signal carry: std_logic_vector(16 downto 0);
+begin
+	carry <= "0000000000000000" & CI;
+	process(X, Y, CI, opc)
+  		variable outR : std_logic_vector(16 downto 0); -- 17 bits for 16 input + carry
+		variable inX  : std_logic_vector(16 downto 0);
+   		variable inY  : std_logic_vector(16 downto 0);
+ 	 begin
+		inX := '0' & X;		-- making room for the 17th carry bit
+  		inY := '0' & Y;		-- making room for the 17th carry bit
+		if (opc = "10000")then
+			outR := inY;
+   		elsif (opc = "10001") then
+ 			outR := inY +"00000000000000001";
+    		elsif (opc = "10010") then
+      			outR := inX + inY + carry;
+ 	  	elsif (opc = "10011") then
+     			outR := inX + inY;
+   		elsif (opc = "10100") then
+     			outR := not(inY);
+		elsif (opc = "10101") then
+      			outR := "00000000000000000" - inY;
+ 		elsif (opc = "10110") then
+    			outR := inX - inY + carry - "00000000000000001";      
+  		elsif (opc = "10111") then
+    			outR := inX - inY;
+ 		elsif (opc = "11000") then
+    			outR := inY - "00000000000000001";
+ 		elsif (opc = "11001") then
+      			outR := inY - inX;
+  		elsif (opc = "11010") then
+      			outR := inY - inX + carry - "00000000000000001";
+   		elsif (opc = "11011") then
+    			outR := not(inX);
+  		elsif (opc = "11100") then
+    			outR := inX and inY;
+  		elsif (opc = "11101") then
+      			outR := inX or inY;
+   		elsif (opc = "11110") then
+     			outR := inX xor inY;
+  		elsif (opc = "11111") then
+      			outR := inX;
+   		else
+      			outR := "ZZZZZZZZZZZZZZZZZ";
+   		end if;
+   
+   		if (outR(15 downto 0) = "0000000000000000") then	-- setting AZ
+			AZ <= '1';		
+   		else
+      			AZ <= '0';
+    		end if;
+		AN <= outR(15);			-- setting AN
+		AC <= outR(16);			-- setting AC
+   		AS <= X(15);			-- setting AS
+     
+		if (opc = "10111") then		-- setting AV				
+			if (X(15)='0' and (not Y(15))='0' and outR(15)='1') then
+				AV <= '1';
+   	   		elsif (X(15)='1' and (not Y(15))='1' and outR(15)='0') then
+				V <= '1';
+			else
+				AV <= '0';
+			end if;
+		end if;
+		if (opc = "11001") then
+			if (X(15)='1' and Y(15)='0' and outR(15)='1') then
+				AV <= '1';
+			elsif (X(15)='0' and Y(15)='1' and outR(15)='0') then
+				AV <= '1';
+			else
+				AV <= '0';
+			end if;
+		elsif (TRUE) then
+			if (X(15)='0' and Y(15)='0' and outR(15)='1') then
+				AV <= '1';
+			elsif (X(15)='1' and Y(15)='1' and outR(15)='0') then
+				AV <= '1';
+			else
+				AV <= '0';
+			end if;
+		end if;   
+ 	   	R <= outR(15 downto 0);		-- setting the result R
+	end process;
+end architecture;
+
+
+
+
+--16-bit 2-to-1 Multiplexer Component
+
+library ieee;
+use ieee.std_logic_1164.all
+
+entity sixteenbitMUX21 is
+	port(inp1, inp2 : in std_logic_vector(15 downto 0);
+		    sel : in std_logic;
+		   outp : out std_logic_vector(15 downto 0));
+end entity;
+     
+architecture behave of sixteenbitMUX21 is
+begin
+	process(inp1, inp2, sel) 
+  	begin
+		if (sel = '1') then
+			outp <= inp2;
+		elsif (sel = '0') then
+			outp <= inp1;
+   		end if;
+ 	end process;
+end architecture;
+
+
+
+
+--16-bit Register Component
+
+library ieee;
+use ieee.std_logic_1164.all;
+ 
+entity sixteenbitregister is
+	port(inp : in  std_logic_vector(15 downto 0);
+	    load : in std_logic;
+	     clk : in std_logic;
+	    outp : out std_logic_vector(15 downto 0));
+end entity;
+    
+architecture behave of sixteenbitregister is
+	signal store: std_logic_vector(15 downto 0);
+begin
+	fourbitprocess: process(clk)
+	begin
+		if (clk'event and clk = '1' and load = '1') then
+			store <= inp;
+		end if;
+		if (clk'event and clk = '0') then
+			outp <= store;
+		end if;
+	end process;
+end architecture;
+
+
+
+
+--16-bit Tri-State Buffer Component
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity sixteenbitTSB is
+	port(data : in std_logic_vector(15 downto 0);
+	      ctr : in std_logic;
+	     outp : out std_logic_vector(15 downto 0));
+end entity;
+     
+architecture behave of sixteenbitTSB is
+begin
+	outp <= data when (ctr = '1') else "ZZZZZZZZZZZZZZZZ";
+end architecture;

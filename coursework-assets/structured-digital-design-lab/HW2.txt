@@ -1,0 +1,117 @@
+--2 input or gate 
+library ieee; 
+use ieee.std_logic_1164.all; 
+entity OR2 is 	
+     port(in1, in2: in std_logic;
+	      out1: out std_logic); 
+end entity; 
+architecture behav of OR2 is 
+begin 	
+     out1 <= in1 or in2; 
+end architecture; 
+
+
+ --2 input and gate 
+library ieee; 
+use ieee.std_logic_1164.all; 
+entity AND2 is 	
+     port(in1, in2: in std_logic;
+	      out1: out std_logic);
+end entity; 
+architecture behav of AND2 is 
+begin 	
+     out1 <= in1 and in2; 
+end architecture;  
+
+
+--3 input or gate 
+library ieee; 
+use ieee.std_logic_1164.all; 
+entity OR3 is 	
+     port(in1, in2, in3: in std_logic;
+		   out1: out std_logic); 
+end entity; 
+architecture behav of OR3 is 
+begin 	
+     out1 <= in1 or in2 or in3; 
+end architecture; 
+
+
+--3 input and gate 
+library ieee; 
+use ieee.std_logic_1164.all; 
+entity AND3 is 	
+     port(in1, in2, in3: in std_logic;
+		   out1: out std_logic); 
+end entity; 
+architecture behav of AND3 is 
+begin 	
+     out1 <= in1 and in2 and in3; 
+end architecture;  
+
+
+--2 input nor gate 
+library ieee; 
+use ieee.std_logic_1164.all; 
+entity NOR1 is 	
+     port(in1, in2: in std_logic;
+	      out1: out std_logic); 
+end entity; 
+architecture behav of NOR1 is 
+begin 	
+     out1 <= in1 nor in2; 
+end architecture;  
+
+
+--1 input not gate 
+library ieee; 
+use ieee.std_logic_1164.all; 
+entity NOT1 is 	
+     port(in1: in std_logic;
+	 out1: out std_logic); 
+end entity; 
+architecture behav of NOT1 is 
+begin 	
+     out1 <= not in1; 
+end architecture;  
+
+
+--1 bit full adder 
+library ieee; 
+use ieee.std_logic_1164.all; 
+entity FULL_ADDER is 	
+     port(A, B, cin: in std_logic; sum,
+	       cout: out std_logic); 
+end FULL_ADDER; 
+architecture FA_struct of FULL_ADDER is 	
+	component OR2 is
+	port(in1, in2: in std_logic; out1: out std_logic); 	
+	end component OR2; 	
+	component AND2 is
+	port(in1, in2: in std_logic; out1: out std_logic); 
+	end component AND2; 	
+	component OR3 is
+	port(in1, in2, in3: in std_logic; out1: out std_logic); 	
+	end component OR3; 	
+	component AND3 is
+	port(in1, in2, in3: in std_logic; out1: out std_logic); 	
+	end component AND3; 	
+	component NOR1 is
+	port(in1, in2: in std_logic; out1: out std_logic); 	
+	end component NOR1; 	
+	component NOT1 is
+	port(in1: in std_logic; out1: out std_logic); 	
+	end component NOT1; 	
+	signal D, E, F, G, H, I, J, K : std_logic; 
+	begin 	
+	O1 : OR2 port map(A,B,D); 	
+	A1 : AND2 port map(A,B,E); 	
+	A2 : AND2 port map(D,cin,F); 	
+	N1 : NOR1 port map(E,F,G); 	
+	O2 : OR3 port map(A,B,cin,H); 	
+	A3 : AND3 port map(A,B,cin,I); 	
+	A4 : AND2 port map(G,H,J); 	
+	N2 : NOR1 port map(J,I,K); 	
+	NT1 : NOT1 port map(G,cout); 	
+	NT2 : NOT1 port map(K,sum); 
+end architecture FA_struct;

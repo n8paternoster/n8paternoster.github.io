@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster</title>
+    <link rel="stylesheet" type="text/css" href="/css/nate.css" />
+    <script src="/js/nate.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Header -->
+        <header style="background-image: url(/images/miami-skyline.jpg)">
+        </header>
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a id="home-icon" href="/index.html"><img height="20" width="20" src="/images/white-home-32.png"/></a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div id="splash-content" class="content">
+            <div class="col">
+                <div class="card">
+                    <h1>Coursework</h1>
+                    <p>A sample of my coursework from my undergrad B.S in Music Engineering at the University of Miami (2011-2015).</p>
+                    <div class="splash-container">
+                        <img class="splash-img" src="images/open-book.jpg" alt="Coursework"/>
+                        <div class="splash-view">
+                            <a href="coursework.html" class="splash-view-link">View</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h1>Recordings</h1>
+                    <p>Audio and video recordings of mostly solo piano. </p>
+                    <div class="splash-container">
+                        <img class="splash-img" src="images/piano-keys.jpg" alt="Recordings"/>
+                        <div class="splash-view">
+                            <a href="recordings.html" class="splash-view-link">View</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <h1>Projects</h1>
+                    <p>My programming projects written primarily in C++.</p>
+                    <div class="splash-container">
+                        <img class="splash-img" src="images/cpp-code.png" alt="Projects" style="object-position: center left"/>
+                        <div class="splash-view">
+                            <a href="projects.html" class="splash-view-link">View</a>
+                        </div>
+                    </div>
+                </div>
+                 <div class="card">
+                     <h1>Contact</h1>
+                     <p>Where to find me.</p>
+                     <div class="splash-container">
+                         <img class="splash-img" src="images/night-miami.jpg" alt="Contact"/>
+                         <div class="splash-view">
+                             <a href="contact.html" class="splash-view-link">View</a>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nate Paternoster</p>
+        <script>            // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

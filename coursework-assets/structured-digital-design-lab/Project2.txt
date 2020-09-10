@@ -1,0 +1,403 @@
+-- EEN 316
+-- Project 2
+-- Andrew O'Neil-Smith
+-- Nate Paternoster
+-- Garrett Clausen
+
+
+-- MAC Multiplier TOP LEVEL
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity mac_top is
+	port(DMD, R : inout std_logic_vector(15 downto 0);
+	     PMD    : in  std_logic_vector(23 downto 0);
+	     load   : in  std_logic_vector(7 downto 0);
+	     sel    : in  std_logic_vector(11 downto 0);
+	     en     : in  std_logic_vector(5 downto 0);
+	     opc    : in  std_logic_vector(4 downto 0);
+	     clk    : in  std_logic;
+	     MV     : out std_logic);
+end entity;
+
+architecture structural of mac_top is
+	component sixteenbitMUXtwo is
+		port(inp1, inp2 : in std_logic_vector(15 downto 0);
+		     sel        : in std_logic;
+		     outp       : out std_logic_vector(15 downto 0));
+	end component;
+	component add_sub is
+		port(mr     : in std_logic_vector(39 downto 0);
+		     p      : in std_logic_vector (31 downto 0);
+		     amf    : in std_logic_vector (4 downto 0);
+		     r0, r1 : out std_logic_vector(15 downto 0);
+		     r2     : out std_logic_vector(7 downto 0);
+		     mv     : out std_logic);
+	end component;
+	component MACtsb is
+		port(data : in std_logic_vector(15 downto 0);
+		     ctr  : in std_logic;
+		     outp : out std_logic_vector(15 downto 0));
+	end component;
+	component MACregistersixteen is
+		port(inp  : in  std_logic_vector(15 downto 0);
+		     load : in std_logic;
+		     clk  : in std_logic;
+		     outp : out std_logic_vector(15 downto 0));
+	end component;
+	component sixteenbitMUXthree is
+		port(inp1, inp2 : in std_logic_vector(15 downto 0);
+		     inp3       : in std_logic_vector(7 downto 0);
+		     sel        : in std_logic_vector(1 downto 0);
+		     outp       : out std_logic_vector(15 downto 0));
+	end component;
+ 	component MACtsbeight is
+		port(data : in std_logic_vector(7 downto 0);
+		     ctr  : in std_logic;
+		     outp : out std_logic_vector(15 downto 0));
+	end component;
+	component MACregistereight is
+		port(inp  : in  std_logic_vector(7 downto 0);
+		     load : in std_logic;
+		     clk  : in std_logic;
+		     outp : out std_logic_vector(7 downto 0));
+	end component;
+	component mult is
+		port(x, y : in std_logic_vector(15 downto 0);
+		     p    : out std_logic_vector(31 downto 0));
+	end component;
+	component eightbitMUXtwo is
+		port(inp1, inp2 : in std_logic_vector(7 downto 0);
+		     sel        : in std_logic;
+		     outp       : out std_logic_vector(7 downto 0));
+	end component;
+	
+	signal s1, s2, s3, s4, s5, s6, s7, s8, s9, s12, s13, s15, s17, s18, s19 : std_logic_vector(15 downto 0);
+	signal s10 : std_logic_vector(31 downto 0); 
+	signal s11 : std_logic_vector(39 downto 0);
+	signal s14, s16 : std_logic_vector(7 downto 0); 
+      
+begin
+	-- X
+	ax0   : MACregistersixteen port map (DMD, load(0) ,clk, s1);
+	ax1   : MACregistersixteen port map (DMD, load(1) ,clk, s2);
+	muxx1 : sixteenbitMUXtwo   port map (s1, s2, sel(1), s3);
+	tsbx  : MACtsb             port map (s3, en(0), DMD);
+	muxx2 : sixteenbitMUXtwo   port map (R, s3, sel(3), s4);
+	
+	-- Y
+	muxy0 : sixteenbitMUXtwo   port map (DMD, PMD(23 downto 8), sel(0), s5);
+	ay0   : MACregistersixteen port map (s5, load(2), clk, s6);
+	ay1   : MACregistersixteen port map (s5, load(3), clk, s7);
+	muxy1 : sixteenbitMUXtwo   port map (s6, s7, sel(2), s8);
+	tsby  : MACtsb             port map (s8, en(1), DMD);
+	muxy2 : sixteenbitMUXtwo   port map (s8, s15, sel(4), s9);
+	
+	-- multiplier
+	mult1  : mult    port map (s4, s9, s10);
+	addsub : add_sub port map (s11, s10, opc, s13, s12, s14, MV);
+	
+	-- feedback register
+	fbreg : MACregistersixteen port map (s12, load(4), clk, s15);
+         
+	-- output MUXs 
+	muxr2 : eightbitMUXtwo   port map (s14, DMD(7 downto 0), sel(5), s16);
+	muxr1 : sixteenbitMUXtwo port map (s12, DMD, sel(6), s17);
+	muxr0 : sixteenbitMUXtwo port map (s13, DMD, sel(7), s18);
+          
+	-- output registers
+	mr2 : MACregistereight   port map (s16, load(5), clk, s11(39 downto 32));
+	mr1 : MACregistersixteen port map (s17, load(6), clk, s11(31 downto 16));
+	mr0 : MACregistersixteen port map (s18, load(7), clk, s11(15 downto 0));
+
+	-- output buffers
+	tsbr2 : MACtsbeight port map (s11(39 downto 32), en(2), R);
+	tsbr1 : MACtsb      port map (s11(31 downto 16), en(3), R);
+	tsbr0 : MACtsb      port map (s11(15 downto 0), en(4), R);
+
+	-- output feedback MUX
+	mux31  : sixteenbitMUXthree port map (s11(31 downto 16), s11(15 downto 0), s11(39 downto 32), sel(9 downto 8), s19);
+	tsbout : MACtsb             port map (s19, en(5), DMD);
+          
+end architecture;
+
+
+
+
+-- MAC Multiplier Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity mult is 
+	port(x, y : in std_logic_vector(15 downto 0);
+	     p    : out std_logic_vector(31 downto 0));
+end entity;
+   
+architecture behavioral of mult is
+	signal int1, int2 : integer;
+begin
+	p <= conv_std_logic_vector(conv_integer(x)*conv_integer(y), 32);
+end architecture;
+
+
+
+
+-- Add/Subtract Unit Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+
+entity add_sub is 
+	port(mr     : in std_logic_vector(39 downto 0);
+	     p      : in std_logic_vector (31 downto 0);
+	     amf    : in std_logic_vector (4 downto 0);
+	     r0, r1 : out std_logic_vector(15 downto 0);
+	     r2     : out std_logic_vector(7 downto 0);
+	     mv     : out std_logic);
+end entity;
+
+architecture behavioral of add_sub is
+begin
+	process(mr, p, amf)
+		variable p1 : std_logic_vector(39 downto 0);	-- internal variables used to
+		variable temp : std_logic_vector(39 downto 0);	-- accomplish the sign extension
+ 	begin
+		p1(39) := p(31);		-- sign extension              
+		p1(38) := p(31);
+		p1(37) := p(31);
+		p1(36) := p(31);
+		p1(35) := p(31);
+		p1(34) := p(31);
+		p1(33) := p(31);
+		p1(32) := p(31);
+		p1(31 downto 0) := p(31 downto 0);
+		if (amf = "00000") then		-- performing the operations
+			temp := "0000000000000000000000000000000000000000";
+		elsif (amf = "00001") then
+			temp := p1;
+		elsif (amf = "00010") then
+			temp := mr + p1;
+		elsif (amf = "01100") then
+			temp := mr - p1;
+		else
+			temp := "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";               
+		end if;
+
+		r0 <= temp(15 downto 0);	-- setting the output registers
+		r1 <= temp(31 downto 16);
+		r2 <= temp(39 downto 32);
+
+		if (p1(39 downto 32) /= temp(39 downto 32)) then	-- setting overflow
+			mv <= '1';
+		else
+			mv <= '0';
+		end if;
+	end process;
+end architecture;
+
+
+
+
+-- 16-bit Register Sub-Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+ 
+entity MACregistersixteen is
+	port(inp  : in  std_logic_vector(15 downto 0);
+	     load : in std_logic;
+	     clk  : in std_logic;
+	     outp : out std_logic_vector(15 downto 0));
+end entity;
+   
+architecture behavioral of MACregistersixteen is
+	signal store : std_logic_vector(15 downto 0);
+begin
+	fourbitprocess: process(clk)
+	begin
+		if (clk'event and clk = '1' and load = '1') then
+			store <= inp;
+		end if;
+		if (clk'event and clk = '0') then
+			outp <= store;
+		end if;
+	end process;
+end architecture;
+
+
+
+
+-- 8-bit Register Sub-Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity MACregistereight is
+	port(inp  : in  std_logic_vector(7 downto 0);
+	     load : in std_logic;
+	     clk  : in std_logic;
+	     outp : out std_logic_vector(7 downto 0));
+end entity;
+    
+architecture behavioral of MACregistereight is
+	signal store : std_logic_vector(7 downto 0);
+begin
+	fourbitprocess: process(clk)
+	begin
+		if (clk'event and clk = '1' and load = '1') then
+			store <= inp;
+		end if;
+		if (clk'event and clk = '0') then
+			utp <= store;
+		end if;
+	end process;
+end architecture;
+
+
+
+
+-- 16-bit 2-to-1 MUX Sub-Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity sixteenbitMUXtwo is
+	port(inp1, inp2 : in std_logic_vector(15 downto 0);
+	     sel        : in std_logic;
+	     outp       : out std_logic_vector(15 downto 0));
+end entity;
+     
+architecture behavioral of sixteenbitMUXtwo is
+begin
+	process(inp1, inp2, sel) 
+	begin
+		if (sel = '1') then
+			outp <= inp2;
+		elsif (sel = '0') then
+			outp <= inp1;
+		end if;
+	end process;
+end architecture;
+
+
+
+
+-- 8-bit 2-to-1 MUX Sub-Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity eightbitMUXtwo is
+	port(inp1, inp2 : in std_logic_vector(7 downto 0);
+	     sel        : in std_logic;
+	     outp       : out std_logic_vector(7 downto 0));
+end entity;
+     
+architecture behavioral of eightbitMUXtwo is
+begin
+	process(inp1, inp2, sel) 
+	begin
+		if (sel = '1') then
+			outp <= inp2;
+		elsif (sel = '0') then
+			outp <= inp1;
+		end if;
+	end process;
+end architecture;
+
+
+
+
+-- 16-bit 3-to-1 MUX Sub-Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity sixteenbitMUXthree is
+	port(inp1, inp2 : in std_logic_vector(15 downto 0);
+	     inp3       : in std_logic_vector(7 downto 0);
+	     sel        : in std_logic_vector(1 downto 0);
+	     outp       : out std_logic_vector(15 downto 0));
+end entity;
+      
+architecture behavioral of sixteenbitMUXthree is
+begin
+	process(inp1, inp2, inp3, sel) 
+	begin
+		if (sel = "10") then
+			outp(15 downto 8) <= "00000000";
+			outp(7 downto 0) <= inp3;
+		elsif (sel = "01") then
+			outp <= inp2;
+		elsif (sel = "00") then
+			outp <= inp1;
+		end if;
+	end process;
+end architecture;
+
+
+
+
+-- 16-bit Tri-State Buffer Sub-Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity MACtsb is
+	port(data : in std_logic_vector(15 downto 0);
+	     ctr  : in std_logic;
+	     outp : out std_logic_vector(15 downto 0));
+end entity;
+     
+architecture behavioral of MACtsb is
+begin
+	outp <= data when (ctr = '1') else "ZZZZZZZZZZZZZZZZ";
+end architecture; 
+
+
+
+
+-- 8-bit Tri-State Buffer Sub-Component
+
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+entity MACtsbeight is
+	port(data : in std_logic_vector(7 downto 0);
+	     ctr  : in std_logic;
+	     outp : out std_logic_vector(15 downto 0));		-- output will be 16-bit
+end entity;
+     
+architecture behavioral of MACtsbeight is
+begin
+	process(data, ctr)
+	begin
+		if (ctr = '1') then
+			outp(15 downto 8) <= "00000000";	-- pad 0's onto the front of the input
+			outp(7 downto 0) <= data; 
+		else
+			outp <= "ZZZZZZZZZZZZZZZZ";
+		end if;
+	end process;
+end architecture; 
