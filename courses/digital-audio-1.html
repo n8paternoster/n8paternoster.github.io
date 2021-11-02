@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Digital Audio</h1>
+            <p id="coursedesc">A study of digital audio and digital signal processing theory. Topics included discrete time sampling, quantization, dithering, analog/digital conversion, signal modulation, digital filtering, and convolution and the Fourier transform. Labs were performed using Matlab.</p>
+            <hr/>
+            <h2>Labs</h2>
+            <ul class="projectlist">
+                <!--Lab 1-->
+                <li>
+                    <h3>Lab 1 - <i>MATLAB Fundamentals and Sinusoidal Synthesis</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-1.pdf">Report</a>
+                    <p>In this lab we learned the basics of MATLAB by creating sinusoids, combining multiple sinusoids, and plotting them. We also learned how to import external audio files.</p>
+                    <div class="row center">
+                        <figure>
+                            <audio controls> <source src="/coursework-assets/digital-audio-1/NatePaternoster-Lab1.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                            <figcaption>440Hz tone summed with another audio file</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!--Lab 2-->
+                <li>
+                    <h3>Lab 2 - <i>Sampling, Quantization, and Dither</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-2.pdf">Report</a>
+                    <p>In this lab we explored the concepts of sampling rates, aliasing, and quantization. We used a function to examine a sine wave quantized to 8, 4, and 2 bits. We also used quantization and random noise to demonstrate the benefits of dither.</p>
+                    <div class="row center">
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/NatePaternoster-Lab2-1a.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>100Hz-5kHz sine sweep with a sample rate of 4kHz</figcaption>
+                            </figure>
+                        </div>
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/NatePaternoster-Lab2-1c.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>100Hz-5kHz sine sweep with a sample rate of 10kHz</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </li>
+                <!--Lab 3-->
+                <li>
+                    <h3>Lab 3 - <i>Amplitude and Frequency Modulation</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-3.pdf">Report</a>
+                    <p>Here we explored the concepts and uses of amplitude modulation (AM) and frequency modulation (FM).</p>
+                    <div class="row center">
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/NatePaternoster-Lab3-1(c).wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>Part 1c - An example of AM (tremolo)</figcaption>
+                            </figure>
+                        </div>
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/NatePaternoster-Lab3-2(d).wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>Part 2d - An example of FM (vibrato)</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </li>
+                <!--Lab 4-->
+                <li>
+                    <h3>Lab 4 - <i>Basic Filtering</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-4.pdf">Report</a>
+                    <p>In this lab we began basic filtering operations using the difference equation of a first-order feed-forward filter. We listened to the filtered audio file and plotted the waveform and magnitude spectrum.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-audio-1/NatePaternoster-Lab4-pic1resized.png"/>
+                            <figcaption>The effects of a 1st order LPF on a waveform of noise</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-audio-1/NatePaternoster-Lab4-pic2resized.png"/>
+                            <figcaption>The magnitude response of the filtered noise signal</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!--Lab 5-->
+                <li>
+                    <h3>Lab 5 - <i>Resonant Filter Analysis/Design with MATLAB</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-5.pdf">Report</a><br/>
+                    <a href="/coursework-assets/digital-audio-1//Lab5-Code.txt">Code</a>
+                    <p>In this lab we continued on to more advanced filter design by designing a second-order feedback filter and a second-order resonant filter. The resonant filter was designed to have a cutoff frequency of 2000Hz and a bandwidth of 1000Hz.</p>
+                    <div class="row center">
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/NatePaternoster-Lab5-2original.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>Part 2c - The original unfiltered .wav file</figcaption>
+                            </figure>
+                        </div>
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/NatePaternoster-Lab5-2filtered.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>A .wav file put through a second-order resonant filter</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-audio-1/NatePaternoster-Lab5-2a-pole-zero.png"/>
+                            <figcaption>Part 2a - Pole-Zero Plot of the resonant filter</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-audio-1/NatePaternoster-Lab5-2a-mag-phase.png"/>
+                            <figcaption>Part 2a - Magnitude-Phase Plot of the resonant filter</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!--Lab 6-->
+                <li>
+                    <h3>Lab 6 - <i>Karplus-Strong String Model</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-6.pdf">Report</a><br/>
+                    <a href="/coursework-assets/digital-audio-1/Lab6-Code.txt">Code</a><br/>
+                    <a href="/coursework-assets/digital-audio-1/ksfilter.txt">Karplus-Strong Function</a>
+                    <p>This lab explored the Plucked String Karplus-Strong Model - a form of digital synthesis of a plucked string. The aim of this lab was to implement the K-S filter's difference equation and play an impulse and noise signal through it. The resulting sound should resemble a plucked string.</p>
+                    <div class="row center">
+                        <figure>
+                            <audio controls> <source src="/coursework-assets/digital-audio-1/Lab6-Impulse_Response.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                            <figcaption>An impulse being filtered through the K-S filter</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-audio-1/Frequency-Response.png"/>
+                            <figcaption>The magnitude and phase response of the K-S filter.</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-audio-1/Impulse-Response.png"/>
+                            <figcaption>Part 4 - The impulse response of the K-S filter</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-audio-1/Noise-Burst.png"/>
+                            <figcaption>Part 5 - Noise filtered through the K-S filter</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!--Lab 7-->
+                <li>
+                    <h3>Lab 7 - <i>Convolution and the FFT</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-7.pdf">Report</a><br/>
+                    <a href="/coursework-assets/digital-audio-1/Lab7-Code.txt">Code</a>
+                    <p>This lab focused on convolution and also began discussion on the Discrete Fourier Transform (DFT). We wrote our own two convolution functions. The first function manually performed convolution by summing an input signal with an impulse response of a space. The second function performed convolution by utilizing the Fast Fourier Transform (FFT) and Convolution Theorem - the input signal and impulse response underwent the FFT, were multiplied together, then underwent the inverse FFT. This works because performing the FFT on a signal takes that signal from the time domain to the frequency domain and convolution in the time domain is equivalent to multiplication in the frequency domain (convolution theorem). We compared the two methods by convolving a short snare hit with a room's impulse response and timing how long each method took.</p>
+                    <div class="row">
+                        <p>
+                            <a href="/coursework-assets/digital-audio-1/convolve.txt">Manual Convolution</a> - Time taken: 306.18s
+                            <br/>
+                            <a href="/coursework-assets/digital-audio-1/convolve2.txt">Convolution using the FFT</a> - Time taken: 0.0163s
+                        </p>
+                    </div>
+                </li>
+                <!--Lab 8-->
+                <li>
+                    <h3>Lab 8 - <i>Filtering Using the FFT</i></h3>
+                    <a href="/coursework-assets/digital-audio-1/Lab-8.pdf">Report</a><br/>
+                    <a href="/coursework-assets/digital-audio-1/Lab8-Code.txt">Code</a><br/>
+                    <a href="/coursework-assets/digital-audio-1/cleanup.txt">Feedback Suppression Filter</a>
+                    <p>In this lab we began using the FFT to filter signals. We created a feedback suppression system that would locate the unwanted sinusoid component (caused by audio feedback) in a signal and then remove it while leaving the rest of the signal intact. For this lab we read in a .wav file and added simulated audio feedback to the file by "injecting" a 4000Hz sinusoid. We then wrote a function that would filter out this 4000Hz frequency from the file by using the FFT.</p>
+                    <div class="row center">
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/Lab-8-dirty-signal.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>A .wav file with a 4kHz feedback frequency added</figcaption>
+                            </figure>
+                        </div>
+                        <div class="column2">
+                            <figure>
+                                <audio controls> <source src="/coursework-assets/digital-audio-1/Lab-8-clean-signal.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                                <figcaption>The filtered .wav file with the feedback removed</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

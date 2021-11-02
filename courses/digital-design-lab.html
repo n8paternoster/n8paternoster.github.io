@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Digital Design Lab</h1>
+            <p id="coursedesc">A study of boolean algebra, digital circuits, and logic gates. Our labs and projects involved designing various digital circuits using combinatorial and sequential logic design and then testing them on a breadboard using integrated circuits.</p>
+            <hr/>
+            <!-- Labs -->
+            <h2>Labs</h2>
+            <ul class="projectlist">
+                <!-- Lab 1 -->
+                <li>
+                    <h3>Lab 1 - <i>7-Segment Display and Sequence Detector</i></h3>
+                    <a href="/coursework-assets/digital-design-lab/Lab-1.pdf">Report</a>
+                    <p>In this lab we learned the difference between combinatorial and sequential logic design by designing both a 7-segment display (combinatorial) and a sequence detector (sequential). A 7-segment display is a common circuit that uses 7 separate LEDs to represent a single decimal digit. The sequence detector circuit will light up a single LED when a specified combination of numbers is entered on the seven-segment display. To design both we had to derive output equations that relate a binary input to our specified outputs.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/lab1pic1.png" width="420" height="201" />
+                            <figcaption>A 7-segment display showing the 7 LED outputs (a-g)</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/lab1pic2.png" width="657" height="350" />
+                            <figcaption>The circuit for our sequence detector using NAND gates and flip-flops</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 2 -->
+                <li>
+                    <h3>Lab 2 - <i>3-bit Synchronous Counter</i></h3>
+                    <a href="/coursework-assets/digital-design-lab/Lab-2.pdf">Report</a>
+                    <p>We designed a counter circuit that can be loaded with a starting number and set to count up or down in the range of 0-7. The circuit uses the 7-segment display from the previous lab to display the numbers. This lab demonstrated the transition to <em>medium-scale integration (MSI)</em> technology through the use of the multiplexer. MSI circuits use chips that contain hundreds of transistors each rather than only a few and greatly expanded the capabilities of digital circuits.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/lab2pic1.png" width="774" height="156" />
+                            <figcaption>The next state diagram used in the design of the counter showing the 8 possible output states representing the numbers 0-7</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/lab2pic2.png" width="772" height="720" />
+                            <figcaption>The complete logic diagram for our counter showing the use of multiplexers</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 3 -->
+                <li>
+                    <h3>Lab 3 - <i>Tone Generator</i></h3>
+                    <a href="/coursework-assets/digital-design-lab/Lab-3.pdf">Report</a>
+                    <p>In this lab we generated a sequence of audible tones and played them through a speaker. To do this we designed a sequence generator to cycle through 13 different tones and a frequency generator to create the audible frequency. The frequency generator uses a timer IC to generate a 16kHz base frequency and a counter to divide the frequency for each tone. The final frequency signal is sent to a speaker.</p>
+                    <div class="row center">
+                        <div class="column2">
+                            <figure>
+                                <img src="/coursework-assets/digital-design-lab/lab3pic2.png" width="365" height="576" />
+                                <figcaption>The next state table used in the design of the sequence generator, each state is represented by 4 binary bits</figcaption>
+                            </figure>
+                        </div>
+                        <div class="column2">
+                            <figure>
+                                <img src="/coursework-assets/digital-design-lab/lab3pic3.png" width="567" height="160" />
+                                <figcaption>The top level diagram for our tone generator</figcaption>
+                            </figure>
+                            <figure>
+                                <img src="/coursework-assets/digital-design-lab/lab3pic4.png" width="365" height="576" />
+                                <figcaption>The connection diagram of the 555 timer IC used to generate the frequency</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/lab3pic1.png" width="975" height="729" />
+                            <figcaption>Our final circuit on the breadboard; the timer IC can be seen in the top left, speaker not visible</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+            <!--Projects-->
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!-- Project 1 -->
+                <li>
+                    <h3>Shift Register and Signature Analyzer</h3>
+                    <a href="/coursework-assets/digital-design-lab/Project-1.pdf">Report</a>
+                    <p>We designed a shift register and used that to build a signature analyzer. A <em>register</em> is a component that holds memory and a <em>shift register</em> "shifts" the data in its memory in a binary stream to its output at every clock cycle. When modified we can turn a shift register into a <em>pseudo-random binary sequence generator</em>. This is a fancy term to describe a device that takes a long binary number as its input and uses it to output a smaller, random binary number. This will be our signature generator - the long binary input is data and the randomly generated output is that data's unique <em>signature</em>.</p>
+                    <p>Signature analyzers are commonly used to test that other digital circuits are working correctly by verifying that the correct sequence of bits is flowing through certain points in the circuit. Our signature analyzer design was simulated using Altera Quartus.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/proj1pic1.png" width="734" height="220" />
+                            <figcaption>Testing the shift register; here I perform a right shift by loading data in P2 and observing it shift through the outputs at each clock cycle</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/proj1pic3.png" width="575" height="287" />
+                            <figcaption>Testing the signature analyzer; the input sequence entered is 1010101010 shown on the input row and the resulting signature is displayed by the outputs in the red box (0011)</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/proj1pic2.png" width="825" height="455" />
+                            <figcaption>Our final logic diagram for the signature analyzer</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Project 2 -->
+                <li>
+                    <h3>4-bit Multiplier</h3>
+                    <a href="/coursework-assets/digital-design-lab/Project-2.pdf">Report</a><br/>
+                    <a href="/coursework-assets/digital-design-lab/Presentation.pdf">Presentation</a>
+                    <p>A multiplier is a common circuit and a core component of the <em>Arithmetic Logic Unit (ALU)</em> found in every CPU and most microprocessors. The multipiler circuit we designed was a 4-bit by 4-bit multiplier and used the <em>add-and-shift</em> algorithm. This algorithm required us to use full adders and shift registers in our design. Our multiplier was simulated in Altera Quartus and also implmented on Altera UP2 programmable logic board.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/proj2pic1.png" width="544" height="224" />
+                            <figcaption>The add-and-shift algorithm performs binary multiplication on two N-bit numbers in O(N)=2N operations</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/proj2pic2.png" width="787" height="432" />
+                            <figcaption>Our final logic diagram for the 4-bit multiplier</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/proj2pic3.png" width="416" height="377" />
+                            <figcaption>Testing the multiplier; the two numbers being multiplied are shown in A (1101<sub>2</sub> or 13) and B (0101<sub>2</sub> or 5) and the result is shown in Q (01000001<sub>2</sub> or 65)</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/digital-design-lab/proj2pic4.png" width="450" height="336" />
+                            <figcaption>The multiplier being tested on the programmable logic board; the switches on the bottom are set with the arguments (10 and 3) and the LEDs show the result (11110<sub>2</sub> or 30)</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

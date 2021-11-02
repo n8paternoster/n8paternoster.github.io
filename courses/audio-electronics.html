@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Audio Electronics</h1>
+            <p id="coursedesc">An electronics course with a focus on audio equiptment analysis and circuit design. Coursework included basic electronic components and theories, passive filtering, transformers, operational amplifiers, equalizers, compressors, microphone preamps, and analog effects including reverb, flanging, and chorusing. All circuit designs were simulated using Circuit Maker.</p>
+            <hr/>
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!-- Lab 1 -->
+                <li>
+                    <h3>Lab 1 - <i>Voltage Divison and I/O Impedance</i></h3>
+                    <a href="/coursework-assets/audio-electronics/aelab1.pdf">Report</a>
+                    <p>An introduction to Circuit Maker. We simulated several basic circuits including a voltage divider and became familiar with performing DC and AC circuit analysis.</p>
+                </li>
+                <!-- Lab 2 -->
+                <li>
+                    <h3>Lab 2 - <i>1st Order Passive Filters</i></h3>
+                    <a href="/coursework-assets/audio-electronics/aelab2.pdf">Report</a>
+                    <p>In this lab we began working with passive filters. We created several low pass filters and analyzed their frequency response. We learned how to calculate a circuit's transfer function and use that to design other filters.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab2pic2.png" width="247" height="111"/>
+                            <figcaption>High pass filter circuit designed for a center frequency of 1kHz</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab2pic1.png" width="508" height="244"/>
+                            <figcaption>Frequency response of the HPF with F<sub>c</sub> = 1kHz visible</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 3 -->
+                <li>
+                    <h3>Lab 3 - <i>Shelving Filters and Loudspeaker Crossovers</i></h3>
+                    <a href="/coursework-assets/audio-electronics/aelab3.pdf">Report</a>
+                    <p>We improved on the simple high pass and low pass filter design to create more practical variable shelving filters. Then we applied those shelving filters to design loudspeaker crossovers that split frequencies into high, low, and middle bands to be played with separate drivers.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab3pic2.png" width="259" height="218"/>
+                            <figcaption>Variable high shelving filter with a break frequency of 6kHz</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab3pic1.png" width="576" height="267"/>
+                            <figcaption>Frequency response of the above filter with potentiometer values set between 1% and 99%</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab3pic4.png" width="328" height="159"/>
+                            <figcaption>3-Way Loudspeaker crossover circuit with driver diameters at 10" (woofer) and 2.5" (midrange)</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab3pic3.png" width="575" height="273"/>
+                            <figcaption>Output voltages shown taken from the 3 outputs of the crossover circuit</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 4 -->
+                <li>
+                    <h3>Lab 4 - <i>Transformers</i></h3>
+                    <a href="/coursework-assets/audio-electronics/aelab4.pdf">Report</a>
+                    <p>Experimenting with transformers. We created some circuits in Circuit Maker that utilize transformers including a balanaced/unbalanced signal conversion circuit and performed transient analysis to observe voltage changes and phase shifts.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab4pic2.png" width="270" height="99"/>
+                            <figcaption>Unbalanced to balanced signal converter using a 1:1 transformer</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab4pic1.png" width="438" height="209"/>
+                            <figcaption>Output voltages with the 1V input in cyan and the two phase shifted 0.5V outputs in green and yellow</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 5 -->
+                <li>
+                    <h3>Lab 5 - <i>Op-Amps</i></h3>
+                    <a href="/coursework-assets/audio-electronics/aelab5.pdf">Report</a>
+                    <p>Using operational amplifiers in our circuits to design a practical amplifier for a guitar that fits our required specifications of up to 40dB max gain and a sufficiently wide frequency bandwidth. We also used an op amp as a unity gain buffer to match impedances between the guitar and our amp.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab5pic2.png" width="576" height="389"/>
+                            <figcaption>Amplifier circuit with a max gain of 40dB designed for a 6-string electric guitar</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab5pic1.png" width="572" height="272"/>
+                            <figcaption>Voltage gain shown to be 40dB in an acceptable frequency range</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 6 -->
+                <li>
+                    <h3>Lab 6 - <i>Microphone Pre-Amp Design</i></h3>
+                    <a href="/coursework-assets/audio-electronics/aelab6.pdf">Report</a>
+                    <p>We designed microphone pre-amps; versions both with and without a coupled transformer. Our design specifications included designing for a max gain of 60dB and designing for the highest possible gain while maintaining the upper cutoff frequency of 20kHz. The calculations involved accounting for all parts of these multi-component circuits.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab6pic2.png" width="576" height="339"/>
+                            <figcaption>Microphone preamp designed without a coupled transformer</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab6pic1.png" width="576" height="278"/>
+                            <figcaption>Voltage gain shown to be 60dB in an 18.8kHz bandwidth</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 7 -->
+                <li>
+                    <h3>Lab 7 - <i>Filter and Parametric EQ Design</i></h3>
+                    <a href="/coursework-assets/audio-electronics/aelab7.pdf">Report</a>
+                    <p>A parametric equalizer is an equalizer that has multiple bands and lots of control over multiple parameters. They are designed to use variable filter types and allow control over the center frequency, amplitude, and Q factor. Our parametric EQ module was designed to control one band with the potential to be cascaded into a full multi-band unit.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab7pic4.png" width="576" height="335"/>
+                            <figcaption>Parametric EQ module with variable potentiometers shown for gain, center frequency, and Q factor</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab7pic1.png" width="575" height="284"/>
+                            <figcaption>Several different center frequencies shown between 440Hz and 9.6kHz, approximately a 4.5 octave range</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab7pic2.png" width="575" height="286"/>
+                            <figcaption>Several different values shown for amplitude on one frequency</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/lab7pic3.png" width="575" height="286"/>
+                            <figcaption>Several different Q values shown on one frequency at max gain</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!--Final Project-->
+                <li>
+                    <h3>Final Project - Complete Mixer Design</h3>
+                    <a href="/coursework-assets/audio-electronics/aefinalproject.pdf">Report</a>
+                    <p>Our final project combined all of the components we learned throughout the semester. We created and simulated a full mixer console that controls signal flow from microphone input to a summed, balanced output. The stages of this console include a microphone preamp, a rumble filter, a parametric EQ, a 2-band shelving filter, a channel monitor with 2 aux sends, and the final mixer output unit that combines all input channels into a single balanced output.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/finalpic2.png" width="900" height="756"/>
+                            <figcaption>The top-level schematic of the console</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/finalpic1.png" width="1173" height="582"/>
+                            <figcaption>A representation of the various settings available to the shelving filter</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/finalpic4.png" width="576" height="409" />
+                            <figcaption>The channel monitor module circuit splits the input signal into 2 new inputs, each with up to 20dB gain control</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/audio-electronics/finalpic3.png" width="612" height="244"/>
+                            <figcaption>The final mixer circuit sums the dry signal and 2 return signals into a balanced output</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Transducer Theory</h1>
+            <p id="coursedesc">A <em>transducer</em> is a device that converts energy from one form into another; for example, a speaker converts an electrical signal into a sound wave. This course focused on electroacoustic audio transducers, specifically microphones and loudspeakers. Topics included fundamentals of acoustics as well as the design of various loudspeakers (acoustic suspension, bass-reflex, transmission line, electrostatic, and horn) and microphones (dynamic, ribbon, and condenser). </p>
+            <hr/>
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!-- Final Project -->
+                <li>
+                    <h3>Designing and Building a Loudspeaker </h3>
+                    <a href="/coursework-assets/transducer-theory/report.pdf"><em>Report</em></a>
+                    <p><em>Kerline Moncy</em>, <a href="https://sites.google.com/site/ugazful/home"><em>Diego Ugaz</em></a>, and I teamed up to design and construct a loudspeaker. Our speaker was designed using the bass reflex model and consisted of a GRS full range driver, a Bose tweeter with a two-way passive crossover, and a single vent. We used WinISD to design the enclosure based on the parameters of our drivers. As a final touch we painted the entire enclosure with chalkboard paint to allow people to draw on our speaker with chalk. After a listening test our class voted our speaker best sound!</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/transducer-theory/pic1.jpg" width="3264" height="2448" />
+                            <figcaption></figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/transducer-theory/pic2.jpg" width="3264" height="1836" />
+                            <figcaption></figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/transducer-theory/pic3.jpg" width="3264" height="1836" />
+                            <figcaption></figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/transducer-theory/pic4.jpg" width="3264" height="1836" />
+                            <figcaption></figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/transducer-theory/pic7.jpg" width="1836" height="3264" />
+                            <figcaption>The complete speaker!</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+            
+
+        <!--<script type="text/javascript">
+				$(document).ready(function() {
+					$(".bxslider").bxSlider();
+				});
+        </script>
+        <div style="border:solid black 2px; height:400px; margin-left:40px; margin-right:40px">
+        <ul>
+            <li style="display:inline; float:left"> <button style="padding:20px; margin:20px" onclick="slideLeft()">Click</button> </li>
+            <li style="display:inline; float:left"> <img id="image" class="centered" width="675px" src="Projects/transducer-theory/pic1.jpg"> </li>
+            <li style="display:inline; float:left"> <button style="padding:20px; margin:20px" onclick="slideRight()">Click</button> </li>
+        </ul>
+        </div>
+        <script type="text/javascript">
+            var picNum = 1;
+            function slideLeft() {
+                picNum--;
+                if (picNum < 1) {
+                    picNum = 1;
+                    return;
+                }
+                var x = "Projects/transducer-theory/pic" + picNum + ".jpg";
+                document.getElementById("image").src = x;
+            }
+            function slideRight() {
+                picNum++;
+                if (picNum > 7) {
+                    picNum = 7;
+                    return;
+                }
+                var x = "Projects/transducer-theory/pic" + picNum + ".jpg";
+                document.getElementById("image").src = x;
+            }
+        </script>-->
+
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

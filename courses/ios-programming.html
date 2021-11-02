@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>iOS Programming</h1>
+            <p id="coursedesc">This course covered basic concepts of programming in the iOS SDK, including the model-view-controller pattern, delegation, and animation. Additionally, audio-specific protocols were also taught, including Core Audio, Audio Queue, and Audio Units (AU). These projects from this course were done in Objective-C, iOS 8, and using XCode 7.</p>
+            <hr/>
+            <h2>Projects</h2>
+            <ul class="projectlist" style="padding-left: 0">
+                <!--Project 1-->
+                <li>
+                    <div class="row">
+                        <div class="column2">
+                            <h3>Project 1 - Temperature Converter</h3>
+                            <small>Objective: Create an app that uses multiple screens to perform some calculation and share data between the multiple view controllers</small>
+                            <p>This handy app will convert any temperature value between                    Fahrenheit, Celsius, and Kelvin. The user-entered value will appear on both screens. The second window will allow you to check the boiling and freezing points of water or absolute zero as well as offer the user a variety of interesting temperatures to explore. The transfer of data between view controllers is done using segues.</p>
+                        </div>
+                        <div class="column2">
+                            <iframe width="269" height="500" src="https://www.youtube.com/embed/b9_JYLTTqkQ?rel=0&showinfo=0&autohide=1&vq=medium" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </li>
+                <!-- Project 2-->
+                <li>
+                    <div class="row">
+                         <div class="column2">
+                             <h3>Project 2 - Audio Recorder</h3>
+                             <small>Objective: Create an app that delves into iOS audio, utilizing the AVAudio framework to play/record audio</small>
+                             <p>A voice recorder app for all your notetaking and listmaking needs! This simple and intuitive GUI allows the user to record short audio clips directly from their device's microphone and playback at any time. Up to 10 separate files may be recorded to. Playback features include a visual metering display, adjustable playback head, and volume control.</p>
+                         </div>
+                        <div class="column2">
+                            <iframe width="272" height="498" src="https://www.youtube.com/embed/4FDeguyxNVs?rel=0&showinfo=0&autohide=1&vq=medium" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </li>
+                <!-- Final Project -->
+                <li>
+                    <div class="row">
+                        <div class="column2">
+                            <h3>Final Project - Solar Synthesizer</h3>
+                            <small>Objective: Create a game or interactive app that ties together audio, animation, and a responsive user interface</small>
+                            <p><i>Solar Synth</i> is a visual-based synthesizer that treats individual notes as orbiting planets. Each note is represented by one planet. The frequency is determined by the planet's orbiting radius (adjusted to a selected scale) and is represented by the planet's color. The amplitude is represented as the size of the planet. Adjustable settings include volume and frequency for each note as well as the type of scale used to determine the frequencies. Multiple "galaxies" (files) can be saved to play around with different configurations, and if you want a place to start the "random" button will randomly generate up to 16 planets.</p>
+                        </div>
+                        <div class="column2">
+                            <iframe width="272" height="498" src="https://www.youtube.com/embed/4FDeguyxNVs?rel=0&showinfo=0&autohide=1&vq=medium" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Structured Digital Design Lab</h1>
+            <p id="coursedesc">This class was the 2nd semester of digital design; a followup to "Digital Design Lab." In Structured Digital Design we took a programmatic approach to our design, simulation, and testing of digital circuits using <em>VHDL</em>. VHDL stands for <b>V</b>HSIC <b>H</b>ardware <b>D</b>escription <b>L</b>anguage where VHSIC is the name of the US government program that developed it. A hardware description language is a specialized language that describes the structure and behavior of digital logic circuits and gives us the power to design much more complex circuits. All of the projects in this course were written in VHDL and simulated using ModelSim.</p>
+            <hr/>
+            <!-- Labs -->
+            <h2>Labs</h2>
+            <p>With these labs, we designed circuits by writing VHDL code <em>entities</em> and describing their behavior in the entity's <em>architecture</em>. In the real-world VHDL files can be read by a logic synthesizer that turns the code into a digital logic circuit. In this course we tested our VHDL entities in ModelSim by simulating input signals and observing the output.</p>
+            <ul class="projectlist">
+                <!-- Lab 1 -->
+                <li>
+                    <h3>Lab 1 - <i>1-bit Full Adder (Behavioral Method)</i></h3>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW1.pdf">Report</a><br/>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW1.txt">Code</a>
+                    <p>An introduction to VHDL. With this lab we described a simple 1-bit full adder as a VHDL entity using the <em>behavioral method</em>. This means we defined the adder's input and output ports and used logical VHDL statements to describe the behavior we want our adder to perform. This allows a synthesizer to design the circuit itself to achieve our desired behavior.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab1pic1.png" width="488" height="271" />
+                            <figcaption>An example synthesized logic circuit for a 1-bit full adder</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab1pic2.png" width="427" height="444" />
+                            <figcaption>The architecture of a behavioral full adder describing its behavior; the actual circuit determined by the synthesizer</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 2 -->
+                <li>
+                    <h3>Lab 2 - <i>1-bit Full Adder (Structural Method)</i></h3>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW2.pdf">Report</a><br/>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW2.txt">Code</a>
+                    <p>We designed the same adder from lab 1 using the <em>structural method</em>. By comparison, rather than allowing the synthesizer to design our circuit, we defined entities to represent logic gates and specified exactly how we want our circuit to look.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab2pic2.png" width="558" height="591" />
+                            <figcaption>The architecture of a structural full adder using components to describe the digital circuit</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab2pic1.png" width="755" height="180" />
+                            <figcaption>Testing our structural full adder; initially 0<sub>2</sub> and 1<sub>2</sub> are added with no carry in to produce a sum of 1<sub>2</sub> with no carry out</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 3 -->
+                <li>
+                    <h3>Lab 3 - <i>4-bit Register and Tri-State Buffer</i></h3>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW3.pdf">Report</a><br/>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW3.txt">Code</a>
+                    <p>We designed two slightly more complex circuits - a 4-bit register and 4-bit tri-state buffer. A register is a synchronous component that holds memory and input/outputs it on a clock cycle. A tri-state buffer is a register that adds the ability to "hold" its data and only output it when specified. We designed these using the behavioral method.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab3pic2.png" width="284" height="191" />
+                            <figcaption>A single-bit tri-state buffer takes an input A and outputs it to B when the enable bit is set</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab3pic1.png" width="642" height="239" />
+                            <figcaption>Testing the register; I initially load the register with 1100<sub>2</sub> in the data lines and observe it output in the Q lines on the clock signal</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab3pic3.png" width="729" height="206" />
+                            <figcaption>Testing the tri-state buffer; I initially load the input with 1110<sub>2</sub> and observe it move to to the output when enable is set to 0<sub>2</sub></figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Lab 4 -->
+                <li>
+                    <h3>Lab 4 - <i>16-bit Calculator</i></h3>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW4.pdf">Report</a><br/>
+                    <a href="/coursework-assets/structured-digital-design-lab/HW4.txt">Code</a>
+                    <p>I designed a 16-bit calculator and simulated it both in ModelSim and on an Altera DE-2 programmable logic board. This calculator is able to perform addition, subtraction, and some boolean algebra. The design calls for an output bus of one nibble (half a byte or 4 bits) meaning only 4 bits may be sent to the output at once. To accomplish this four 4-bit registers and tri-state buffers are used to store the result and allow the user to choose which nibble will be sent to the output. In this design both behavioral and structural components are used.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab4pic1.png" width="743" height="528" />
+                            <figcaption>The top level diagram; the calculator kernel performs the calculation and the registers and tri-state buffers push the result to the output</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab4pic2.png" width="761" height="122" />
+                            <figcaption>Testing the calculator in ModelSim; in simulation 2 X (1000<sub>2</sub> or 8) is subtracted from Y (10001<sub>2</sub> or 17) and produces the result (1001<sub>2</sub> or 9) in the output</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/lab4pic3.png" width="574" height="345" />
+                            <figcaption>Testing the calculator on the board; yellow switches are the operation code, green and red switches represent the two inputs X and Y, and blue LEDs represent the output; I had to scale the calculator down to 4 bits to fit on the board</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/Qb7qEr9DOY8" frameborder="0" allowfullscreen></iframe>
+                            <figcaption>
+                            Demo on the programmable logic board<br/>
+                            First calculation shows 0001<sub>2</sub> + 0001<sub>2</sub> = 0010<sub>2</sub> (1 + 1 = 2)<br/>
+                            Second calculation shows 0011<sub>2</sub> + 0011<sub>2</sub> = 0110<sub>2</sub> (3 + 3 = 6)<br/>
+                            Third calculation shows 0011<sub>2</sub> - 0001<sub>2</sub> = 0010<sub>2</sub> (3 - 1 = 2)<br/>
+                            Fourth calculation shows 0001<sub>2</sub> - 0010<sub>2</sub> = 1111<sub>2</sub> (1 - 2 = -1) using 2's complement</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+            <!--Projects-->
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!-- Project 1 -->
+                <li>
+                    <h3>Arithmetic Logic Unit (ALU)</h3>
+                    <a href="/coursework-assets/structured-digital-design-lab/Project-1.pdf">Report</a><br/>
+                    <a href="/coursework-assets/structured-digital-design-lab/Project1.txt">Code</a>
+                    <p>An ALU is a core component of virtually every processor. It performs arithmetic and bitwise operations on binary numbers. Our ALU is 16 bits and supports 16 operations including additions, subtractions, and 5 logical operations. It outputs a 16-bit result as well as 6 status codes.</p>
+                    <div class="row center">
+                        <div class="column2">
+                            <figure>
+                                <img src="/coursework-assets/structured-digital-design-lab/proj1pic4.png" width="649" height="655" />
+                                <figcaption>The specification for our ALU's inputs and outputs</figcaption>
+                            </figure>
+                        </div>
+                        <div class="column2">
+                            <figure>
+                                <img src="/coursework-assets/structured-digital-design-lab/proj1pic2.png" width="406" height="639" />
+                                <figcaption>The operations our ALU can perform and their associated opcodes</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/proj1pic1.png" width="790" height="618" />
+                            <figcaption>The design synthesis of our ALU</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/proj1pic3.png" width="1598" height="720" />
+                            <figcaption>Testing our ALU with 3 calculations</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Project 2 -->
+                <li>
+                    <h3>Multiplier Accumulator (MAC)</h3>
+                    <a href="/coursework-assets/structured-digital-design-lab/Project-2.pdf">Report</a><br/>
+                    <a href="/coursework-assets/structured-digital-design-lab/Project2.txt">Code</a><br/>
+                    <a href="/coursework-assets/structured-digital-design-lab/Presentation.pdf">Presentation</a>
+                    <p>The multiply-accumulate unit is a widely-used circuit whose function is to perform multiplication on two numbers and add that product to an accumulator. This function is crucial to performing convolution and the Fast Fourier Transform (FFT), common algorithms in digital signal processors. Our MAC unit is 16 bits and is also capable of performing multiplication with cumulative subtraction as well as single-cycle multiplication.</p>
+                    <p>We designed all of the components of our circuit behaviorally and then designed our top-level circuit structurally using these components. We tested the circuit on ModelSim and also downloaded the two main components - the multiplier and add/subtract component - onto an Altera programmable logic board to visualize our results. Like before, we had to scale down the components to 4 bits to fit on the board.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/proj2pic1.png" width="816" height="1056" />
+                            <figcaption>The design synthesis of our MAC unit</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/proj2pic2.png" width="576" height="246" />
+                            <figcaption>The operations our MAC unit can perform with their associated opcodes</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/structured-digital-design-lab/proj2pic3.png" width="574" height="431" />
+                            <figcaption>Testing the multiplier on the logic board; the operands are set by the switches and the result shown with red LEDs<br/>
+                            This example shows 0011<sub>2</sub> x 0010<sub>2</sub> = 1100<sub>2</sub> (3 x 4 = 12)</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

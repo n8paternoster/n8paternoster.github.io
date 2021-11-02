@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Algorithms</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css" />
+    <link rel="stylesheet" type="text/css" href="/css/courses.css" />
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Algorithms <span id="syllabus">(<a href="http://rabbit.eng.miami.edu/class/een318/141index.html">Syllabus</a>)</span></h1>
+            <p id="coursedesc">The third semester in a series of programming courses; this course built upon data structures and introduced algorithms and related concepts. Algorithms studied included sorting algorithms, hash tables and hashing algorithms, trees and graphs, and data input/parsing. Algorithm analysis included using Big-O notation to rank algorithms by time complexity and space complexity. Additional OOP topics covered included using inheritance, virtual methods, and polymorphism. The entire course was done in C++. The final project, a culmination of everything we learned, was to create a program that found the shortest path between any two cities in the continental US (using Dijkstra's shortest-path algorithm) and visually display it.</p>
+            <hr/>
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!--Project 1-->
+                <li>
+                    <h3>Quicksort</h3>
+                    <p>A database of people is sorted by last name using quicksort. The example output screenshot only shows 20 people for clarity.</p>
+                    <a href="/coursework-assets/algorithms/HW1.txt">Code</a><br/>
+                    <a href="/coursework-assets/algorithms/HW1.png">Output</a>
+                </li>
+                <!--Project 2-->
+                <li>
+                    <h3>Mergesort</h3>
+                    <p>The same database of people is sorted by last name using mergesort. The output screenshot shows the first couple entries on the sorted list of 1000 people.</p>
+                    <a href="/coursework-assets/algorithms/HW2.txt">Code</a><br/>
+                    <a href="/coursework-assets/algorithms/HW2.png">Output</a>
+                </li>
+                <!--Project 3-->
+                <li>
+                    <h3>Geographical Hash Table</h3>
+                    <p>A database of towns in the USA is read into a hash table. The user can search for towns in the hash table and have their data displayed.</p>
+                    <a href="/coursework-assets/algorithms/HW3.txt">Code</a><br/>
+                    <a href="/coursework-assets/algorithms/HW3.png">Output</a>
+                </li>
+                <!--Project 4-->
+                <li>
+                    <h3>Traveling the USA with Vectors</h3>
+                    <p>Using the geographical hash table data from the previous project along with additional road and intersection data stored in vectors (C++ dynamic arrays), this program allows the user to create a path using roads and highways. I first define custom objects to represent a town, an intersection, and a connection. The program then reads in this data and stores town data in a hash table, and intersection and connection data in vectors. The user chooses a location to start and the program repeatedly prompts the user to choose a connecting road to travel. </p>
+                    <a href="/coursework-assets/algorithms/HW4.txt">Code</a><br/>
+                    <a href="/coursework-assets/algorithms/HW4.png">Output</a>
+                </li>
+                <!--Project 5-->
+                <li>
+                    <h3>Generating Random Trees</h3>
+                    <p>Using recursion my program draws randomly-generated, realistic apple trees.</p>
+                    <a href="/coursework-assets/algorithms/HW5.txt">Code</a><br/>
+                    <a href="/coursework-assets/algorithms/HW5.png">Output</a>
+                </li>
+                <!--Project 6-->
+                <li>
+                    <h3>Mapquest Shortest Path Program</h3>
+                    <p>The final project of the semester. This program will calculate the shortest distance between two points in the continental USA using Dijkstra's shortest-path algorithm and draw it on a map. This project involves reading in binary files of map and elevation data and drawing it, reading and storing the town data in a hashtable, and reading and storing the connection data in vectors. A shortest-path algorithm is implemented using a priority queue.</p>
+                    <a href="/coursework-assets/algorithms/HW6.txt">Code</a><br/>
+                    <a href="/coursework-assets/algorithms/HW6.htm">Output</a>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/algorithms/HW6.png" width="822" height="443" />
+                            <figcaption>The shortest path from Seattle to Augusta found and drawn to the screen</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

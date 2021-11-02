@@ -1,0 +1,103 @@
+﻿/* Stylesheet for the content of all course pages */
+
+#syllabus, #syllabus a {
+    font-size: 0.75em;
+}
+
+#coursedesc {
+    font-size: 1.2em;
+}
+
+.content h1 {
+    font-size: 3em;
+}
+
+.content h2 {
+    font-size: 2em;
+}
+
+.content h3 {
+    font-size: 1.5em;
+}
+
+.content p, .content a {
+    font-size: 1.2em;
+}
+
+.content p a {          
+    font-size: 1em;     /* fixes the font size of a elements nested in p elements */
+}
+
+.content a {
+    text-decoration: none;
+}
+
+/* unvisited and visited */
+.content a:link, .content a:visited {
+   color: #45aa3d; /* light green */
+}
+
+/* hover */
+.content a:hover {
+    color: #d96a20; /* light orange */
+}
+
+/* active */
+.content a:active {
+    color: #ad420b; /* dark orange */
+}
+
+.projectlist {
+    list-style-type: none;
+}
+
+.column2 {
+    float: left;
+    width: 50%;
+    padding: 10px;
+}
+
+.row {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.row:after {            /* clear the floats from each column */
+    content: "";
+    display: table;
+    clear: both;
+}
+
+small {                 /* 'project objective' text used in a project description*/
+    font-size: 1.0em;
+    font-style: italic;
+}
+
+iframe, audio {                /* center iframes and audio elements */
+    display: block;
+    margin: 0 auto;
+}
+
+figure {
+    display: inline-block;      /* forces the figure element to stretch to match the width of its child */
+    text-align: center;         /* center the figcaption */
+}
+
+figure img {
+    max-width: 100%;            /* responsive images */
+    height: auto;   
+}
+
+figcaption {
+/*   font-style: italic;*/
+}
+
+.center {
+    text-align: center;
+}
+
+@media screen and (max-width: 768px) {  /* change the two project columns into one */
+    .column2 {
+        width: 100%;
+    }
+}

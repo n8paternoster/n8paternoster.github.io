@@ -1,0 +1,340 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+html, body {    
+    height: 100%;   /* allows footer to stay on bottom */
+}
+
+body {
+    background-color: white;
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+    color: unset;
+}
+
+#page-wrapper {
+    min-height: 100%;
+    margin-bottom: -50px;   /* leave space for footer */
+}
+
+footer, #push {
+    height: 50px;
+}
+
+footer {
+    position: relative; /* to center footer p */
+    width: 100%;
+    box-shadow: 0px -5px 5px #ccc;
+}
+
+footer, .topnav {
+    border-top: 1px solid grey;
+    border-bottom: 1px solid grey;
+    background-color: white;
+}
+
+footer p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    text-align: center;
+    margin: 0;
+}
+
+header {
+    display: block;
+    height: 400px;
+    background-size: cover;
+    background-position: center center;
+    width: 100%;
+}
+
+.topnav {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0px 5px 5px #ccc;
+    list-style-type: none;
+    z-index: 2; /* above .card a */
+}
+
+.topnav li {
+    float: left;
+    position: relative;
+}
+
+.topnav li a {
+    display: block;
+    padding: 0 0.75rem;
+    text-align: center;
+    font-size: 1.25rem;
+    color: black;
+}
+
+.topnav li, .topnav li a {  
+    height: 3rem;
+    line-height: 3rem;  /* vertical center */
+}
+
+.topnav li:first-child a {      /* 1st link in .topnav */
+    font-weight: bold;
+    padding: 0 1.5rem;
+    white-space: nowrap;
+}
+
+.topnav li:first-child a:after {/* divider between 1st and 2nd link in .topnav */
+    content: "";
+    border-right: 1px solid #ccc;
+    position: absolute;
+    height: 70%;
+    right: 0;
+    top: 50%;
+    -webkit-transform: translate(0, -50%);
+    transform: translate(0, -50%);
+}
+
+.topnav li:first-child + li a { /* 2nd link in .topnav */
+    padding-left: 1.5rem;
+}
+
+.topnav li a:hover {
+    color: green;
+}
+
+.content {
+    margin: 50px auto;
+    width: 85%;
+    max-width: 800px;
+}
+
+.content::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#home-content { /* override content dimensions for the home page */
+    max-width: unset;
+}
+
+/* ------------ Card ------------ */
+
+.col {
+    float: left;
+    width: 50%;
+}
+
+.card {
+    display: block;
+    position: relative;
+    min-height: 15rem;
+    color: black;
+    padding: 1.75em;
+    margin: 1.5em;
+    background-color: white;
+    border: 1px solid #333;
+    box-shadow: 0px 2px 5px #999;
+    transition: 0.5s ease;
+}
+
+.card + .card {       /* prevent margin collapse to maintain uniform spacing */
+    margin-top: 3em;  /* .card margin x 2 */
+}
+
+.card:hover {
+    box-shadow: 0px 7px 15px #999, 0px 2px 5px green;
+    color: green;
+    cursor: pointer;
+}
+
+.card:hover .card-clickable {
+    color: green;
+    border-color: green;
+}
+
+#home-content div.card {
+    height: 40rem;
+    min-height: 600px;
+}
+
+.title-container, .splash-container {
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    width: auto;
+}
+
+.title-container {
+    height: 30%;
+    top: 0px;
+}
+
+.splash-container {
+    height: 70%;
+    bottom: 0px;
+}
+
+.card-title, .card-desc {
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    height: 50%;
+    width: auto;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+.card-title { top: 0px; }
+.card-desc { bottom: 0px; }
+
+.card-title *, .card-desc * {
+    text-align: center;
+    margin: unset;
+    padding: unset;
+}
+
+.card-title * {
+    position: absolute;
+    bottom: 10%;
+    width: 80%;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+
+.card-desc::before {
+    display: block;
+    content: "";
+    height: 10%;
+}
+
+button.card-clickable {
+    background-color: white;
+    border: 1px solid #333;
+    border-radius: 1em; 
+    color: black;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    transition: 0.3s ease;
+    display: block;
+    margin: 0.5em auto;
+}
+
+.card button.card-clickable:hover {
+    color: #d96a20; /* dark orange */
+    border-color: #d96a20; /* dark orange */
+    cursor: inherit;
+}
+
+.splash-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+}
+
+/* ------------ Accordion ------------ */
+
+.accordion {
+    background-color: #91c48d;  /* light green */
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    font-size: 1.6em;
+    transition: 0.4s;
+}
+
+.accordion::after {
+    content: '\002B';
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.accordion:hover, .accordion-active {
+    background-color: #45aa3d;  /* dark green */
+}
+
+.accordion-active::after {
+    content: "\2212";
+}
+
+.accordion-panel {
+    overflow: hidden;
+    max-height: 0;
+    margin: 0;
+    transition: max-height 0.3s ease-out;
+}
+
+/* ------------ Courselist ------------ */
+
+.courselist {
+    list-style-type: none;
+    padding: 0;
+}
+
+.courselist li * {      /* clear the margin on every child of each list item */
+    margin: 0;
+}
+
+.courselist p {
+    margin-top: 1em;
+    padding-left: 1em;
+    font-size: 1.1em;
+}
+
+.courselist h4 {
+    font-size: 1.3em;
+}
+
+.courselist a {
+    display: block;
+    padding: 1em;
+    color: black;
+}
+
+.courselist li:hover {
+    background-color: #e09a72;  /* light orange */
+    transition: 0.3s ease-out;
+}
+
+.courselist li:active {
+    background-color: #d96a20;  /* dark orange */
+}
+
+/* ------------ Media Rules ------------ */
+
+@media screen and (max-width: 768px) {  /* change the splash cards to a single column */
+    .col {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 670px) {  /* change the top nav menu to vertical buttons */
+    .topnav {
+        position: unset;
+    }
+    .topnav li {
+        float: none;
+        width: 100%;
+        border-top: 1px solid #ddd;
+    }
+    .topnav li a {
+        padding: 0 0.75rem !important;
+    }
+    .topnav li:first-child a:after {
+        content: none;
+    }
+}

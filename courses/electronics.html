@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Electronics I/II</h1>
+            <p class="coursedesc">Two semesters on the study of semiconductor physics and devices. Materials included diodes, bipolar-junction transistors (BJT's), field-effect transistors (FET's), and operational amplifiers. DC and AC analysis as well as circuit design was emphasized. The second semester continued with a focus on integrated circuits including the application and analysis of operational amplifiers. We used the PSpice program to simulate and analyze our circuits.</p>
+            <hr/>
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!--MiniProject-->
+                <li>
+                    <h3>Common-source and Cascode FET Amplifiers</h3>
+                    <a href="/coursework-assets/electronics/project-1.pdf">Report</a>
+                    <p>In this project we analyzed and compared a common-source FET amplifier to a cascode FET amplifier. We simulated both in PSpice and obtained their frequency responses and voltage gains. Both amps produce the same voltage gains but the cascode was found to improve the high frequency response because the second added transistor removed direct coupling between the input and output and thus removed the Miller effect.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/electronics/cascodecircuit.png" width="1073" height="1032"/>
+                            <figcaption>The two-stage cascode circuit showing a common-source FET feeding into a common-gate FET</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/electronics/cascode.png" width="848" height="638"/>
+                            <figcaption>The cascode circuit was found to have a larger frequency response with a high break frequency f<sub>h</sub> = 12.06MHz</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!--Final Project-->
+                <li>
+                    <h3>Stereo Audio Amplifier</h3>
+                    <a href="/coursework-assets/electronics/final-project.pdf">Report</a>
+                    <p>For our final project <a href="http://www.jenamacias.com" target="_blank">Jena Macias</a> and I designed and built a stereo audio amplifier using an LM1877 op-amp chip, two 4&Omega; speaker drivers, and a 9V battery. We added multiple improvements to our circuit to improve audio quality over using just the LM1877 for amplification alone.</p>
+                    <div class="row center">
+                        <figure>
+                            <iframe width="280" height="501" src="http://www.youtube.com/embed/wJx6jnG4jBI?rel=0&showinfo=0&autohide=1&vq=hd720" frameborder="0" allowfullscreen></iframe>
+                            <figcaption>Demo of our speaker</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/electronics/finalprojpic2.png" width="740" height="673"/>
+                            <figcaption>The circuit for our speaker, stereo inputs shown as V<sub>i1</sub> and V<sub>i2</sub>, outputs at V<sub>out1</sub> and V<sub>out2</sub></figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/electronics/finalprojpic.png" width="807" height="605"/>
+                            <figcaption>Our completed circuit</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

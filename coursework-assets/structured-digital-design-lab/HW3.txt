@@ -1,0 +1,59 @@
+--Four-bit Register
+library ieee;
+use ieee.std_logic_1164.all;  
+
+entity register_4bit is 	
+     port(data : in std_logic_vector (3 downto 0);
+	   CLK : in std_logic;
+	     Q : out std_logic_vector (3 downto 0)); 
+end register_4bit;  
+
+architecture behav of register_4bit is 	
+     signal storage : std_logic_vector (3 downto 0); 
+begin 	
+     reg_process: process(CLK) 	
+     begin 		
+     if (CLK'event and CLK = '0') then 			
+     storage(0) <= data(0); 			
+     storage(1) <= data(1); 			
+     storage(2) <= data(2); 			
+     storage(3) <= data(3); 		
+elsif (CLK'event and CLK = '1') then 			
+     Q(0) <= storage(0); 			
+     Q(1) <= storage(1); 			
+     Q(2) <= storage(2); 			
+     Q(3) <= storage(3); 		
+     end if; 	
+     end process; 
+end behav;
+
+
+
+--Four-bit Tri-state Buffer
+library ieee; 
+use ieee.std_logic_1164.all;  
+
+entity buffer_4bit is 	
+     port(input : in std_logic_vector (3 downto 0);
+	 enable : in std_logic; 				
+	 output : out std_logic_vector (3 downto 0)); 
+end buffer_4bit;  
+
+architecture behav of buffer_4bit is 
+begin 	
+     buffer_process: process(enable) 	
+     begin 		
+     if (enable = '1') then 			
+     output(0) <= input(0); 			
+     output(1) <= input(1); 			
+     output(2) <= input(2); 			
+     output(3) <= input(3); 		
+else 			
+     output(0) <= 'Z'; 			
+     output(1) <= 'Z'; 			
+     output(2) <= 'Z'; 			
+     output(3) <= 'Z'; 		
+     end if; 	
+     end process; 
+end behav;
+

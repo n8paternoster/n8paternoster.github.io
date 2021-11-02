@@ -1,0 +1,66 @@
+﻿/* Stylesheet for the content of all project pages */
+
+.content h1 {
+    font-size: 3em;
+}
+
+.content h2 {
+    font-size: 2em;
+}
+
+.content h3 {
+    font-size: 1.5em;
+}
+
+.content p, .content a {
+    font-size: 1.2em;
+}
+
+.content p a {
+    font-size: 1em; /* fixes the font size of a elements nested in p elements */
+}
+
+#project-title-container {
+    width: 100%;
+}
+
+#project-title-container h1 {
+    float: left;
+}
+
+#project-link {
+    display: inline-block;
+    float: right;
+    height: 100%;
+}
+
+#project-link button {
+    font-size: 1.5em;
+    padding: 0.75em 2em;
+}
+
+/* clear floats */
+#project-title-container::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.content ul {
+    list-style-type: none;
+}
+
+/* unvisited and visited */
+.content a:link, .content a:visited {
+    color: #45aa3d; /* light green */
+}
+
+/* hover */
+.content a:hover {
+    color: #d96a20; /* light orange */
+}
+
+/* active */
+.content a:active {
+    color: #ad420b; /* dark orange */
+}

@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>PCB Design</h1>
+            <p id="coursedesc">PCBs, or printed circuit boards, are metal boards composed of various layers of copper and non-conductive substrates that house and connect electrical circuits. They are found in virtually every electronic device. PCBs are mass produced and can be manufactured with incredibly fine precision. In this course we studied digital audio system designs and architectures and learned how to design a PCB layout from a circuit schematic. Our schematics were created in CircuitMaker and our PCB layouts were done in ExpressPCB.</p>
+            <hr/>
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!-- Project 1 -->
+                <li>
+                    <h3>Transformerless Balanced Mic Preamp</h3>
+                    <a href="/coursework-assets/pcb-design/Project1sch.png">Schematic</a><br/>
+                    <a href="/coursework-assets/pcb-design/Project1pcb.png">PCB</a>
+                    <p>A microphone preamp is a circuit designed to boost the low output signal from a microphone to a level high enough to transmit to mixing consoles and recording devices. A <em>balanced</em> preamp means the circuit accepts a balanced signal (two identical signals with opposite polarity, shown as + and -) and also outputs a balanced signal. This circuit uses an initial differential amplifier to perform signal amplification and two operational amplifiers to achieve a balanced output.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/Project1sch.png" width="857" height="576"/>
+                            <figcaption>A simple balanced microphone preamp using 2 operational amplifiers</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/Project1pcb.png" width="843" height="728" />
+                            <figcaption>The above circuit realized on a printed circuit board</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Project 2 -->
+                <li>
+                    <h3>High-Performance Balanced Mic Preamp</h3>
+                    <a href="/coursework-assets/pcb-design/Project2sch.png">Schematic</a><br/>
+                    <a href="/coursework-assets/pcb-design/Project2pcb.png">PCB</a>
+                    <p>This mic preamp more than doubles the number of components from the previous circuit to achieve a cleaner output signal. It provides 48V phantom power at the input and makes use of coupling capacitors to remove the introduced DC bias from the rest of the circuit. Decoupling capacitors are also used at the voltage supply terminals to the op-amps to remove AC noise from the DC supply. The first half of the circuit performs most of the voltage amplification on each signal individually while the second stage performs the balanced signal subtraction. The last stage uses 2 additional op-amps to produce a balanced output.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/Project2sch.png" width="1216" height="655" />
+                            <figcaption>A high performance balanced microphone preamp with several stages</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/Project2pcb.png" width="1030" height="736" />
+                            <figcaption>The above circuit realized on a printed circuit board</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Project 3 -->
+                <li>
+                    <h3>Parametric EQ Module</h3>
+                    <a href="/coursework-assets/pcb-design/Project3sch.bmp">Schematic</a><br/>
+                    <a href="/coursework-assets/pcb-design/Project3pcb.png">PCB</a>
+                    <p>An equalizer (EQ) is a circuit that allows adjustment of the balance between frequency components in a signal. They are widely used in audio recording, editing, and reproduction. A parametric EQ is one that allows the adjustment of every parameter (boost, cut, center frequency, and Q factor). This parametric EQ circuit can be broken into 3 stages. The 1st stage converts the balanced input signal into an unbalanced signal and the 3rd stage converts the unbalanced signal back into a balanced output. The 2nd stage contains the parametric EQ circuit.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/Project3sch.bmp" width="4860" height="3060" />
+                            <figcaption>A stereo parametric EQ circuit</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/Project3pcb.png" width="920" height="660" />
+                            <figcaption>The above circuit realized on a printed circuit board</figcaption>
+                        </figure>
+                    </div>
+                </li>
+                <!-- Final Project -->
+                <li>
+                    <h3>Stereo Reverb</h3>
+                    <a href="/coursework-assets/pcb-design/FinalProjectsch.bmp">Schematic</a><br/>
+                    <a href="/coursework-assets/pcb-design/FinalProjectpcb.png">PCB</a>
+                    <p>This example of an analog stereo reverb circuit performs an audio reverb effect on a balanced, stereo input signal. It makes use of the MN3011 delay chip and an LM555 timer chip. The MN3011 delay chip provides 6 independent outputs for 1 input signal, those outputs all being delayed by different amounts of time. 3 of the outputs are summed together and mixed with the (+) input signal and the other 3 with the (-) signal. This produces the characteristic echo of the reverb effect.</p>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/FinalProjectsch.bmp" width="4860" height="3060" />
+                            <figcaption>A stereo reverb circuit making use of the MN3011 chip</figcaption>
+                        </figure>
+                    </div>
+                    <div class="row center">
+                        <figure>
+                            <img src="/coursework-assets/pcb-design/FinalProjectpcb.png" width="808" height="666" />
+                            <figcaption>The above circuit realized on a printed circuit board</figcaption>
+                        </figure>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

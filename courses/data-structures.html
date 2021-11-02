@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Data Structures <span id="syllabus">(<a href="http://rabbit.eng.miami.edu/class/een218/132index.html">Syllabus</a>)</span></h1>
+            <p id="coursedesc">The second semester in a series of programming courses; this course focused on programming data structures and how they compare in different use cases. In addition we covered several object oriented concepts including classes, objects, abstraction, and other programming techniques such as pointers and recursion. The language used was C++.</p>
+            <hr>
+            <ul class="projectlist">
+                <!--Project 1-->
+                <li>
+                    <h3>Insertion, Selection, Bubble Sort</h3>
+                    <p>These three O(N<sup>2</sup>) sorting algorithms were coded and then tested for their performance. The results are graphed to determine which algorithm is the fastest overall.</p>
+                    <a href="/coursework-assets/data-structures/HW1.txt">Code</a><br/>
+                    <a href="/coursework-assets/data-structures/HW1.png">Output</a><br/>
+                    <a href="/coursework-assets/data-structures/HW1graph.htm">Performance Graph</a>
+                </li>
+                <!--Project 2-->
+                <li>
+                    <h3>Matrix Arithmetic</h3>
+                    <p>We implemented a matrix as a dynamic, two-dimensional array. We wrote functions to resize, copy, and set the matrices. The matrix arithmetic includes addition, subtraction, multiplication, and transposition.</p>
+                    <a href="/coursework-assets/data-structures/HW2.txt">Code</a><br/>
+                    <a href="/coursework-assets/data-structures/HW2.png">Output</a>
+                </li>
+                <!--Project 3-->
+                <li>
+                    <h3>Quicksort</h3>
+                    <p>In this assignment we implemented the quicksort algorithm and tested it.</p>
+                    <a href="/coursework-assets/data-structures/HW3.txt">Code</a><br/>
+                    <a href="/coursework-assets/data-structures/HW3.png">Output</a>
+                </li>
+                <!--Project 4-->
+                <li>
+                    <h3>Supercalculator</h3>
+                    <p>We implemented a custom vector object that represents a "big number" - a number with an unlimited amount of digits. We wrote addition, subtraction, multiplication, division, and factorial functions that can operate on the big numbers to perform very large calculations.</p>
+                    <a href="/coursework-assets/data-structures/HW4.txt">Code</a><br/>
+                    <a href="/coursework-assets/data-structures/HW4.png">Output</a>
+                </li>
+                <!--Project 5-->
+                <li>
+                    <h3>Linked List Operations</h3>
+                    <p>A large data file of people is read into a linked list structure. The user can search through the list by typing in a field and a value. Each search will narrow down the results from previous searches and produce a new linked list with the matching values. The result list can be displayed or saved to a textfile at any time.</p>
+                    <a href="/coursework-assets/data-structures/HW5.txt">Code</a><br/>
+                    <a href="/coursework-assets/data-structures/HW5.png">Output</a>
+                </li>
+                <!--Project 6-->
+                <li>
+                    <h3>General Tree Operations</h3>
+                    <p>The large data file of people is read into a binary tree structure. The user can search through the tree by inputting the first and last name of a person. An insert, search, and print function are implemented.</p>
+                    <a href="/coursework-assets/data-structures/HW6.txt">Code</a><br/>
+                    <a href="/coursework-assets/data-structures/HW6.png">Output</a>
+                </li>
+            </ul>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>

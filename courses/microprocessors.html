@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Coursework</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css">
+    <link rel="stylesheet" type="text/css" href="/css/courses.css">
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <h1>Microprocessors</h1>
+            <p id="coursedesc">This course delved into computer architecture. We learned the basic building blocks of a computer as well as how computer hardware works together with software. Topics included Boolean logic and logic gates, components of a microprocessor, memory and caching, instruction set architecture, and assembly language. Labs were performed on a Unix shell.</p>
+            <hr/>
+            <h2>Projects</h2>
+            <ul class="projectlist">
+                <!--Project 1-->
+                <li>
+                    <h3>Bomb Defusing</h3>
+                    <p>In this lab "binary bombs" are planted throughout programs that require the correct password to deactivate correctly. In order to find the correct password we had to delve into the assembly code for each phase and discover what password the program was looking for. </p>
+                    <a href="/coursework-assets/microprocessors/Lab-1.pdf">Report</a>
+                </li>
+                <!--Project 2-->
+                <li>
+                    <h3>Writing ARM Assembly</h3>
+                    <p>Working from the other end, this lab required us to translate simple C functions into assembly instructions. This required us to understand the use and purpose of the different registers and different instructions. Throughout this lab our code must observe "stack discipline."</p>
+                    <a href="/coursework-assets/microprocessors/Lab-2.pdf">Report</a><br/>
+                    <a href="/coursework-assets/microprocessors/Lab-2-code.txt">Code</a>
+                </li>
+                <!--Project 3-->
+                <li>
+                    <h3>Sabotaging the Stack</h3>
+                    <p>A lab that turns the focus to hacking programs, the purpose of this lab was to the understand <em>buffer overfows</em> and how to use them to take control of a program. To demonstrate this we used buffer overflows to call functions that were never previously called, to bypass parts of code and manipulate a password check, and to access a shell. </p>
+                    <a href="/coursework-assets/microprocessors/Lab-3.pdf">Report</a>
+                </li>
+                <!--Project 4-->
+                <li>
+                    <h3>Cache Performance</h3>
+                    <p>To understand memory and caches this lab took a look at the effects of caches on memory intensive code. Specifically, the code we used was single matrix multiplication and block matrix multiplication. We used the cachegrind tool to examine the effects of using different matrix multiplication algorithms on cache performance.</p>
+                    <a href="/coursework-assets/microprocessors/Lab-4.pdf">Report</a>
+                </li>
+            </ul>
+
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+    // Write current year
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>
