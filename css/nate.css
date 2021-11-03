@@ -332,9 +332,13 @@ button.card-clickable {
         border-top: 1px solid #ddd;
     }
     .topnav li a {
-        padding: 0 0.75rem !important;
+        padding: 0.25rem 0.75rem !important;
     }
-    .topnav li:first-child a:after {
+    .topnav li, .topnav li a {  /* smaller menu items */
+        height: unset;
+        line-height: unset;
+    }
+    .topnav li:first-child a:after {    /* no divider after 1st item */
         content: none;
     }
 }

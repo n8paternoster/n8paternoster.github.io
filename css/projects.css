@@ -21,7 +21,9 @@
 }
 
 #project-title-container {
+    display: table;
     width: 100%;
+    white-space: nowrap;
 }
 
 #project-title-container h1 {
@@ -29,17 +31,27 @@
 }
 
 #project-link {
-    display: inline-block;
+    display: table-cell;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#project-link a {   /* style to look like button */
     float: right;
-    height: 100%;
-}
-
-#project-link button {
+    display: inline-block;
+    border: 0.075em solid black;
+    border-radius: 0.12em;
     font-size: 1.5em;
-    padding: 0.75em 2em;
+    padding: 0.75em 1.5em;
+    margin-left: 1em;
+    color: black;
+    /*background-color: #53e731aa;*/
+    transition: all 0.2s;
+}
+#project-link a:hover {
+    background-color: #53e731;
 }
 
-/* clear floats */
 #project-title-container::after {
     content: "";
     display: block;
@@ -63,4 +75,28 @@
 /* active */
 .content a:active {
     color: #ad420b; /* dark orange */
+}
+
+@media screen and (max-width: 768px) {
+    #project-title-container {
+        display: block;
+    }
+
+    #project-link {
+        display: block;
+        text-align: center;
+    }
+
+    #project-title-container::after {
+        content: none;
+    }
+
+    #project-title-container h1 {
+        float: none;
+    }
+
+    #project-link a {
+        float: none;
+        margin: unset;
+    }
 }
