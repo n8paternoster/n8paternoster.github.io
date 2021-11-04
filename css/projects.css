@@ -12,6 +12,10 @@
     font-size: 1.5em;
 }
 
+.content h4 {
+    font-size: 1.25em;
+}
+
 .content p, .content a {
     font-size: 1.2em;
 }
@@ -111,86 +115,64 @@
     overflow-y: visible;
 }
 
-/**/
-
-.carousel-container::-webkit-scrollbar {
-    width: 14px;
-}
-
-.carousel-container::-webkit-scrollbar-thumb {
-    background-clip: content-box;
-    border: 4px solid transparent;
-    border-radius: 7px;
-    box-shadow: inset 0 0 0 10px;
-}
-
-.carousel-container::-webkit-scrollbar-track {
-    background-color: transparent;
-}
-
-.carousel-container {
-    color: #00000000;
-    transition: color 0.3s;
-}
-.carousel-container:hover {
-    color: #666666FF;
-}
-
-/*.carousel-container::-webkit-scrollbar {
-    height: 40px;
-}
-
-.carousel-container::-webkit-scrollbar-track {
-    background-color: transparent;
-}
-
-.carousel-container::-webkit-scrollbar-thumb {
-    background: #555;
-    border: 15px solid white;
-    margin: 5px;
-}
-
-.carousel-container::-webkit-scrollbar-track-piece:start {
-    margin-left: 50px;
-}
-
-.carousel-container::-webkit-scrollbar-track-piece:end {
-    margin-right: 50px;
-}*/
-
 .carousel-card {
-    display: flex;
-    flex: none;
-    height: 280px;
-    width: 200px;
-    margin-top: 50px;
-    margin-left: 50px;
-    background-color: white;
-    border: 0.075em solid #999;
-    border-radius: 10px;
+    min-height: 15em;
+    min-width: 15em;
+    margin-top: 3.5em;
+    margin-left: 3.125em;
+    padding: 1em;
+    background-color: #91c48d; /* light green */
+    border: 0.1em solid black;
+    border-radius: 0.625em;
     box-shadow: 1rem 0 2rem #999;
+    box-shadow: -0.2rem 0.2rem 1rem black;
     transition: 0.4s ease-out;
     position: relative;
-    left: 0px;
+    left: 0;
+}
+
+.carousel-card h3, .carousel-card h4 {
+    text-align: center;
+    margin: 0.25em auto;
+}
+
+.carousel-container p {
+    font-size: 1em;
 }
 
 /* Overlap cards */
 .carousel-card:not(:first-child) {
-    margin-left: -50px;
+    margin-left: -3.125em;
 }
 
 /* Slide selected card up */
 .carousel-card:hover {
-    transform: translateY(-20px);
-    transition: 0.4s ease-out;
+    transform: translateY(-2.5em) rotate(3deg);
+    transition: all 0.4s ease-out;
     cursor: pointer;
+    background-color: #45aa3d;  /* dark green */
 }
 
 /* Slide subsequent cards to the right */
 .carousel-card:hover ~ .carousel-card {
     position: relative;
-    left: 50px;
+    left: 3.625em;
     transition: 0.4s ease-out;
+}
+
+.carousel-container::-webkit-scrollbar {
+    width: 1em;
+}
+
+.carousel-container::-webkit-scrollbar-thumb {
+    background-clip: content-box;
+    border: 4px solid transparent;
+    border-radius: 0.5em;
+    box-shadow: inset 0 0 0 10px;
+}
+
+.carousel-container::-webkit-scrollbar-track {
+    background-color: transparent;
 }
 
 /* ----------- Media Queries ----------- */

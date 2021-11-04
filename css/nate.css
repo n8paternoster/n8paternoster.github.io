@@ -157,9 +157,9 @@ header {
     cursor: pointer;
 }
 
-.card:hover .card-clickable {
-    color: green;
-    border-color: green;
+.card:hover .card-link {
+/*    color: green;
+    border-color: green;*/
 }
 
 #home-content div.card {
@@ -217,10 +217,10 @@ header {
     height: 10%;
 }
 
-button.card-clickable {
-    background-color: white;
-    border: 1px solid #333;
-    border-radius: 1em; 
+a.card-link {
+    background-color: #e09a72; /* light orange */
+    border: 0.1em solid #333;
+    border-radius: 0.2em;
     color: black;
     padding: 0.5em 1em;
     text-decoration: none;
@@ -229,9 +229,10 @@ button.card-clickable {
     margin: 0.5em auto;
 }
 
-.card button.card-clickable:hover {
-    color: #d96a20; /* dark orange */
-    border-color: #d96a20; /* dark orange */
+.card a.card-link:hover {
+    /*color: #d96a20;*/ /* dark orange */
+    /*border-color: #d96a20;*/ /* dark orange */
+    background-color: #d96a20; /* dark orange */
     cursor: inherit;
 }
 

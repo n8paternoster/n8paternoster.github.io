@@ -17,20 +17,19 @@ function toggleAccordion(element) {
 }
 
 /* ---- Make card elements clickable while allowing embedded links to also be clickable ---- */
-var cardList = document.querySelectorAll(".card");
+var cardList = document.querySelectorAll(".clickable-card");
 cardList.forEach(function (card) {
 
     // prevent double event triggering on links inside the card
-    var clickableElements = Array.from(card.querySelectorAll(".card-clickable"));
+    var clickableElements = Array.from(card.querySelectorAll(".card-link"));
     clickableElements.forEach((ele) => ele.addEventListener("click", (e) => e.stopPropagation()));
 
     // add a click event to the whole card
-    var cardLink = card.querySelector(".card-link");
-    console.log(card, cardLink);
+    var cardDest = card.querySelector(".card-dest");
     card.addEventListener("click", function () {
         var noTextSelected = !window.getSelection().toString();
         if (noTextSelected) {   // allow text highlighting without triggering redirect
-            cardLink.click();
+            cardDest.click();
         }
     });
 });
