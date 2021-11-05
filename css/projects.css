@@ -25,19 +25,19 @@
 }
 
 /* unvisited and visited */
-.content a:link, .content a:visited {
-    color: #45aa3d; /* light green */
-}
+/*.content a:link, .content a:visited {
+    color: #45aa3d;*/ /* light green */
+/*}*/
 
 /* hover */
-.content a:hover {
-    color: #d96a20; /* light orange */
-}
+/*.content a:hover {
+    color: #d96a20;*/ /* light orange */
+/*}*/
 
 /* active */
-.content a:active {
-    color: #ad420b; /* dark orange */
-}
+/*.content a:active {
+    color: #ad420b;*/ /* dark orange */
+/*}*/
 
 #project-title-container {
     display: table;
@@ -116,6 +116,8 @@
 }
 
 .carousel-card {
+    display: flex;
+    flex-direction: column;
     min-height: 15em;
     min-width: 15em;
     margin-top: 3.5em;
@@ -124,11 +126,13 @@
     background-color: #91c48d; /* light green */
     border: 0.1em solid black;
     border-radius: 0.625em;
-    box-shadow: 1rem 0 2rem #999;
     box-shadow: -0.2rem 0.2rem 1rem black;
-    transition: 0.4s ease-out;
     position: relative;
     left: 0;
+}
+
+.carousel-card, .carousel-card * {
+    transition: all 0.4s ease-out;
 }
 
 .carousel-card h3, .carousel-card h4 {
@@ -140,24 +144,88 @@
     font-size: 1em;
 }
 
-/* Overlap cards */
-.carousel-card:not(:first-child) {
+.carousel-card:not(:first-child) { /* Overlap cards */
     margin-left: -3.125em;
 }
 
-/* Slide selected card up */
-.carousel-card:hover {
-    transform: translateY(-2.5em) rotate(3deg);
-    transition: all 0.4s ease-out;
-    cursor: pointer;
-    background-color: #45aa3d;  /* dark green */
+.carousel-card a.card-dest { /* style like a button, initially hidden */
+    display: block;
+    background-color: #eee;
+    color: black;
+    border-radius: 0.2em;
+    text-align: center;
+    overflow: hidden;
+    margin: auto 0; /* center between description and progress bar elements */
+
+    /* transition properties below */
+    outline: 0 solid #fff0; /* black with 0% opacity */
+    padding: 0;
+    max-height: 0;
+    transition: padding 0.4s ease-out, max-height 0.4s ease-out, outline 0.4s ease-in-out;
 }
 
-/* Slide subsequent cards to the right */
-.carousel-card:hover ~ .carousel-card {
+/* Classes for non-hoverable devices ----- */
+.carousel-card-active {
+    transform: translateY(-2.5em) rotate(3deg);
+    background-color: #45aa3d; /* dark green */
+}
+.carousel-card-shifted {
     position: relative;
     left: 3.625em;
-    transition: 0.4s ease-out;
+}
+.carousel-card-active a.card-dest { /* reveal button when the carousel card is active */
+    outline: 0.12em solid #000;
+    padding: 0.75em;
+    max-height: 4em;    /* some height bigger than required to allow for transition */
+}
+/* ------------------------ used in nate.js */
+
+/* Classes for hoverable devices ------v*/
+@media (hover: hover) and (pointer: fine) {
+    /* Slide selected card up */
+    .carousel-card:hover {
+        transform: translateY(-2.5em) rotate(3deg);
+        transition: all 0.4s ease-out;
+        cursor: pointer;
+        background-color: #45aa3d; /* dark green */
+    }
+    /* Slide subsequent cards to the right */
+    .carousel-card:hover ~ .carousel-card {
+        position: relative;
+        left: 3.625em;
+        transition: 0.4s ease-out;
+    }
+}
+
+.difficulty-bar-container {
+    text-align: center;
+    margin-top: auto; /* set the difficulty bar at the bottom */
+    padding-top: 1em;
+}
+
+.difficulty-bar-container p {
+    margin: 0.1em 0;
+    font-size: 0.8em;
+}
+
+.difficulty-bar {
+    box-sizing: content-box;
+    height: 0.25em;
+    position: relative;
+    background-color: #eee;
+    border-radius: 1em;
+    padding: 0.1em;
+}
+
+.difficulty-bar > span {
+    display: block;
+    height: 100%;
+    background-color: black;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    overflow: hidden;
 }
 
 .carousel-container::-webkit-scrollbar {

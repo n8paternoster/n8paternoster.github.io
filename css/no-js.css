@@ -11,6 +11,19 @@
     z-index: 1;
 }
 
+/* make the entire carousel card clickable*/
+.carousel-card a.card-dest {
+    all: initial;
+    cursor: pointer;
+    color: transparent;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
 /* change the accordion header to dark green */
 .accordion {
     background-color: #45aa3d; /* dark green */
