@@ -118,8 +118,7 @@
 .carousel-card {
     display: flex;
     flex-direction: column;
-    min-height: 15em;
-    min-width: 15em;
+    min-width: 17em;
     margin-top: 3.5em;
     margin-left: 3.125em;
     padding: 1em;
@@ -164,7 +163,7 @@
     transition: padding 0.4s ease-out, max-height 0.4s ease-out, outline 0.4s ease-in-out;
 }
 
-/* Classes for non-hoverable devices ----- */
+/* Classes for non-hoverable devices used in nate.js */
 .carousel-card-active {
     transform: translateY(-2.5em) rotate(3deg);
     background-color: #45aa3d; /* dark green */
@@ -178,9 +177,8 @@
     padding: 0.75em;
     max-height: 4em;    /* some height bigger than required to allow for transition */
 }
-/* ------------------------ used in nate.js */
 
-/* Classes for hoverable devices ------v*/
+/* Classes for hoverable devices */
 @media (hover: hover) and (pointer: fine) {
     /* Slide selected card up */
     .carousel-card:hover {

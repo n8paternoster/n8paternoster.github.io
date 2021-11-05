@@ -44,9 +44,7 @@ cardList.forEach(addCardClickEvent);
  *                  Slide card up on click and display link to card's destination
  */
 const ccardList = document.querySelectorAll(".carousel-card");
-const isHoverableDevice = window.matchMedia(
-    '(hover: hover) and (pointer: fine)'
-);
+const isHoverableDevice = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 if (isHoverableDevice) {
     ccardList.forEach(addCardClickEvent);
 } else {
