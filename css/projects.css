@@ -105,26 +105,30 @@
     list-style-type: none;
 }
 
-.copyable-text-container {
+/* ---- Copyable text box ---- */
+
+.friend-link {
     text-align: center; /* center the outer grey div */
     margin: 1.5em auto;
 }
 
-/* ---- Copyable text box ---- */
-
-.copyable-text-container div {  /* outer grey div */
+.copyable-text-container {  /* outer grey div */
     display: inline-block;
     background-color: #ddd;
-    padding: 0.5em 0.75em;
+    padding: 0.25em 0.75em;
     border: 0.12em solid black;
     border-radius: 0.35em;
     position: relative;
 }
 
-.copyable-text-container div span {
+.copyable-text-container span {
     display: inline-block;
     text-align: center;
     padding: 0.75em 0.5em;
+}
+
+.copyable-text-container span:first-child {
+    padding-top: 0; /* gives even spacing when span elements are stacked*/
 }
 
 .copyable-text { /* inner grey span */
@@ -143,13 +147,14 @@
     color: white;
     text-align: center;
     border-radius: 6px;
-    padding: 5px;
+    padding: 5px !important;
     position: absolute;
     z-index: 1;
     bottom: 150%;
     left: 50%;
     transform: translateX(-50%);
     cursor: default;
+    pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
 }
@@ -334,8 +339,12 @@
         margin: unset;
         padding: 0.5em 1em;
     }
-    
+
     #project-desc, #project-title-container h1 {
         margin: 1rem 0;
+    }
+
+    .copyable-text-container { /* outer grey div */
+        padding: 0.75em 0.5em;
     }
 }
