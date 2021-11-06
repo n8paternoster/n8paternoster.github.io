@@ -34,7 +34,7 @@ function addCardClickEvent(card) {
 }
 
 /* ---- Make card elements clickable while allowing embedded links to also be clickable ---- */
-var cardList = document.querySelectorAll(".clickable-card");
+const cardList = document.querySelectorAll(".clickable-card");
 cardList.forEach(addCardClickEvent);
 
 /* ---- For carousel cards, change behavior depending on device:
@@ -50,7 +50,6 @@ if (isHoverableDevice) {
 } else {
     ccardList.forEach(function (ccard) {
         ccard.addEventListener("click", function () {
-            console.log(this);
             // add the active class to this carousel card
             this.classList.toggle("carousel-card-active");
             var isActive = this.classList.contains("carousel-card-active");
@@ -86,3 +85,33 @@ if (isHoverableDevice) {
         });
     });
 }
+
+/* ---- Add click event to .copyable-text elements to copy contents to clipboard ---- */
+const copyableElements = document.querySelectorAll(".copyable-text");
+copyableElements.forEach(ele => {
+    ele.addEventListener("click", () => {
+        // Create a range and set it to the contents of this .copyable-text element
+        const range = document.createRange();
+        range.setStart(ele, 0);
+        range.setEnd(ele, 1);
+
+        // Create a selection from this range
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        try {
+            // Copy the selection to the clipboard
+            document.execCommand("copy");
+            selection.removeAllRanges();
+            // Display the Copied! popup if successful
+            const popup = ele.querySelector(".copyable-popup");
+            popup.classList.add("copyable-popup-active");
+            setTimeout(() => {
+                popup.classList.remove("copyable-popup-active");
+            }, 1200);
+        } catch (e) {
+            // Do nothing on failure
+        }
+    });
+});

@@ -105,6 +105,75 @@
     list-style-type: none;
 }
 
+.copyable-text-container {
+    text-align: center; /* center the outer grey div */
+    margin: 1.5em auto;
+}
+
+/* ---- Copyable text box ---- */
+
+.copyable-text-container div {  /* outer grey div */
+    display: inline-block;
+    background-color: #ddd;
+    padding: 0.5em 0.75em;
+    border: 0.12em solid black;
+    border-radius: 0.35em;
+    position: relative;
+}
+
+.copyable-text-container div span {
+    display: inline-block;
+    text-align: center;
+    padding: 0.75em 0.5em;
+}
+
+.copyable-text { /* inner grey span */
+    background-color: #bbb;
+    word-wrap: break-word;
+    border: 0.005em solid black;
+    border-radius: 0.35em;
+    transition: all 0.25s ease-out;
+    width: min-content;
+    position: relative;
+}
+
+.copyable-popup {
+    width: auto;
+    background-color: black;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: default;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.copyable-popup-active {
+    opacity: 1;
+}
+
+.copyable-popup::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+}
+
+.copyable-text:hover {
+    cursor: pointer;
+    background-color: #aaa;
+}
+
 /* ----------- Card Carousel ----------- */
 
 .carousel-container {
