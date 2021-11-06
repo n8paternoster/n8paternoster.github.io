@@ -119,6 +119,7 @@
     border: 0.12em solid black;
     border-radius: 0.35em;
     position: relative;
+    max-width: 100%;
 }
 
 .copyable-text-container span {
@@ -137,7 +138,7 @@
     border: 0.005em solid black;
     border-radius: 0.35em;
     transition: all 0.25s ease-out;
-    width: min-content;
+    max-width: 100%;
     position: relative;
 }
 
