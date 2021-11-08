@@ -1,7 +1,7 @@
 ﻿/* Stylesheet for the content of all project pages */
 
-.content h1 {
-    font-size: 3em;
+/*.content h1 {
+    font-size: 2.5em;
 }
 
 .content h2 {
@@ -18,7 +18,7 @@
 
 .content p, .content a {
     font-size: 1.2em;
-}
+}*/
 
 .content p a {
     font-size: 1em; /* fixes the font size of a elements nested in p elements */
@@ -82,7 +82,7 @@
 }
 
 .project-buttons {
-    margin: 1.5em 0;
+/*    margin: 1.5em 0;*/
     text-align: center;
 }
 
@@ -91,7 +91,7 @@
     border: 0.075em solid black;
     border-radius: 0.12em;
     padding: 0.25em 1em;
-    margin: 0 0.5em;
+    margin: 0.5em 0.5em;
     color: black;
     background-color: #e09a72; /* light orange */
     transition: all 0.2s;
@@ -316,6 +316,91 @@
     background-color: transparent;
 }
 
+/* ---- Euler Problem Pages --- */
+
+.euler-problem-link-container {
+    display: flex;
+}
+
+.back-link {
+    align-self: center;
+}
+
+.back-link:hover {
+    color: #ad420b; /* dark orange */
+}
+
+.back-link:hover i {
+    color: initial;
+}
+
+.euler-problem-links {
+    margin-left: auto;  /* floats links to the right */
+}
+
+.euler-problem-links a {    /* style to look like buttons */
+    display: block;
+    border: 0.075em solid black;
+    border-radius: 0.12em;
+    padding: 0.25em 0.5em;
+    margin: 0.25em 0.5em;
+    color: black;
+    font-size: 1em;
+    background-color: #e09a72; /* light orange */
+    transition: all 0.2s;
+}
+
+.euler-problem-links a:hover {
+    background-color: #d96a20; /* dark orange */
+}
+
+#euler-problem-title {
+    margin-top: 0;
+}
+
+.euler-problem-view {
+    margin: 1.5em auto;
+}
+
+.euler-problem-view button {
+    font-size: 1.2em; /* match size of p elements */
+    padding: 0.4em;
+}
+
+.euler-problem-view blockquote :first-child {
+    margin-top: 0;
+}
+.euler-problem-view blockquote :first-child::before {
+    content: open-quote;
+    font-size: 1.5em;
+    line-height: 0.1em;
+    margin-right: 0.2em;
+    vertical-align: -0.15em;
+}
+.euler-problem-view blockquote :last-child {
+    margin-bottom: 0;
+}
+.euler-problem-view blockquote :last-child::after {
+    content: close-quote;
+    font-size: 1.5em;
+    line-height: 0.1em;
+    margin-left: 0.2em;
+    vertical-align: -0.15em;
+}
+
+.euler-problem-view blockquote {
+    background-color: #eee;
+    border: 0.075em solid black;
+    padding: 0.5em;
+    box-shadow: 0.3em 0.3em 0.5em #666;
+    margin-top: 1.5em;      /* match margin of .euler-problem-view */
+    margin-bottom: 0.8em;   /* extra space for shadow */
+}
+
+.euler-problem-view blockquote p, .euler-problem-view blockquote, a {
+    font-size: 1em;
+}
+
 /* ----------- Media Queries ----------- */
 
 @media screen and (max-width: 670px) {
@@ -347,5 +432,10 @@
 
     .copyable-text-container { /* outer grey div */
         padding: 0.75em 0.5em;
+    }
+
+    .euler-problem-view blockquote {
+        margin-left: 0.8em;
+        margin-right: 0.8em;    /* just enough space for shadow */
     }
 }

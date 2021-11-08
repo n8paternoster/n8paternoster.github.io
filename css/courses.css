@@ -8,7 +8,7 @@
     font-size: 1.2em;
 }
 
-.content h1 {
+/*.content h1 {
     font-size: 3em;
 }
 
@@ -22,7 +22,7 @@
 
 .content p, .content a {
     font-size: 1.2em;
-}
+}*/
 
 .content p a {          
     font-size: 1em;     /* fixes the font size of a elements nested in p elements */

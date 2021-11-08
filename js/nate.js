@@ -1,24 +1,41 @@
 // JavaScript source code
 
-
-/* ---- Open and close accordion panel (coursework.html) ---- */
-function toggleAccordion(element) {
-
+/* ---- Add click event on .accordion elements to open/close contents ---- */
+const accordionList = document.querySelectorAll(".accordion");
+function toggleAccordion() {
     /* Toggle between adding and removing the "accordion-active" class, to highlight the button that controls the panel */
-    element.classList.toggle("accordion-active");
+    this.classList.toggle("accordion-active");
 
     /* Toggle between hiding and showing the active panel */
-    var panel = element.nextElementSibling;
+    var panel = this.nextElementSibling;
     if (panel.style.maxHeight) {    // max height is not 0
-        panel.style.maxHeight = null;
+        /* First disable transitions and return the max-height to the panel's scroll height */
+        panel.style.transition = "none";
+        panel.style.maxHeight = panel.scrollHeight + "px";
+        /* Then, after a 10ms delay, re-enable transitions and set the height to 0 to allow a smooth scroll down to 0 */
+        setTimeout(function () {
+            panel.style.transition = "";
+            panel.style.maxHeight = null;
+        }, 10);
     } else {                        // max height is 0
         panel.style.maxHeight = panel.scrollHeight + "px";
     }
 }
+function allowResizing() {
+    /* Set the maxHeight property of the accordion panel to a larger number to allow dynamic resizing */
+    if (this.style.maxHeight) {
+        this.style.maxHeight = "9999px";
+    }
+}
+accordionList.forEach(function (accordion) {
+    accordion.addEventListener("click", toggleAccordion, false);    // Open the accordion
+    var panel = accordion.nextElementSibling;
+    panel.addEventListener("transitionend", allowResizing, false);  // After it's opened, set the max-height higher
+});
 
-/* ---- Add a click event to a card ---- */
+/* ---- Add a click event on .card elements while allowing embedded links to also be clickable ---- */
+const cardList = document.querySelectorAll(".clickable-card");
 function addCardClickEvent(card) {
-
     // prevent double event triggering on links inside the card
     var clickableElements = Array.from(card.querySelectorAll(".card-link"));
     clickableElements.forEach((ele) => ele.addEventListener("click", (e) => e.stopPropagation()));
@@ -32,9 +49,6 @@ function addCardClickEvent(card) {
         }
     });
 }
-
-/* ---- Make card elements clickable while allowing embedded links to also be clickable ---- */
-const cardList = document.querySelectorAll(".clickable-card");
 cardList.forEach(addCardClickEvent);
 
 /* ---- For carousel cards, change behavior depending on device:
@@ -88,30 +102,61 @@ if (isHoverableDevice) {
 
 /* ---- Add click event to .copyable-text elements to copy contents to clipboard ---- */
 const copyableElements = document.querySelectorAll(".copyable-text");
-copyableElements.forEach(ele => {
-    ele.addEventListener("click", () => {
-        // Create a range and set it to the contents of this .copyable-text element
-        const range = document.createRange();
-        range.setStart(ele, 0);
-        range.setEnd(ele, 1);
+function copyContentsToClipboard() {
+    // Create a range and set it to the contents of this .copyable-text element
+    const range = document.createRange();
+    range.setStart(this, 0);
+    range.setEnd(this, 1);
 
-        // Create a selection from this range
-        const selection = window.getSelection();
+    // Create a selection from this range
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    try {
+        // Copy the selection to the clipboard
+        document.execCommand("copy");
         selection.removeAllRanges();
-        selection.addRange(range);
 
-        try {
-            // Copy the selection to the clipboard
-            document.execCommand("copy");
-            selection.removeAllRanges();
-            // Display the Copied! popup if successful
-            const popup = ele.querySelector(".copyable-popup");
-            popup.classList.add("copyable-popup-active");
-            setTimeout(() => {
-                popup.classList.remove("copyable-popup-active");
-            }, 1200);
-        } catch (e) {
-            // Do nothing on failure
-        }
-    });
+        // Display the Copied! popup if successful
+        const popup = this.querySelector(".copyable-popup");
+        popup.classList.add("copyable-popup-active");
+        setTimeout(() => {
+            popup.classList.remove("copyable-popup-active");
+        }, 1200);
+    } catch (e) {
+        // Do nothing on failure
+    }
+}
+copyableElements.forEach(function (ele) {
+    ele.addEventListener("click", copyContentsToClipboard, false);
 });
+
+//copyableElements.forEach(ele => {
+//    ele.addEventListener("click", () => {
+//        // Create a range and set it to the contents of this .copyable-text element
+//        const range = document.createRange();
+//        range.setStart(ele, 0);
+//        range.setEnd(ele, 1);
+
+//        // Create a selection from this range
+//        const selection = window.getSelection();
+//        selection.removeAllRanges();
+//        selection.addRange(range);
+
+//        try {
+//            // Copy the selection to the clipboard
+//            document.execCommand("copy");
+//            selection.removeAllRanges();
+
+//            // Display the Copied! popup if successful
+//            const popup = ele.querySelector(".copyable-popup");
+//            popup.classList.add("copyable-popup-active");
+//            setTimeout(() => {
+//                popup.classList.remove("copyable-popup-active");
+//            }, 1200);
+//        } catch (e) {
+//            // Do nothing on failure
+//        }
+//    });
+//});

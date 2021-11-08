@@ -4,10 +4,12 @@
 <head>
     <meta charset="utf-8" />
     <title>Nathan Paternoster | Contact</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/css/nate.css" />
     <link rel="stylesheet" type="text/css" href="/css/projects.css" />
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
     <script src="/js/nate.js" defer></script>
+    <script src="https://kit.fontawesome.com/254df2922f.js" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -24,11 +26,41 @@
 
         <!-- Page content -->
         <div class="content">
-            <h1>Project Euler > Problem 59</h1>
-            <button>About</button>
-            <button>Archives</button>
-            <button>Github</button>
+            <div class="euler-problem-link-container">
+                <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
+                <div class="euler-problem-links">
+                    <a href="https://projecteuler.net/problem=59" target="_blank"><i class="fas fa-link"></i>&nbsp;Problem 59 on Project Euler</a>
+                    <a href="https://github.com/n8paternoster/Project-Euler/blob/master/Project%20Euler/59.cpp" target="_blank"><i class="fas fa-code"></i>&nbsp;Problem 59 Code</a>
+                </div>
+            </div>
+            <h1 id="euler-problem-title">Problem 59 - XOR decryption</h1>
+            <div class="euler-problem-view">
+                <button class="accordion" type="button"> <!--onclick="toggleAccordion(this)"-->View problem</button>
+                <div class="accordion-panel">
+                    <blockquote cite="https://projecteuler.net/problem=59">
+                        <p>Each character on a computer is assigned a unique code and the preferred standard is ASCII (American Standard Code for Information Interchange). For example, uppercase A = 65, asterisk (*) = 42, and lowercase k = 107.</p>
+                        <p>A modern encryption method is to take a text file, convert the bytes to ASCII, then XOR each byte with a given value, taken from a secret key. The advantage with the XOR function is that using the same encryption key on the cipher text, restores the plain text; for example, 65 XOR 42 = 107, then 107 XOR 42 = 65.</p>
+                        <p>For unbreakable encryption, the key is the same length as the plain text message, and the key is made up of random bytes. The user would keep the encrypted message and the encryption key in different locations, and without both "halves", it is impossible to decrypt the message.</p>
+                        <p>Unfortunately, this method is impractical for most users, so the modified method is to use a password as a key. If the password is shorter than the message, which is likely, the key is repeated cyclically throughout the message. The balance for this method is using a sufficiently long password key for security, but short enough to be memorable.</p>
+                        <p>Your task has been made easy, as the encryption key consists of three lower case characters. Using p059_cipher.txt (right click and 'Save Link/Target As...'), a file containing the encrypted ASCII codes, and the knowledge that the plain text must contain common English words, decrypt the message and find the sum of the ASCII values in the original text.</p>
+                    </blockquote>
+                </div>
+            </div>
             <hr />
+            <section>
+                <h2>XOR Ciphers</h2>
+                <p>A XOR cipher is a common encryption technique where each character in a text is transformed using the exclusive-or (XOR) bitwise operator (&#8891;) and a key. As a simple substitution cipher, any letter in the original text (plaintext) will always be replaced with its corresponding letter in the ciphertext. In a XOR cipher, the XOR operator is used to transform a plaintext letter into its encrypted version. As a reminder, the XOR operator takes two binary inputs and outputs a 1 when the inputs are different and 0 when they are the same:
+                </p>
+                <img title="xor-truth-table" />
+                <p>When A and B are binary numbers, A &#8891; B is done bit-by-bit. For example:</p>
+                <img title="xor-example" />
+                <p>In a XOR cipher, both the plaintext and key are written in binary and combined using the XOR operator to form the cipher. <i>plaintext</i> &#8891; <i>key</i> = <i>ciphertext</i>. Because it is an associative operator, we can also say <i>ciphertext</i> &#8891; <i>key</i> = <i>plaintext</i>. If we have the cipher and can figure out the key, we can recover the original message.</p>
+                <p>As stated in the problem, when the key is as long as the plaintext, the encrypted ciphertext is unbreakable. Luckily we are given the information that the key is only 3 characters long and that all characters are lowercase. With 3 characters and 26 lowercase letters, there are 26<sup>3</sup> = 17576 possible keys to try. It's easy enough to programatically generate all of these keys and the corresponding plaintext for each; but how will we know which one is correct? It's not practical to manually read every possible plaintext to find the correct one. Fortunately there is a technique to programatically determine the correct key.</p>
+            </section>
+            <section> 
+                <h2>Frequency Analysis</h2>
+                <p>Frequency analysis leverages the fact that in any language, certain letters are used more often than others. In English, the top 5 most common letters are E, T, A, O, and I.</p>
+            </section>
         </div>
 
         <div id="push"></div>
