@@ -401,6 +401,29 @@
     font-size: 1em;
 }
 
+sup {
+    line-height: 0;
+}
+
+img {
+    display: block;
+    margin: 2em auto;
+}
+
+code {
+    display: block;
+    margin: auto 2em;
+    padding: 1em;
+    background-color: #eee;
+    border: 0.075em solid #aaa;
+    font-size: 1.25em;
+}
+
+pre { 
+    white-space: pre-wrap;
+    margin: 0;
+}
+
 /* ----------- Media Queries ----------- */
 
 @media screen and (max-width: 670px) {
