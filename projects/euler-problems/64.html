@@ -84,28 +84,28 @@
                 <img height="200" title="continued-fraction" src="/project-assets/euler/continued-fraction.png"/>
                 <p>They are commonly used as a way to represent rational numbers. For example, consider the rational number 415/93. A normal decimal approximation may be rounded and given as 4.4624. Instead, we can represent the number as a continued fraction by using an iterative process of repeated division. At each iteration we will perform Euclidean division to get an integer quotient and then use that to find the fractional remainder. The first iteration gives:</p>
                 <div class="mathjax-block">
-                    \(\frac{415}{93} = 4 + \frac{43}{93}\)
+                    <p>\(\frac{415}{93} = 4 + \frac{43}{93}\)</p>
                 </div>
                 <p>For each subsequent iteration, take the reciprocal of the fractional remainder and repeat the above division. The next few iterations are:</p>
                 <div class="mathjax-block">
-                    \(\frac{93}{43} = 2 + \frac{7}{43}\)<br /><br />
-                    \(\frac{43}{7} = 6 + \frac{1}{7}\)<br /><br />
-                    \(\frac{7}{1} = 7 + 0\) (iteration stops)
+                    <p>\(\frac{93}{43} = 2 + \frac{7}{43}\)</p><br />
+                    <p>\(\frac{43}{7} = 6 + \frac{1}{7}\)</p><br />
+                    <p>\(\frac{7}{1} = 7 + 0\) (iteration stops)</p>
                 </div>
                 <p>At each step we are <i>approximating</i> the value of the previous fraction with (the reciprocal of) an integer. For instance:</p>
                 <div class="mathjax-block">
-                    \(\frac{415}{93} \approx 4\)<br /><br />
-                    \(\frac{43}{93} \approx\) (the reciprocal of) \(2\)<br /><br />
-                    \(\frac{7}{43} \approx\) (the reciprocal of) \(6\)<br /><br />
-                    \(\frac{1}{7} = \) (the reciprocal of) \(7\)
+                    <p>\(\frac{415}{93} \approx 4\)</p><br />
+                    <p>\(\frac{43}{93} \approx\) (the reciprocal of) \(2\)</p><br />
+                    <p>\(\frac{7}{43} \approx\) (the reciprocal of) \(6\)</p><br />
+                    <p>\(\frac{1}{7} = \) (the reciprocal of) \(7\)</p>
                 </div>
                 <p>We can use these integer approximations to write our continued fraction representation as:</p>
                 <div class="mathjax-block">
-                    \(\frac{415}{93} = 4 + \frac{1}{2 + \frac{1}{6 + \frac{1}{7}}}\)
+                    <p>\(\frac{415}{93} = 4 + \frac{1}{2 + \frac{1}{6 + \frac{1}{7}}}\)</p>
                 </div>
                 <p>This form of continued fraction where every numerator is 1 is called a <b>simple continued fraction</b> or said to be in <b>canonical form</b>. Since all of the numerators are 1, another simpler way to write simple continued fractions (using the above as an example) is:</p>
                 <div class="mathjax-block">
-                    \(\frac{415}{93} = [4; 2, 6, 7]\)
+                    <p>\(\frac{415}{93} = [4; 2, 6, 7]\)</p>
                 </div>
                 <p>Those integer values (4, 2, 6, 7) are called the <em>coefficients</em> of the continued fraction.</p>
             </section>
@@ -113,39 +113,39 @@
                 <h2>Periodic Continued Fractions</h2>
                 <p>When a continued fraction terminates (as in the above example) it is called a <b>finite continued fraction</b>. In addition to finite continued fractions, there are <b>periodic continued fractions</b> that don't terminate but instead repeat indefinitely. It's been shown that <i>every</i> irrational square root can be represented as a periodic continued fraction. Take for example \(\sqrt{3}\). As given by the problem, \(\sqrt{3}\) has the following continued fraction representation:</p>
                 <div class="mathjax-block">
-                    \(\sqrt{3} = [1; (1, 2)]\)
+                    <p>\(\sqrt{3} = [1; (1, 2)]\)</p>
                 </div>
                 <p>where the parentheses indicate that the coefficients 1 and 2 repeat indefinitely. This continued fraction has a period of 2.</p>
                 <p>So then the crux of the problem is finding and implementing an iterative algorithm, analagous to the one above, that gives us the periodic continued fraction of square roots. One such algorithm is as follows:</p>
                 <div class="mathjax-block">
-                    \(\sqrt{S} = [a_0; a_1, a_2, ...]\)<br />
-                    (1) Initialize \(p_0 = 0, q_0 = 1, a_0 = \lfloor\sqrt{S}\rfloor\)<br />
-                    (2) \(p_{n+1} = q_na_n - p_n\)<br />
-                    (3) \(q_{n+1} = \frac{(S - p_{n+1}^2)}{q_n}\)<br />
-                    (4) \(a_{n+1} = \lfloor\frac{(a_0 + p_{n+1})}{q_{n+1}}\rfloor\)<br />
-                    (5) Increment n and go back to (2)
+                    <p>\(\sqrt{S} = [a_0; a_1, a_2, ...]\)</p>
+                    <p>(1) Initialize \(p_0 = 0, q_0 = 1, a_0 = \lfloor\sqrt{S}\rfloor\)</p>
+                    <p>(2) \(p_{n+1} = q_na_n - p_n\)</p>
+                    <p>(3) \(q_{n+1} = \frac{(S - p_{n+1}^2)}{q_n}\)</p>
+                    <p>(4) \(a_{n+1} = \lfloor\frac{(a_0 + p_{n+1})}{q_{n+1}}\rfloor\)</p>
+                    <p>(5) Increment n and go back to (2)</p>
                 </div>
                 <p>This algorithm can be demonstrated with the example given in the problem. In each iteration we are splitting the current value into an integer and a fraction part. The integer becomes the coefficient <i>a<sub>n</sub></i> of that iteration and the <i>inverse</i> of the fraction part becomes the value for the next iteration. This has the effect of producing finer and finer approximations of our initial number.</p>
                 <p>For example, the first iteration of \(\sqrt{23}\) is</p>
                 <div class="mathjax-block">
-                    Split \(\sqrt{23}\) into an integer part and a fraction part:<br /><br />
-                    \(\sqrt{23} \approx 4\) (integer part, \(a_0\))<br />
-                    the amount left over is \(\sqrt{23}-4\) (fraction part)<br /><br />
-                    Take the inverse of the fraction part and simplify:<br /><br />
-                    \(\frac{1}{\sqrt{23}-4} \cdot \frac{\sqrt{23}+4}{\sqrt{23}+4} = \frac{\sqrt{23}+4}{23-16} = \frac{\sqrt{23}+4}{7}\)
+                    <p>Split \(\sqrt{23}\) into an integer part and a fraction part:</p><br />
+                    <p>\(\sqrt{23} \approx 4\) (integer part, \(a_0\))</p>
+                    <p>the amount left over is \(\sqrt{23}-4\) (fraction part)</p><br />
+                    <p>Take the inverse of the fraction part and simplify:</p>
+                    <p>\(\frac{1}{\sqrt{23}-4} \cdot \frac{\sqrt{23}+4}{\sqrt{23}+4} = \frac{\sqrt{23}+4}{23-16} = \frac{\sqrt{23}+4}{7}\)</p>
                 </div>
                 <p>Taking \(\frac{\sqrt{23}+4}{7}\) as our new value, this is the second iteration:</p>
                 <div class="mathjax-block">
-                    Split \(\frac{\sqrt{23}+4}{7}\) into an integer part and a fraction part:<br /><br />
-                    we've already seen that \(\sqrt{23}\approx4\), so using this approximation,<br />
-                    \(\frac{\sqrt{23}+4}{7} \approx \frac{4+4}{7} \approx 1\) (integer part, \(a_1\))<br />
-                    and the amount left over is \(\frac{\sqrt{23}+4}{7}-1\) (fraction part)<br /><br />
-                    Simplify and take the inverse of the fraction part:<br /><br />
-                    \(\frac{\sqrt{23}+4}{7}-1 = \frac{\sqrt{23}+4}{7}-\frac{7}{7} = \frac{\sqrt{23}-3}{7} \rightarrow \frac{7}{\sqrt{23}-3}\) (inverse)
+                    <p>Split \(\frac{\sqrt{23}+4}{7}\) into an integer part and a fraction part:</p><br />
+                    <p>we've already seen that \(\sqrt{23}\approx4\), so using this approximation,</p>
+                    <p>\(\frac{\sqrt{23}+4}{7} \approx \frac{4+4}{7} \approx 1\) (integer part, \(a_1\))</p>
+                    <p>and the amount left over is \(\frac{\sqrt{23}+4}{7}-1\) (fraction part)</p><br />
+                    <p>Simplify and take the inverse of the fraction part:</p>
+                    <p>\(\frac{\sqrt{23}+4}{7}-1 = \frac{\sqrt{23}+4}{7}-\frac{7}{7} = \frac{\sqrt{23}-3}{7} \rightarrow \frac{7}{\sqrt{23}-3}\) (inverse)</p>
                 </div>
                 <p>For irrational square roots, this process will repeat forever. One key insight that helps us detect when to stop this algorithm is given by mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/%C3%89variste_Galois">Évariste Galois</a>. One of the derived results of his papers states that</p>
                 <div class="mathjax-block">
-                    \(\sqrt{S} = [a_0; (a_1, a_2, ..., a_2, a_1, 2a_0)]\)
+                    <p>\(\sqrt{S} = [a_0; (a_1, a_2, ..., a_2, a_1, 2a_0)]\)</p>
                 </div>
                 <p>This says that every irrational square root, S, will have a periodic continued fraction representation whose coefficients form a palindrome after <i>a<sub>0</sub></i> and contain a final coefficient of twice <i>a<sub>0</sub></i>. For our purposes, this observation tells us that we can terminate the algorithm when we run into a coefficient <i>a<sub>n</sub></i> that is equal to 2*<i>a<sub>0</sub></i>. For further reading a good place to start is the wiki page on <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Periodic_continued_fraction">Periodic continued fractions</a>. </p>
             </section>
