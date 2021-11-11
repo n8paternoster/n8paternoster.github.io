@@ -52,7 +52,7 @@
                 <p>
                     An XOR (exclusive-or) cipher is a common encryption technique where each character in a text is transformed using the XOR bitwise operator (&#8853;) and a key. In an XOR cipher, the XOR operator is used to transform a plaintext letter into its encrypted version. As a reminder, the XOR operator takes two binary inputs and outputs a 1 when the inputs are different and 0 when they are the same:
                 </p>
-                <img height="200" title="xor-truth-table" src="/project-assets/euler/xor-truth-table2.png" />
+                <img style="max-height:200px" title="xor-truth-table" src="/project-assets/euler/xor-truth-table2.png" />
                 <p>When A and B are binary numbers, A &#8853; B is done bit-by-bit. For example:</p>
                 <img title="xor-example" src="/project-assets/euler/bitwise-xor2.png" />
                 <p>In an XOR cipher, both the plaintext and key are written in binary and combined using the XOR operator to form the cipher: <i>plaintext</i> &#8853; <i>key</i> = <i>ciphertext</i>. Because it is an associative operator, we can also say <i>ciphertext</i> &#8853; <i>key</i> = <i>plaintext</i>. If we have the cipher and can figure out the key, we can recover the original message.</p>
@@ -63,7 +63,7 @@
                 <p>Frequency analysis leverages the fact that in any language, certain letters are used more often than others. In English, the top 5 most common letters are commonly given as E, T, A, O, and I (depending on the source used). If we examine the ciphertext and look for the most common letter, we can guess that that letter represents E in the plaintext. Continuing down the list of most common letters, we can keep making guesses until patterns or recognizable words start to emerge.</p>
                 <p>While this is a popular method for pencil and paper solving, it has one main problem putting into use here - it still relies on guesswork. What we need is a way to quantitatively measure how likely any given substitution is.</p>
                 <p>One method in cryptanalysis is to use the Chi-squared statistic to measure the probability of any given substitution. The Chi-squared statistic is given by:</p>
-                <img height="75" title="chi-squared-formula" src="/project-assets/euler/chi-squared-formula.png" />
+                <img style="max-height:75px" title="chi-squared-formula" src="/project-assets/euler/chi-squared-formula.png" />
                 <p><i>O<sub>i</sub></i> is the count of occurences of the <i>i</i>th letter in a given distribution and <i>E<sub>i</sub></i> is the expected count of occurences of that letter. The closer the observed value <i>O<sub>i</sub></i> is to the expected value, the lower &chi;<sup>2</sup> will be and the more likely that letter follows the standard distribution of letters in the English language.</p>
             </section>
             <section>

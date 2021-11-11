@@ -39,6 +39,10 @@
     color: #ad420b;*/ /* dark orange */
 /*}*/
 
+img {
+    max-width: 100%;
+}
+
 #project-title-container {
     display: table;
     width: 100%;
