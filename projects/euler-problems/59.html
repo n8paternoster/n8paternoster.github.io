@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Nathan Paternoster | Contact</title>
+    <title>Nathan Paternoster | Project Euler</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/css/nate.css" />
     <link rel="stylesheet" type="text/css" href="/css/projects.css" />
@@ -35,7 +35,7 @@
             </div>
             <h1 id="euler-problem-title">Problem 59 - XOR decryption</h1>
             <div class="euler-problem-view">
-                <button class="accordion" type="button"> <!--onclick="toggleAccordion(this)"-->View problem</button>
+                <button class="accordion" type="button">View problem</button>
                 <div class="accordion-panel">
                     <blockquote cite="https://projecteuler.net/problem=59">
                         <p>Each character on a computer is assigned a unique code and the preferred standard is ASCII (American Standard Code for Information Interchange). For example, uppercase A = 65, asterisk (*) = 42, and lowercase k = 107.</p>
@@ -49,26 +49,28 @@
             <hr />
             <section>
                 <h2>XOR Ciphers</h2>
-                <p>An XOR (exclusive-or) cipher is a common encryption technique where each character in a text is transformed using the XOR bitwise operator (&#8853;) and a key. In an XOR cipher, the XOR operator is used to transform a plaintext letter into its encrypted version. As a reminder, the XOR operator takes two binary inputs and outputs a 1 when the inputs are different and 0 when they are the same:
+                <p>
+                    An XOR (exclusive-or) cipher is a common encryption technique where each character in a text is transformed using the XOR bitwise operator (&#8853;) and a key. In an XOR cipher, the XOR operator is used to transform a plaintext letter into its encrypted version. As a reminder, the XOR operator takes two binary inputs and outputs a 1 when the inputs are different and 0 when they are the same:
                 </p>
-                <img height="200" title="xor-truth-table" src="/project-assets/euler/xor-truth-table2.png"/>
+                <img height="200" title="xor-truth-table" src="/project-assets/euler/xor-truth-table2.png" />
                 <p>When A and B are binary numbers, A &#8853; B is done bit-by-bit. For example:</p>
-                <img title="xor-example" src="/project-assets/euler/bitwise-xor2.png"/>
+                <img title="xor-example" src="/project-assets/euler/bitwise-xor2.png" />
                 <p>In an XOR cipher, both the plaintext and key are written in binary and combined using the XOR operator to form the cipher: <i>plaintext</i> &#8853; <i>key</i> = <i>ciphertext</i>. Because it is an associative operator, we can also say <i>ciphertext</i> &#8853; <i>key</i> = <i>plaintext</i>. If we have the cipher and can figure out the key, we can recover the original message.</p>
                 <p>As stated in the problem, when the key is as long as the plaintext, the encrypted ciphertext is unbreakable. Luckily we are given the information that the key is only 3 characters long and that all characters are lowercase letters. With 3 characters and 26 lowercase letters, there are 26<sup>3</sup> = 17,576 possible keys to try. It's easy enough to programatically generate all of these keys and the corresponding plaintext for each; but how will we know which one is correct? It's not practical to manually read every possible plaintext to find the correct one. Fortunately, there is a technique to programatically determine the correct key.</p>
             </section>
-            <section> 
+            <section>
                 <h2>Frequency Analysis</h2>
                 <p>Frequency analysis leverages the fact that in any language, certain letters are used more often than others. In English, the top 5 most common letters are commonly given as E, T, A, O, and I (depending on the source used). If we examine the ciphertext and look for the most common letter, we can guess that that letter represents E in the plaintext. Continuing down the list of most common letters, we can keep making guesses until patterns or recognizable words start to emerge.</p>
                 <p>While this is a popular method for pencil and paper solving, it has one main problem putting into use here - it still relies on guesswork. What we need is a way to quantitatively measure how likely any given substitution is.</p>
                 <p>One method in cryptanalysis is to use the Chi-squared statistic to measure the probability of any given substitution. The Chi-squared statistic is given by:</p>
-                <img height="75" title="chi-squared-formula" src="/project-assets/euler/chi-squared-formula.png"/>
+                <img height="75" title="chi-squared-formula" src="/project-assets/euler/chi-squared-formula.png" />
                 <p><i>O<sub>i</sub></i> is the count of occurences of the <i>i</i>th letter in a given distribution and <i>E<sub>i</sub></i> is the expected count of occurences of that letter. The closer the observed value <i>O<sub>i</sub></i> is to the expected value, the lower &chi;<sup>2</sup> will be and the more likely that letter follows the standard distribution of letters in the English language.</p>
             </section>
             <section>
                 <h2>Implementation</h2>
                 <p>Now that we have a way to determine the most likely key, we can start writing the functions needed to solve this problem. Since the &chi;<sup>2</sup> formula requires the expected and observed counts, we need a way to determine the expected counts.</p>
-                <code><pre>
+                <code>
+                    <pre>
 #include &lt;unordered_map&gt;
 #include &lt;vector&gt;
 #include &lt;fstream&gt;
@@ -84,9 +86,11 @@ Letter_Counts getExpected(unsigned dataLength) {
 &#9;for (unsigned i = 0; i &lt; 26; i++)
 &#9;&#9;vals.emplace(letters[i], (dataLength * freqs[i]));
 &#9;return vals;
-}               </pre></code>
+}               </pre>
+                </code>
                 <p>The function <samp>getExpected</samp> accepts the number of letters in a given text as input and returns a map that contains the expected count of each individual letter (<i>E<sub>i</sub></i> in the above equation) using letter frequency data. For the function computing &chi;<sup>2</sup> we can use these expected counts in our computation.</p>
-                <code><pre>
+                <code>
+                    <pre>
 double chiSquared(std::vector&lt;unsigned char&gt; text) {
 
 &#9;// count the observed frequency of letters
@@ -108,10 +112,12 @@ double chiSquared(std::vector&lt;unsigned char&gt; text) {
 &#9;&#9;chiSquared += degree;
 &#9;}
 &#9;return chiSquared;
-}               </pre></code>
+}               </pre>
+                </code>
                 <p><samp>chiSquared</samp> takes a  block of text as input (stored as a vector of characters) and returns the &chi;<sup>2</sup> value of that text. This value corresponds to how closely the input text matches the normal distribution of letters in the English language.</p>
                 <p>With these two functions we can write the rest of the code to decrypt the cipher. We first read the cipher text into a vector container:</p>
-                <code><pre>
+                <code>
+                    <pre>
 std::vector&lt;unsigned char&gt; cipherText;
 std::ifstream f(filename);
 if (!f) {
@@ -120,18 +126,22 @@ if (!f) {
 }
 std::string s;
 while (getline(f, s, ',')) cipherText.push_back(static_cast&lt;unsigned char&gt;(std::stoul(s)));
-f.close();      </pre></code>
+f.close();      </pre>
+                </code>
                 <p>Because we know the key is 3 characters long, we know that every 3rd character in the cipher will be encrypted using the same character of the key (the key is repeated to cover the length of the entire plaintext). For this reason we can break the ciphertext into 3 vectors representing each "column" of the ciphertext.</p>
-                <code><pre>
+                <code>
+                    <pre>
 // key is 3 characters long, split the cipher into three columns
 std::vector&lt;std::vector&lt;unsigned char&gt;&gt; cols(3);
 int i = 0;
 for (auto c : cipherText) {
 &#9;cols[i].push_back(c);
 &#9;if (++i &gt; 2) i = 0;
-}               </pre></code>
+}               </pre>
+                </code>
                 <p>With this data we can now calculate the key one character at a time. This can be done by trying every lowercase letter and choosing the one whose corresponding plaintext produces the lowest value of &chi;<sup>2</sup>.</p>
-                <code><pre>
+                <code>
+                    <pre>
 // each character of the key corresponds to one column of the cipher
 unsigned char key[3] = {};
 int k = 0;
@@ -153,9 +163,11 @@ for (auto col : cols) {
 
 &#9;key[k] = keyChar;
 &#9;k++;
-}               </pre></code>
+}               </pre>
+                </code>
                 <p>Finally, with this key, the original plaintext can be recovered and the result computed.</p>
-                <code><pre>
+                <code>
+                    <pre>
 std::vector&lt;unsigned char&gt; plainText;
 k = 0;
 for (auto c : cipherText) {
@@ -165,12 +177,16 @@ for (auto c : cipherText) {
 
 // add the ascii values of the chars in the plaintext
 unsigned result = 0;
-for (auto c : plainText) result += c;</pre></code>
+for (auto c : plainText) result += c;</pre>
+                </code>
             </section>
             <section>
                 <h2>Final Thoughts</h2>
-                <p>Although the Chi-squared test is not a perfect way to decrypt any XOR cypher it was enough to solve this problem. With longer plaintexts there would be more certainty of the computed key and plaintext being correct. Improvements to this method could use more advanced techniques of frequency analysis that consider not only the most common letters in the English language, but also the most common pairs or larger groups of letters. For example, the letter Q is almost always followed by a U and the most common digraphs include TH, ER, ON, and AN.</p>
+                <p>Although the Chi-squared test is not a perfect way to decrypt any XOR cypher it was enough to solve this problem. With longer plaintexts there would be more certainty of both the computed key and plaintext being correct. Improvements to this method could use more advanced techniques of frequency analysis that consider not only the most common letters in the English language, but also the most common pairs or larger groups of letters. For example, the letter Q is almost always followed by a U and the most common digraphs include TH, ER, ON, and AN.</p>
             </section>
+            <div id="end-page-back-link">
+                <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
+            </div>
         </div>
 
         <div id="push"></div>

@@ -26,7 +26,7 @@
 
 /* unvisited and visited */
 /*.content a:link, .content a:visited {
-    color: #45aa3d;*/ /* light green */
+    color: #45aa3d;*/  /* light green */ 
 /*}*/
 
 /* hover */
@@ -64,7 +64,7 @@
     padding: 0.75em 1.5em;
     margin-left: 1em;
     color: black;
-    background-color: #91c48d;  /* light green */
+    background-color: #91c48d; /* light green */
     transition: all 0.2s;
 }
 #project-link a:hover {
@@ -354,10 +354,6 @@
     background-color: #d96a20; /* dark orange */
 }
 
-#euler-problem-title {
-    margin-top: 0;
-}
-
 .euler-problem-view {
     margin: 1.5em auto;
 }
@@ -367,20 +363,20 @@
     padding: 0.4em;
 }
 
-.euler-problem-view blockquote :first-child {
+.euler-problem-view blockquote > :first-child {
     margin-top: 0;
 }
-.euler-problem-view blockquote :first-child::before {
+.euler-problem-view blockquote > :first-child::before {
     content: open-quote;
     font-size: 1.5em;
     line-height: 0.1em;
     margin-right: 0.2em;
     vertical-align: -0.15em;
 }
-.euler-problem-view blockquote :last-child {
+.euler-problem-view blockquote > :last-child {
     margin-bottom: 0;
 }
-.euler-problem-view blockquote :last-child::after {
+.euler-problem-view blockquote > :last-child::after {
     content: close-quote;
     font-size: 1.5em;
     line-height: 0.1em;
@@ -401,7 +397,7 @@
     font-size: 1em;
 }
 
-sup {
+sup, sub {
     line-height: 0;
 }
 
@@ -410,7 +406,7 @@ img {
     margin: 2em auto;
 }
 
-code {
+code, .mathjax-block {
     display: block;
     margin: auto 2em;
     padding: 1em;
@@ -419,9 +415,34 @@ code {
     font-size: 1.25em;
 }
 
-pre { 
+.mathjax-block {
+    font-family: unset;
+}
+
+pre {
     white-space: pre-wrap;
+    tab-size: 4;
     margin: 0;
+}
+
+.MathJax {
+    font-size: 1em !important;
+}
+
+#end-page-back-link {
+    margin-top: 3em;
+}
+
+a.wiki-link-inline {
+    color: #45aa3d; /* light green */
+}
+
+a.wiki-link-inline:hover {
+    color: #d96a20; /* light orange */
+}
+
+a.wiki-link-inline:active {
+    color: #ad420b; /* dark orange */
 }
 
 /* ----------- Media Queries ----------- */

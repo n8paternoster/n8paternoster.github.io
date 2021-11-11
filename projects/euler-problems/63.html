@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nathan Paternoster | Project Euler Problem 63</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/nate.css" />
+    <link rel="stylesheet" type="text/css" href="/css/projects.css" />
+    <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="/js/nate.js" defer></script>
+    <script src="https://kit.fontawesome.com/254df2922f.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Top navigation bar -->
+        <ul class="topnav">
+            <li><a href="/index.html">Nathan Paternoster</a></li>
+            <li><a href="/coursework.html">Coursework</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+            <li><a href="/recordings.html">Recordings</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+        </ul>
+
+        <!-- Page content -->
+        <div class="content">
+            <div class="euler-problem-link-container">
+                <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
+                <div class="euler-problem-links">
+                    <a href="https://projecteuler.net/problem=63" target="_blank"><i class="fas fa-link"></i>&nbsp;Problem 63 on Project Euler</a>
+                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem 63 Code</a>
+                </div>
+            </div>
+            <h1 id="euler-problem-title">Problem 63 - Powerful digit counts</h1>
+            <div class="euler-problem-view">
+                <button class="accordion" type="button">View problem</button>
+                <div class="accordion-panel">
+                    <blockquote cite="https://projecteuler.net/problem=63">
+                        <p>The 5-digit number, 16,807 = 7<sup>5</sup>, is also a fifth power. Similarly, the 9-digit number, 134,217,728 = 8<sup>9</sup>, is a ninth power.</p>
+                        <p>How many <i>n</i>-digit positive integers exist which are also an <i>n</i>th power?</p>
+                    </blockquote>
+                </div>
+            </div>
+            <hr />
+            <section>
+                <h2>Implementation</h2>
+                <p>This is a relatively straightforward problem and simple to understand, but one that benefits from a little planning beforehand. It's very temping to write a brute-force function that continues to generate integer powers until the number of digits exceeds the exponent. But after a bit of testing it quickly becomes apparent that that might not work.</p>
+                <code><pre>
+2<sup>10</sup> = 1024 (4 digits)
+2<sup>50</sup> = 1,125,899,906,842,624 (16 digits)
+2<sup>100</sup> = 1,267,650,600,228,229,401,496,703,205,376 (31 digits)</pre></code>
+                <p>It doesn't appear that any power of 2 will ever have as many digits as the exponent. But what about powers of 3 or 4? Where should we start checking?</p>
+                <p>The key to this problem is to remember that there is a function that tells us how many digits a number has. The logarithm of <i>x</i> is related to <i>x</i>'s number of digits by:</p>
+                <code><pre>
+# digits of <i>x</i> = floor(log<sub>10</sub>(<i>x</i>)) + 1</pre></code>
+                <p>Because the problem is asking us to find the number of digits of integer powers, we can also utilize a property of logarithms to simplify our solution.</p>
+                <code><pre>
+# digits of <i>a</i><sup><i>b</i></sup> = floor(log<sub>10</sub>(<i>a</i><sup><i>b</i></sup>)) + 1
+# digits of <i>a</i><sup><i>b</i></sup> = floor(<i>b</i>*log<sub>10</sub>(<i>a</i>)) + 1</pre></code>
+                <p>With this formula we can make the following observation:</p>
+                <code><pre>
+For <i>a</i> &ge; 10
+# digits of 10<sup><i>b</i></sup> &ge; floor(<i>b</i>*log<sub>10</sub>(10)) + 1
+# digits of 10<sup><i>b</i></sup> &ge; <i>b</i>+1</pre></code>
+                <p>This tells us that any integer base &ge; 10 raised to an integer power <i>b</i> will always have more digits than the value of <i>b</i>. Therefore we only need to check bases 1-9. In addition, with this formula it's no longer necessary to calculate the number itself. With a given base and exponent we can calculate the number of digits directly.</p>
+                <code><pre>
+unsigned numNDigitNPowers() {
+&#9;unsigned count = 0;
+&#9;unsigned minBase = 1, maxBase = 10;
+&#9;for (unsigned exp = 1; minBase &lt; maxBase; exp++) {
+&#9;&#9;while ((unsigned)(exp*log10(minBase))+1 &lt; exp) minBase++;
+&#9;&#9;for (unsigned base = minBase; base &lt; maxBase; base++)
+&#9;&#9;&#9;count += ((unsigned)(exp*log10(base))+1 == exp);
+&#9;}
+&#9;return count;
+}</pre></code>
+                <p>In the outer loop we iterate through integer exponents. For each exponent we first find the minimum base that gives a power with <i>exp</i> number of digits. Then in the inner loop we check the remaining bases (up to 9) for any more solutions. This continues until the minimum base needed is &gt; 9.</p>
+                <p>The full solutions are given below:</p>
+                <code><pre>
+1^1 = 1
+2^1 = 2
+3^1 = 3
+4^1 = 4
+5^1 = 5
+6^1 = 6
+7^1 = 7
+8^1 = 8
+9^1 = 9
+
+4^2 = 16
+5^2 = 25
+6^2 = 36
+7^2 = 49
+8^2 = 64
+9^2 = 81
+
+5^3 = 125
+6^3 = 216
+7^3 = 343
+8^3 = 512
+9^3 = 729
+
+6^4 = 1,296
+7^4 = 2,401
+8^4 = 4,096
+9^4 = 6,561
+
+7^5 = 16,807
+8^5 = 32,768
+9^5 = 59,049
+
+7^6 = 117,649
+8^6 = 262,144
+9^6 = 531,441
+
+8^7 = 2,097,152
+9^7 = 4,782,969
+
+8^8 = 16,777,216
+9^8 = 43,046,721
+
+8^9 = 134,217,728
+9^9 = 387,420,489
+
+8^10 = 1,073,741,824
+9^10 = 3,486,784,401
+
+9^11 = 31,381,059,609
+9^12 = 282,429,536,481
+9^13 = 2,541,865,828,329
+9^14 = 22,876,792,454,961
+9^15 = 205,891,132,094,649
+9^16 = 1,853,020,188,851,841
+9^17 = 16,677,181,699,666,569
+9^18 = 150,094,635,296,999,121
+9^19 = 1,350,851,717,672,992,089
+9^20 = 12,157,665,459,056,928,801
+9^21 = 109,418,989,131,512,359,209</pre></code>
+            </section>
+            <div id="end-page-back-link">
+                <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
+            </div>
+        </div>
+
+        <div id="push"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Website &copy; <span id="year">2020</span> Nathan Paternoster</p>
+        <script>
+            var d = new Date();
+            document.getElementById("year").innerHTML = d.getFullYear();
+        </script>
+    </footer>
+</body>
+</html>
