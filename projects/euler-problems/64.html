@@ -103,7 +103,7 @@
                 <div class="mathjax-block">
                     <p>\(\frac{415}{93} = 4 + \frac{1}{2 + \frac{1}{6 + \frac{1}{7}}}\)</p>
                 </div>
-                <p>This form of continued fraction where every numerator is 1 is called a <b>simple continued fraction</b> or said to be in <b>canonical form</b>. Since all of the numerators are 1, another simpler way to write simple continued fractions (using the above as an example) is:</p>
+                <p>This form of continued fraction where every numerator is 1 is called a <b>simple continued fraction</b> or said to be in <b>canonical form</b>. Since all of the numerators are the same, another more concise way to write simple continued fractions (using the above as an example) is:</p>
                 <div class="mathjax-block">
                     <p>\(\frac{415}{93} = [4; 2, 6, 7]\)</p>
                 </div>
@@ -113,9 +113,9 @@
                 <h2>Periodic Continued Fractions</h2>
                 <p>When a continued fraction terminates (as in the above example) it is called a <b>finite continued fraction</b>. In addition to finite continued fractions, there are <b>periodic continued fractions</b> that don't terminate but instead repeat indefinitely. It's been shown that <i>every</i> irrational square root can be represented as a periodic continued fraction. Take for example \(\sqrt{3}\). As given by the problem, \(\sqrt{3}\) has the following continued fraction representation:</p>
                 <div class="mathjax-block">
-                    <p>\(\sqrt{3} = [1; (1, 2)]\)</p>
+                    <p>\(\sqrt{3} = [1; (1, 2)] = [1; 1, 2, 1, 2, 1, 2, ...]\)</p>
                 </div>
-                <p>where the parentheses indicate that the coefficients 1 and 2 repeat indefinitely. This continued fraction has a period of 2.</p>
+                <p>where the parentheses indicate that the coefficients 1 and 2 repeat indefinitely. This continued fraction has a period of length 2.</p>
                 <p>So then the crux of the problem is finding and implementing an iterative algorithm, analagous to the one above, that gives us the periodic continued fraction of square roots. One such algorithm is as follows:</p>
                 <div class="mathjax-block">
                     <p>\(\sqrt{S} = [a_0; a_1, a_2, ...]\)</p>
@@ -147,7 +147,7 @@
                 <div class="mathjax-block">
                     <p>\(\sqrt{S} = [a_0; (a_1, a_2, ..., a_2, a_1, 2a_0)]\)</p>
                 </div>
-                <p>This says that every irrational square root, S, will have a periodic continued fraction representation whose coefficients form a palindrome after <i>a<sub>0</sub></i> and contain a final coefficient of twice <i>a<sub>0</sub></i>. For further reading on this topic, a good place to start is the wiki page on <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Periodic_continued_fraction">Periodic continued fractions</a>. However, for our purposes, this observation tells us that we can terminate the algorithm when we run into a coefficient <i>a<sub>n</sub></i> that is equal to 2*<i>a<sub>0</sub></i>. </p>
+                <p>This says that every irrational square root, S, will have a periodic continued fraction representation whose coefficients form a palindrome after <i>a<sub>0</sub></i> and contain a final coefficient of twice <i>a<sub>0</sub></i>. For further reading on the math leading to this result, a good place to start is the wiki page on <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Periodic_continued_fraction">Periodic continued fractions</a>. However, for our purposes, this observation tells us that we can terminate the algorithm when we run into a coefficient <i>a<sub>n</sub></i> that is equal to 2*<i>a<sub>0</sub></i>. </p>
             </section>
             <section>
                 <h2>Implementation</h2>

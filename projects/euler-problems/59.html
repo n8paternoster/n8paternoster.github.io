@@ -62,7 +62,7 @@
                 <h2>Frequency Analysis</h2>
                 <p>Frequency analysis leverages the fact that in any language, certain letters are used more often than others. In English, the top 5 most common letters are commonly given as E, T, A, O, and I (depending on the source used). If we examine the ciphertext and look for the most common letter, we can guess that that letter represents E in the plaintext. Continuing down the list of most common letters, we can keep making guesses until patterns or recognizable words start to emerge.</p>
                 <p>While this is a popular method for pencil and paper solving, it has one main problem putting into use here - it still relies on guesswork. What we need is a way to quantitatively measure how likely any given substitution is.</p>
-                <p>One method in cryptanalysis is to use the Chi-squared statistic to measure the probability of any given substitution. The Chi-squared statistic is given by:</p>
+                <p>One method used in cryptanalysis is to use the Chi-squared statistic to measure the probability of any given substitution. The Chi-squared statistic is given by:</p>
                 <img style="max-height:75px" title="chi-squared-formula" src="/project-assets/euler/chi-squared-formula.png" />
                 <p><i>O<sub>i</sub></i> is the count of occurences of the <i>i</i>th letter in a given distribution and <i>E<sub>i</sub></i> is the expected count of occurences of that letter. The closer the observed value <i>O<sub>i</sub></i> is to the expected value, the lower &chi;<sup>2</sup> will be and the more likely that letter follows the standard distribution of letters in the English language.</p>
             </section>

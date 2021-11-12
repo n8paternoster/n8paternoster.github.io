@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Nathan Paternoster | Project Euler Problem <!--PROBLEM #--></title>
+    <title>Nathan Paternoster | Project Euler Problem 76</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/css/nate.css" />
     <link rel="stylesheet" type="text/css" href="/css/projects.css" />
@@ -29,21 +29,34 @@
             <div class="euler-problem-link-container">
                 <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
                 <div class="euler-problem-links">
-                    <a href=""<!--PROBLEM LINK--> target="_blank"><i class="fas fa-link"></i>&nbsp;Problem <!--PROBLEM #--> on Project Euler</a>
-                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem <!--PROBLEM #--> Code</a>
+                    <a href="https://projecteuler.net/problem=76" target="_blank"><i class="fas fa-link"></i>&nbsp;Problem 76 on Project Euler</a>
+                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem 76 Code</a>
                 </div>
             </div>
-            <h1 id="euler-problem-title">Problem <!--PROBLEM #--> - <!--PROBLEM TITLE--></h1>
+            <h1 id="euler-problem-title">Problem 76 - Counting summations</h1>
             <div class="euler-problem-view">
                 <button class="accordion" type="button">View problem</button>
                 <div class="accordion-panel">
-                    <blockquote cite=""<!--PROBLEM LINK-->>
-                        <!--PROBLEM TEXT-->
+                    <blockquote cite="https://projecteuler.net/problem=76">
+                        <p>It is possible to write five as a sum in exactly six different ways:</p>
+                        <p>
+                            4 + 1<br />
+                            3 + 2<br />
+                            3 + 1 + 1<br />
+                            2 + 2 + 1<br />
+                            2 + 1 + 1 + 1<br />
+                            1 + 1 + 1 + 1 + 1
+                        </p>
+                        <p>How many different ways can one hundred be written as a sum of at least two positive integers?</p>
                     </blockquote>
                 </div>
             </div>
             <hr />
-
+            <section>
+                <h2>Partitions</h2>
+                <p>In number theory, a <b>partition</b> of a positive integer is a way of writing that integer as a sum of at least 2 other positive integers. For example, the problem lists the six partitions of the number 5. In writing partitions, order does not matter; 4 + 1 is the same partition as 1 + 4. The partition function <i>p</i>(<i>n</i>) gives the number of partitions of <i>n</i>. In this problem we need to find the value of <i>p</i>(100).</p>
+                <p>Although there is no closed-form </p>
+            </section>
             <!-- content here -->
             <div id="end-page-back-link">
                 <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>

@@ -29,22 +29,111 @@
             <div class="euler-problem-link-container">
                 <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
                 <div class="euler-problem-links">
-                    <a href=""<!--PROBLEM LINK--> target="_blank"><i class="fas fa-link"></i>&nbsp;Problem <!--PROBLEM #--> on Project Euler</a>
-                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem <!--PROBLEM #--> Code</a>
+                    <a href="https://projecteuler.net/problem=75" target="_blank"><i class="fas fa-link"></i>&nbsp;Problem 75 on Project Euler</a>
+                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem 75 Code</a>
                 </div>
             </div>
-            <h1 id="euler-problem-title">Problem <!--PROBLEM #--> - <!--PROBLEM TITLE--></h1>
+            <h1 id="euler-problem-title">Problem 75 - Singular integer right triangles</h1>
             <div class="euler-problem-view">
                 <button class="accordion" type="button">View problem</button>
                 <div class="accordion-panel">
-                    <blockquote cite=""<!--PROBLEM LINK-->>
-                        <!--PROBLEM TEXT-->
+                    <blockquote cite="https://projecteuler.net/problem=75">
+                        <p>It turns out that 12 cm is the smallest length of wire that can be bent to form an integer sided right angle triangle in exactly one way, but there are many more examples.</p>
+                        <p><b>12 cm</b>: (3,4,5)<br /><b>24 cm</b>: (6,8,10)<br /><b>30 cm</b>: (5,12,13)<br /><b>36 cm</b>: (9,12,15)<br /><b>40 cm</b>: (8,15,17)<br /><b>48 cm</b>: (12,16,20)</p>
+                        <p>In contrast, some lengths of wire, like 20 cm, cannot be bent to form an integer sided right angle triangle, and other lengths allow more than one solution to be found; for example, using 120 cm it is possible to form exactly three different integer sided right angle triangles.</p>
+                        <p><b>120 cm</b>: (30,40,50), (20,48,52), (24,45,51)</p>
+                        <p>Given that L is the length of the wire, for how many values of L ≤ 1,500,000 can exactly one integer sided right angle triangle be formed?</p>
                     </blockquote>
                 </div>
             </div>
             <hr />
+            <section>
+                <h2>Pythagorean Triples</h2>
+                <p>When dealing with right angle triangles, it's always a good idea to start with the reliable Pythagorean theorem:</p>
+                <img style="max-height:200px" title="pythagorean-theorem" src="/project-assets/euler/pythagorean-theorem-triangle.png" />
+                <p>A solution to the Pythagorean theorem where <i>a</i>, <i>b</i>, and <i>c</i> are all integers is called a <b>Pythagorean triple</b>. We can see that all of the examples given in the problem are Pythagorean triples and it's clear that the problem is asking us to find all Pythagorean triples up to a limit. However, there is one catch, we are to not include any Pythagorean triples whose sum is equal to another Pythagorean triple. We'll come back to that detail later, for now we just need to find a method to generate triples.</p>
+            </section>
+            <section>
+                <h2>Generating Triples</h2>
+                <p>A quick online search shows many different ways to generate Pythagorean triples. For reference, let's call a triple {<i>a</i>, <i>b</i>, <i>c</i>}. One of the oldest and most well known methods, called Euclid's formula, produces triples by starting with two arbitrary positive integers, <i>m</i> and <i>n</i>, and uses the following formulas</p>
+                <code>
+                    <pre>
+<i>a</i> = <i>m</i><sup>2</sup> - <i>n</i><sup>2</sup>
+<i>b</i> = 2<i>mn</i>
+<i>c</i> = <i>m</i><sup>2</sup> + <i>n</i><sup>2</sup></pre>
+                </code>
+                <p>However we run into a problem with this method quickly. We've simply reduced the problem from generating arbitrary sets of 3 numbers, <i>a</i>, <i>b</i>, and <i>c</i>, to generating arbitrary sets of 2 numbers, <i>m</i> and <i>n</i>. In addition, these formulas must be modified with a third parameter, <i>k</i>, to generate <i>all</i> triples uniquely.</p>
+                <code><pre>
+For <i>m</i> and <i>n</i> coprime and exactly one of which is even:
+<i>a</i> = <i>k</i> * (<i>m</i><sup>2</sup> - <i>n</i><sup>2)</sup>
+<i>b</i> = <i>k</i> * (2<i>mn</i>)
+<i>c</i> = <i>k</i> * (<i>m</i><sup>2</sup> + <i>n</i><sup>2</sup>)</pre></code>
+                <p>The introduction of <i>k</i> is required to produce the non-primitive triples. A <b>primitive Pythagorean triple</b> is one where <i>a</i>, <i>b</i>, and <i>c</i> are all coprime. For example {3, 4, 5} is a primitive triple but {9, 12, 15} is not because {9/3, 12/3, 15/3} = {3, 4, 5}.</p>
+                <p>Although this modified version of Euclid's formula is sufficient to solve this problem, it still requires us to produce all coprime integers <i>m</i> and <i>n</i>, not a trivial task. It may be worth looking at other methods.</p>
+            </section>
+            <section>
+                <h2>Ternary Tree Method</h2>
+                <p>A more recent discovery shows an interesting relationship among all primitive Pythagorean triples. The set of all primitive Pythagorean triples has the structure of a ternary tree - each primitive triple can be shown to have exactly 3 "descendant" primitive triples with the root of the tree being the triple {3, 4, 5}.</p>
+                <img title="pythagorean-ternary-tree" src="/project-assets/euler/pythagorean-ternary-tree.png" />
+                <p>Given a node on the tree with values {<i>a</i>, <i>b</i>, <i>c</i>}, its three children nodes, <i>A</i>, <i>B</i>, and <i>C</i>, can be generated with the following matrix multiplications: </p>
+                <img title="ternary-tree-matrices" src="/project-assets/euler/ternary-tree-matrices.png" />
+                <p>This method of generating triples has the property that every descendant triple will have a larger sum than its parents. Using this fact, we can perform a depth-first traversal of the tree that traverses down each branch until the sum of the generated triples exceeds the problem's limit of 1,500,000. This will allow us to cleanly generate all of the primitive Pythagorean triples. All that's left to do to generate the remaining non-primitive triples is to multiply each primitive triple by a multiple <i>k</i>.</p>
+            </section>
+            <section>
+                <h2>Implementation</h2>
+                <p>First, starting with a simple struct to represent a Pythagorean triple:</p>
+                <code><pre>
+struct pyTriple {
+&#9;int a;
+&#9;int b;
+&#9;int c;
+};              </pre></code>
+                <p>This recursive function performs a depth-first traversal of the tree and the matrix multiplications listed above to generate all triples:</p>
+                <code><pre>
+void generateTriples(pyTriple node, int *sumCount, int maxSum) {
 
-            <!-- content here -->
+&#9;int sum = node.a + node.b + node.c;
+
+&#9;// The sum of a node's children will always be larger, stop traversing the tree
+&#9;if (sum > maxSum) return;
+
+&#9;// Record the sum of this primitive triple and all its multiples
+&#9;int k = 1;
+&#9;while (k*sum < maxSum) sumCount[sum*k++]++;
+
+&#9;// Generate the three children of this node, all of which are primitive
+&#9;pyTriple leftChild;
+&#9;leftChild.a     =  1*node.a + -2*node.b + 2*node.c;
+&#9;leftChild.b     =  2*node.a + -1*node.b + 2*node.c;
+&#9;leftChild.c     =  2*node.a + -2*node.b + 3*node.c;
+&#9;generateTriples(leftChild, sumCount, maxSum);
+
+&#9;pyTriple middleChild;
+&#9;middleChild.a   =  1*node.a +  2*node.b + 2*node.c;
+&#9;middleChild.b   =  2*node.a +  1*node.b + 2*node.c;
+&#9;middleChild.c   =  2*node.a +  2*node.b + 3*node.c;
+&#9;generateTriples(middleChild, sumCount, maxSum);
+
+&#9;pyTriple rightChild;
+&#9;rightChild.a    = -1*node.a +  2*node.b + 2*node.c;
+&#9;rightChild.b    = -2*node.a +  1*node.b + 2*node.c;
+&#9;rightChild.c    = -2*node.a +  2*node.b + 3*node.c;
+&#9;generateTriples(rightChild, sumCount, maxSum);
+}               </pre></code>
+                <p>Rather than recording the values of each triple, we are only interested in a triple's sum. <samp>sumCount</samp> is an array whose index represents a Pythagorean triple sum. The value at each index corresponds to the number of triples with that sum.</p>
+                <p>Finally, to account for the problem's specification to only count <i>unique</i> sums, we just need to perform one final step of iterating through <samp>sumCount</samp> to only count sums that appear exactly once. Note that we can increment the loop by 2 as every Pythagorean triple will have an even sum.</p>
+                <code><pre>
+int numSinglePythagoreanTripleSums(int maxSum) {
+&#9;int *sumCount = new int[maxSum+1]();
+&#9;generateTriples({3, 4, 5}, sumCount, maxSum);   // initial node of the tree is the triple {3, 4, 5}
+&#9;int count = 0;
+&#9;for (int sum = 12; sum &lt;= maxSum; sum += 2)
+&#9;&#9;if (sumCount[sum] == 1) count++;
+&#9;delete[] sumCount;
+&#9;return count;
+}               </pre></code>
+            </section>
+            
             <div id="end-page-back-link">
                 <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
             </div>
