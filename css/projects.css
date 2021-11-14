@@ -334,7 +334,7 @@ img {
     color: #ad420b; /* dark orange */
 }
 
-.back-link:hover i {
+.back-link:hover i, #end-page-links i {
     color: initial;
 }
 
@@ -356,6 +356,36 @@ img {
 
 .euler-problem-links a:hover {
     background-color: #d96a20; /* dark orange */
+}
+
+#end-page-links {
+    display: flex;
+    margin-top: 3em;
+}
+
+#prev-problem {
+    margin-right: auto;
+}
+#prev-problem:hover {
+    color: #ad420b; /* dark orange */
+}
+#next-problem {
+    margin-left: auto;
+}
+#next-problem:hover {
+    color: #ad420b; /* dark orange */
+}
+
+a.wiki-link-inline {
+    color: #45aa3d; /* light green */
+}
+
+a.wiki-link-inline:hover {
+    color: #d96a20; /* light orange */
+}
+
+a.wiki-link-inline:active {
+    color: #ad420b; /* dark orange */
 }
 
 .euler-problem-view {
@@ -436,22 +466,6 @@ pre {
 
 .MathJax {
     font-size: 1em !important;
-}
-
-#end-page-back-link {
-    margin-top: 3em;
-}
-
-a.wiki-link-inline {
-    color: #45aa3d; /* light green */
-}
-
-a.wiki-link-inline:hover {
-    color: #d96a20; /* light orange */
-}
-
-a.wiki-link-inline:active {
-    color: #ad420b; /* dark orange */
 }
 
 /* ----------- Media Queries ----------- */
