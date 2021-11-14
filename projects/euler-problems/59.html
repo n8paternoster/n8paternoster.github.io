@@ -60,7 +60,7 @@
             </section>
             <section>
                 <h2>Frequency Analysis</h2>
-                <p>Frequency analysis leverages the fact that in any language, certain letters are used more often than others. In English, the top 5 most common letters are commonly given as E, T, A, O, and I (depending on the source used). If we examine the ciphertext and look for the most common letter, we can guess that that letter represents E in the plaintext. Continuing down the list of most common letters, we can keep making guesses until patterns or recognizable words start to emerge.</p>
+                <p>Frequency analysis leverages the fact that, in any language, certain letters are used more often than others. In English, the top 5 most common letters are commonly given as E, T, A, O, and I (depending on the source used). If we examine the ciphertext and look for the most common letter, we can guess that that letter represents E in the plaintext. Continuing down the list of most common letters, we can keep making guesses until patterns or recognizable words start to emerge.</p>
                 <p>While this is a popular method for pencil and paper solving, it has one main problem putting into use here - it still relies on guesswork. What we need is a way to quantitatively measure how likely any given substitution is.</p>
                 <p>One method used in cryptanalysis is to use the Chi-squared statistic to measure the probability of any given substitution. The Chi-squared statistic is given by:</p>
                 <img style="max-height:75px" title="chi-squared-formula" src="/project-assets/euler/chi-squared-formula.png" />
@@ -128,7 +128,7 @@ std::string s;
 while (getline(f, s, ',')) cipherText.push_back(static_cast&lt;unsigned char&gt;(std::stoul(s)));
 f.close();      </pre>
                 </code>
-                <p>Because we know the key is 3 characters long, we know that every 3rd character in the cipher will be encrypted using the same character of the key (the key is repeated to cover the length of the entire plaintext). For this reason we can break the ciphertext into 3 vectors representing each "column" of the ciphertext.</p>
+                <p>Because we know the key is 3 characters long, we know that every 3rd character in the cipher will be encrypted using the same character of the key (the key is repeated to cover the length of the entire plaintext). For this reason we can break the ciphertext into 3 vectors representing each "column" of the ciphertext that correspond to each character of the key.</p>
                 <code>
                     <pre>
 // key is 3 characters long, split the cipher into three columns
@@ -184,8 +184,9 @@ for (auto c : plainText) result += c;</pre>
                 <h2>Final Thoughts</h2>
                 <p>Although the Chi-squared test is not a perfect way to decrypt any XOR cypher it was enough to solve this problem. With longer plaintexts there would be more certainty of both the computed key and plaintext being correct. Improvements to this method could use more advanced techniques of frequency analysis that consider not only the most common letters in the English language, but also the most common pairs or larger groups of letters. For example, the letter Q is almost always followed by a U and the most common digraphs include TH, ER, ON, and AN.</p>
             </section>
-            <div id="end-page-back-link">
-                <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
+            <div id="end-page-links">
+                <a href="/projects/euler-problems/95.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Amicable chains</a>
+                <a href="/projects/euler-problems/63.html" id="next-problem">Next: Powerful digit counts&nbsp;<i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
 

@@ -63,11 +63,13 @@
 <i>c</i> = <i>m</i><sup>2</sup> + <i>n</i><sup>2</sup></pre>
                 </code>
                 <p>However we run into a problem with this method quickly. We've simply reduced the problem from generating arbitrary sets of 3 numbers, <i>a</i>, <i>b</i>, and <i>c</i>, to generating arbitrary sets of 2 numbers, <i>m</i> and <i>n</i>. In addition, these formulas must be modified with a third parameter, <i>k</i>, to generate <i>all</i> triples uniquely.</p>
-                <code><pre>
+                <code>
+                    <pre>
 For <i>m</i> and <i>n</i> coprime and exactly one of which is even:
 <i>a</i> = <i>k</i> * (<i>m</i><sup>2</sup> - <i>n</i><sup>2)</sup>
 <i>b</i> = <i>k</i> * (2<i>mn</i>)
-<i>c</i> = <i>k</i> * (<i>m</i><sup>2</sup> + <i>n</i><sup>2</sup>)</pre></code>
+<i>c</i> = <i>k</i> * (<i>m</i><sup>2</sup> + <i>n</i><sup>2</sup>)</pre>
+                </code>
                 <p>The introduction of <i>k</i> is required to produce the non-primitive triples. A <b>primitive Pythagorean triple</b> is one where <i>a</i>, <i>b</i>, and <i>c</i> are all coprime. For example {3, 4, 5} is a primitive triple but {9, 12, 15} is not because {9/3, 12/3, 15/3} = {3, 4, 5}.</p>
                 <p>Although this modified version of Euclid's formula is sufficient to solve this problem, it still requires us to produce all coprime integers <i>m</i> and <i>n</i>, not a trivial task. It may be worth looking at other methods.</p>
             </section>
@@ -82,14 +84,17 @@ For <i>m</i> and <i>n</i> coprime and exactly one of which is even:
             <section>
                 <h2>Implementation</h2>
                 <p>First, starting with a simple struct to represent a Pythagorean triple:</p>
-                <code><pre>
+                <code>
+                    <pre>
 struct pyTriple {
 &#9;int a;
 &#9;int b;
 &#9;int c;
-};              </pre></code>
+};              </pre>
+                </code>
                 <p>This recursive function performs a depth-first traversal of the tree and the matrix multiplications listed above to generate all triples:</p>
-                <code><pre>
+                <code>
+                    <pre>
 void generateTriples(pyTriple node, int *sumCount, int maxSum) {
 
 &#9;int sum = node.a + node.b + node.c;
@@ -119,10 +124,12 @@ void generateTriples(pyTriple node, int *sumCount, int maxSum) {
 &#9;rightChild.b    = -2*node.a +  1*node.b + 2*node.c;
 &#9;rightChild.c    = -2*node.a +  2*node.b + 3*node.c;
 &#9;generateTriples(rightChild, sumCount, maxSum);
-}               </pre></code>
+}               </pre>
+                </code>
                 <p>Rather than recording the values of each triple, we are only interested in a triple's sum. <samp>sumCount</samp> is an array whose index represents a Pythagorean triple sum. The value at each index corresponds to the number of triples with that sum.</p>
                 <p>Finally, to account for the problem's specification to only count <i>unique</i> sums, we just need to perform one final step of iterating through <samp>sumCount</samp> to only count sums that appear exactly once. Note that we can increment the loop by 2 as every Pythagorean triple will have an even sum.</p>
-                <code><pre>
+                <code>
+                    <pre>
 int numSinglePythagoreanTripleSums(int maxSum) {
 &#9;int *sumCount = new int[maxSum+1]();
 &#9;generateTriples({3, 4, 5}, sumCount, maxSum);   // initial node of the tree is the triple {3, 4, 5}
@@ -131,11 +138,12 @@ int numSinglePythagoreanTripleSums(int maxSum) {
 &#9;&#9;if (sumCount[sum] == 1) count++;
 &#9;delete[] sumCount;
 &#9;return count;
-}               </pre></code>
+}               </pre>
+                </code>
             </section>
-            
-            <div id="end-page-back-link">
-                <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
+            <div id="end-page-links">
+                <a href="/projects/euler-problems/64.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Odd period square roots</a>
+                <a href="/projects/euler-problems/76.html" id="next-problem">Next: Counting summations&nbsp;<i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
 

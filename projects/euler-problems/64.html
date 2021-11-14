@@ -81,7 +81,7 @@
             <section>
                 <h2>Simple Continued Fractions</h2>
                 <p>Before tackling this problem it's necessary to understand continued fractions and their notation. In the most basic terms, a continued fraction is a way of writing fractions that include nested fractions such as:</p>
-                <img style="max-height:200px" title="continued-fraction" src="/project-assets/euler/continued-fraction.png"/>
+                <img style="max-height:200px" title="continued-fraction" src="/project-assets/euler/continued-fraction.png" />
                 <p>They are commonly used as a way to represent rational numbers. For example, consider the rational number 415/93. A normal decimal approximation may be rounded and given as 4.4624. Instead, we can represent the number as a continued fraction by using an iterative process of repeated division. At each iteration we will perform Euclidean division to get an integer quotient and then use that to find the fractional remainder. The first iteration gives:</p>
                 <div class="mathjax-block">
                     <p>\(\frac{415}{93} = 4 + \frac{43}{93}\)</p>
@@ -151,7 +151,8 @@
             </section>
             <section>
                 <h2>Implementation</h2>
-                <code><pre>
+                <code>
+                    <pre>
 int numOddPeriods(int N) {
 &#9;int count = 0;
 &#9;for (int n = 2; n &lt;= N; n++) {
@@ -167,12 +168,13 @@ int numOddPeriods(int N) {
 &#9;&#9;if (periodLength%2) count++;
 &#9;}
 &#9;return count;
-}</pre></code>
+}</pre>
+                </code>
                 <p>In the outer loop we check all of the integers up to 10,000 and increment <i>count</i> when an integer has an odd period length. In the inner while loop is the implementation of the algorithm listed above. This function makes use of the fact that in C++ positive integer division results in truncation of the quotient.</p>
             </section>
-
-            <div id="end-page-back-link">
-                <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
+            <div id="end-page-links">
+                <a href="/projects/euler-problems/63.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Powerful digit counts</a>
+                <a href="/projects/euler-problems/75.html" id="next-problem">Next: Singular integer right triangles&nbsp;<i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
 
