@@ -145,12 +145,29 @@ header {
 
 /* ------------ Card ------------ */
 
-.col {
-    float: left;
-    width: 50%;
+.grid-container {
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 3em;
+    width: 100%;
 }
 
 .card {
+    color: black;
+    padding: 1.75em;
+    background-color: white;
+    border: 1px solid #333;
+    box-shadow: 0px 2px 5px #999;
+    transition: 0.5s ease;
+}
+
+/*.col {
+    float: left;
+    width: 50%;
+}*/
+
+/*.card {
     display: block;
     position: relative;
     min-height: 15rem;
@@ -161,11 +178,10 @@ header {
     border: 1px solid #333;
     box-shadow: 0px 2px 5px #999;
     transition: 0.5s ease;
-}
+}*/
 
-.card + .card {       /* prevent margin collapse to maintain uniform spacing */
-    margin-top: 3em;  /* .card margin x 2 */
-}
+/*.card + .card {*/        /* prevent margin collapse to maintain uniform spacing */    /*margin-top: 3em;*/  /* .card margin x 2 */
+/*}*/
 
 .card:hover {
     box-shadow: 0px 7px 15px #999, 0px 2px 5px green;
@@ -174,8 +190,8 @@ header {
 }
 
 .card:hover .card-link {
-/*    color: green;
-    border-color: green;*/
+    color: green;
+    border-color: green;
 }
 
 #home-content div.card {
@@ -183,7 +199,7 @@ header {
     min-height: 600px;
 }
 
-.title-container, .splash-container {
+/*.title-container, .splash-container {
     position: absolute;
     right: 0px;
     left: 0px;
@@ -216,9 +232,9 @@ header {
     text-align: center;
     margin: unset;
     padding: unset;
-}
+}*/
 
-.card-title * {
+/*.card-title * {
     position: absolute;
     bottom: 10%;
     width: 80%;
@@ -231,10 +247,10 @@ header {
     display: block;
     content: "";
     height: 10%;
-}
+}*/
 
 a.card-link {
-    background-color: #e09a72; /* light orange */
+    background-color: #e09a72;  /* light orange */
     border: 0.1em solid #333;
     border-radius: 0.2em;
     color: black;
@@ -246,9 +262,9 @@ a.card-link {
 }
 
 .card a.card-link:hover {
-    /*color: #d96a20;*/ /* dark orange */
-    /*border-color: #d96a20;*/ /* dark orange */
-    background-color: #d96a20; /* dark orange */
+    color: #d96a20;  /* dark orange*/ 
+    border-color: #d96a20;  /* dark orange*/ 
+    background-color: #d96a20;  /* dark orange */
     cursor: inherit;
 }
 
@@ -339,7 +355,14 @@ a.card-link {
     }
 }
 
-@media screen and (max-width: 670px) {  /* change the top nav menu to vertical buttons */
+@media screen and (max-width: 670px) {  
+    
+    /* smaller font size */
+    .content h1, .content h2, .content h3, .content h4, .content p, .content a {
+        font-size: initial;
+    }
+    
+    /* change the top nav menu to vertical buttons */
     .topnav {
         position: unset;
     }
