@@ -226,7 +226,7 @@ img {
     margin-left: -3.125em;
 }
 
-.carousel-card a.card-dest { /* style like a button, initially hidden */
+.carousel-card a.clickable-card-dest { /* style like a button, initially hidden */
     display: block;
     background-color: #eee;
     color: black;
@@ -251,7 +251,7 @@ img {
     position: relative;
     left: 3.625em;
 }
-.carousel-card-active a.card-dest { /* reveal button when the carousel card is active */
+.carousel-card-active a.clickable-card-dest { /* reveal button when the carousel card is active */
     outline: 0.12em solid #000;
     padding: 0.75em;
     max-height: 4em;    /* some height bigger than required to allow for transition */

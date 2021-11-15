@@ -37,11 +37,11 @@ accordionList.forEach(function (accordion) {
 const cardList = document.querySelectorAll(".clickable-card");
 function addCardClickEvent(card) {
     // prevent double event triggering on links inside the card
-    var clickableElements = Array.from(card.querySelectorAll(".card-link"));
+    var clickableElements = Array.from(card.querySelectorAll(".clickable-card-link"));
     clickableElements.forEach((ele) => ele.addEventListener("click", (e) => e.stopPropagation()));
 
     // add a click event to the whole card
-    var cardDest = card.querySelector(".card-dest");
+    var cardDest = card.querySelector(".clickable-card-dest");
     card.addEventListener("click", function () {
         var noTextSelected = !window.getSelection().toString();
         if (noTextSelected) {   // allow text highlighting without triggering redirect
