@@ -148,30 +148,30 @@ header {
 /* ------------ Project Card ------------ */
 
 .project-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-basis: 100%;
     min-height: 15rem;
     color: black;
     padding: 1.75em;
-    background-color: white;
+    background-color: #80cb7a; /* light green */
     border: 1px solid #333;
     box-shadow: 0px 2px 5px #999;
     transition: 0.5s ease;
     text-align: center;
 }
 
-.project-card-title {
+.project-card-title, .project-card-desc {
     display: flex;
     flex-direction: column;
     min-height: 6em;
     text-align: center;
+    justify-content: center;
 }
 
 .project-card-title h1 {
     margin: 0;
-    
-}
-
-.project-card-desc {
-
 }
 
 .project-card:hover {
@@ -269,7 +269,7 @@ header {
     text-align: left;
     border: none;
     outline: none;
-    font-size: 1.6em;
+    font-size: 1.5em;
     transition: 0.4s;
 }
 
@@ -292,10 +292,14 @@ header {
     overflow: hidden;
     max-height: 0;
     margin: 0;
-    transition: max-height 0.3s ease-out;
+    transition: max-height 0.5s ease-out;
 }
 
 /* ------------ Courselist ------------ */
+
+#courses-desc {
+    margin-bottom: 3em;
+}
 
 .courselist {
     list-style-type: none;
@@ -309,11 +313,7 @@ header {
 .courselist p {
     margin-top: 1em;
     padding-left: 1em;
-    font-size: 1.1em;
-}
-
-.courselist h4 {
-    font-size: 1.3em;
+    font-size: 1em;
 }
 
 .courselist a {

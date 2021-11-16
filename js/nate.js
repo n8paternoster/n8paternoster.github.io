@@ -100,6 +100,47 @@ if (isHoverableDevice) {
     });
 }
 
+/* ---- Add click event to .carousel-container navigation arrows to scroll carousel on mousedown ---- */
+var carouselList = document.querySelectorAll(".carousel-container");
+var scrollSpeed = 15;
+var scrolling = false;
+function scrollCarousel(element, leftScroll) {
+    const maxScroll = element.scrollWidth - element.clientWidth;
+    var travelDistance = leftScroll ? -scrollSpeed : scrollSpeed;
+    element.scrollLeft += travelDistance;
+    if (scrolling && element.scrollLeft > 0 && element.scrollLeft < maxScroll ) {
+        window.requestAnimationFrame(function () {
+            scrollCarousel(element, leftScroll);
+        });
+    }
+}
+carouselList.forEach(function (carousel) {
+    var carouselLeftArrow = carousel.querySelector(".carousel-left-arrow");
+    var carouselRightArrow = carousel.querySelector(".carousel-right-arrow");
+    var carouselCardContainer = carousel.querySelector(".carousel-card-container");
+    if (carouselLeftArrow && carouselCardContainer) {
+        carouselLeftArrow.addEventListener("mousedown", function () {
+            scrolling = true;
+            window.requestAnimationFrame(function () {
+                scrollCarousel(carouselCardContainer, true);
+            });
+        });
+    }
+    if (carouselRightArrow && carouselCardContainer) {
+        carouselRightArrow.addEventListener("mousedown", function () {
+            scrolling = true;
+            window.requestAnimationFrame(function () {
+                scrollCarousel(carouselCardContainer, false);
+            });
+        });
+    }
+    document.addEventListener("mouseup", () => {
+        scrolling = false;
+    });
+});
+
+
+
 /* ---- Add click event to .copyable-text elements to copy contents to clipboard ---- */
 const copyableElements = document.querySelectorAll(".copyable-text");
 function copyContentsToClipboard() {
@@ -131,32 +172,3 @@ function copyContentsToClipboard() {
 copyableElements.forEach(function (ele) {
     ele.addEventListener("click", copyContentsToClipboard, false);
 });
-
-//copyableElements.forEach(ele => {
-//    ele.addEventListener("click", () => {
-//        // Create a range and set it to the contents of this .copyable-text element
-//        const range = document.createRange();
-//        range.setStart(ele, 0);
-//        range.setEnd(ele, 1);
-
-//        // Create a selection from this range
-//        const selection = window.getSelection();
-//        selection.removeAllRanges();
-//        selection.addRange(range);
-
-//        try {
-//            // Copy the selection to the clipboard
-//            document.execCommand("copy");
-//            selection.removeAllRanges();
-
-//            // Display the Copied! popup if successful
-//            const popup = ele.querySelector(".copyable-popup");
-//            popup.classList.add("copyable-popup-active");
-//            setTimeout(() => {
-//                popup.classList.remove("copyable-popup-active");
-//            }, 1200);
-//        } catch (e) {
-//            // Do nothing on failure
-//        }
-//    });
-//});

@@ -2,7 +2,7 @@
 
 
 /* make the entire card clickable */
-.clickable-card .card-dest { 
+.clickable-card .clickable-card-dest { 
     position: absolute;
     width: 100%;
     height: 100%;
@@ -12,10 +12,10 @@
 }
 
 /* make the entire carousel card clickable*/
-.carousel-card a.card-dest {
+.carousel-card a.clickable-card-dest {
     all: initial;
     cursor: pointer;
-    color: transparent;
+    color: transparent; /* don't display "View" content */
     position: absolute;
     width: 100%;
     height: 100%;
@@ -37,4 +37,9 @@
 /* open the accordion */
 .accordion-panel {
     max-height: unset;
+}
+
+/* hide the navigation arrows on carousels */
+.carousel-left-arrow, .carousel-right-arrow {
+    display: none;
 }
