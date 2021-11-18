@@ -155,7 +155,8 @@ header {
     min-height: 15rem;
     color: black;
     padding: 1.75em;
-    background-color: #80cb7a; /* light green */
+    /*background-color: #80cb7a;*/ /* light green */
+    background-color: #91c48d; /* light green */
     border: 1px solid #333;
     box-shadow: 0px 2px 5px #999;
     transition: 0.5s ease;
@@ -176,17 +177,18 @@ header {
 
 .project-card:hover {
     box-shadow: 0px 7px 15px #999, 0px 2px 5px green;
-    color: green;
+/*    color: green;*/
     cursor: pointer;
+    background-color: #45aa3d; /* dark green */
 }
 
 .project-card:hover .clickable-card-link {
-    color: #d96a20; /* dark orange*/
+    /*color: #d96a20;*/ /* dark orange*/
     border-color: #d96a20; /* dark orange*/
 }
 
 .project-card a.clickable-card-link {
-    border: 0.075em solid #333;
+    border: 0.1em solid #333;
     border-radius: 0.2em;
     color: black;
     padding: 0.5em 1em;
@@ -196,7 +198,7 @@ header {
 }
 
 .project-card a.clickable-card-link:hover {
-    color: white; /* dark orange*/
+    color: white;
     border-color: #d96a20; /* dark orange*/
     background-color: #d96a20; /* dark orange */
     cursor: inherit;

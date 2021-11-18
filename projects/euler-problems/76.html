@@ -10,6 +10,8 @@
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
     <script src="/js/nate.js" defer></script>
     <script src="https://kit.fontawesome.com/254df2922f.js" crossorigin="anonymous"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -54,8 +56,34 @@
             <hr />
             <section>
                 <h2>Partitions</h2>
-                <p>In number theory, a <b>partition</b> of a positive integer is a way of writing that integer as a sum of at least 2 other positive integers. For example, the problem lists the six partitions of the number 5. In writing partitions, order does not matter; 4 + 1 is the same partition as 1 + 4. The partition function <i>p</i>(<i>n</i>) gives the number of partitions of <i>n</i>. In this problem we need to find the value of <i>p</i>(100).</p>
-                <p>Although there is no closed-form </p>
+                <p>In number theory, a <b>partition</b> of a positive integer is a way of writing that integer as a sum of at least 2 other positive integers. For example, the problem lists the six partitions of the number 5. In writing partitions, order does not matter; 4 + 1 is the same partition as 1 + 4. The partition function, <b><i>p</i>(<i>n</i>)</b>, gives the number of partitions of <i>n</i>. In this problem we need to find the value of <i>p</i>(100).</p>
+                <p>Although there is no closed-form expression for <i>p</i>(<i>n</i>), mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Leonhard_Euler">Leonhard Euler</a> (of this project's namesake) proved an identity called the <b>Pentagonal number theorem</b> that leads directly to a recurrence relation for <i>p</i>(<i>n</i>).</p>
+            </section>
+            <section>
+                <h2>Pentagonal Number Theorem</h2>
+                <p>Pentagonal numbers are numbers of the form</p>
+                <div class="mathjax-block">
+                    \(\frac{3n^2-n}{2}\)
+                </div>
+                <p>where <i>n</i> gives the <i>n</i>th pentagonal number. The first few are 1, 5, 12, 22, 35. They are called pentagonal because the <i>n</i>th pentagonal is the number of dots needed to form a pentagon with <i>n</i> sides.</p>
+                <img src="/project-assets/euler/pentagonal-numbers.png" alt="Pentagonal numbers of dots" />
+                <p>When negative values of <i>n</i> in the above formula are allowed, the <i>generalized pentagonal numbers</i> are obtained. For <i>n</i> = 0, 1, -1, 2, -2, 3, -3; the first several generalized pentagonal numbers are 0, 1, 2, 5, 7, 12, 15.</p>
+                <p>The <i>Pentagonal number theorem</i> shows an important connection between products and series. Euler found that the infinite product:</p>
+                <div class="mathjax-block">
+                    <p>\((1-x)(1-x^2)(1-x^3) ...\)</p>
+                </div>
+               <p>is equivalent to the infinite series:</p>
+                <div class="mathjax-block">
+                    <p>\(1-x-x^2+x^5+x^7-x^{12}-x^{15} ...\)</p>
+                </div>
+                <p>The exponents of this series are precisely the generalized pentagonal numbers, hence the theorem's name. Writing the formal defintion, the theorem states</p>
+                <div class="mathjax-block">
+                    <p>\(\prod\limits_{n=1}^\infty(1-x^n) = \sum\limits_{k=-\infty}^\infty(-1)^kx^{\frac{k(3k-1)}{2}}\)</p>
+                </div>
+            </section>
+            <section>
+                <h2>A Recurrence Relation for <i>p</i>(<i>n</i>)</h2>
+                <p>But how does the Pentagonal number theorem relate to the partition function?</p>
             </section>
 
             <div id="end-page-links">

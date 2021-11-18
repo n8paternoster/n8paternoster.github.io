@@ -102,7 +102,7 @@ if (isHoverableDevice) {
 
 /* ---- Add click event to .carousel-container navigation arrows to scroll carousel on mousedown ---- */
 var carouselList = document.querySelectorAll(".carousel-container");
-var scrollSpeed = 15;
+var scrollSpeed = 10;
 var scrolling = false;
 function scrollCarousel(element, leftScroll) {
     const maxScroll = element.scrollWidth - element.clientWidth;
