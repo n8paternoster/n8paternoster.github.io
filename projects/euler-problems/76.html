@@ -57,7 +57,7 @@
             <section>
                 <h2>Partitions</h2>
                 <p>In number theory, a <b>partition</b> of a positive integer is a way of writing that integer as a sum of at least 2 other positive integers. For example, the problem lists the six partitions of the number 5. In writing partitions, order does not matter; 4 + 1 is the same partition as 1 + 4. The partition function, <b><i>p</i>(<i>n</i>)</b>, gives the number of partitions of <i>n</i>. In this problem we need to find the value of <i>p</i>(100).</p>
-                <p>Although there is no closed-form expression for <i>p</i>(<i>n</i>), mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Leonhard_Euler">Leonhard Euler</a> (of this project's namesake) proved an identity called the <b>Pentagonal number theorem</b> that leads directly to a recurrence relation for <i>p</i>(<i>n</i>).</p>
+                <p>Although there is no closed-form expression for <i>p</i>(<i>n</i>), mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Leonhard_Euler">Leonhard Euler</a> (of this project's namesake) proved an identity called the <b>Pentagonal number theorem</b> that leads directly to a recurrence relation for <i>p</i>(<i>n</i>). The following few sections briefly describe the derivation of this recurrence relation to calculate <i>p</i>(100). To see this final equation skip to Implementation.</p>
             </section>
             <section>
                 <h2>Pentagonal Number Theorem</h2>
@@ -78,12 +78,68 @@
                 </div>
                 <p>The exponents of this series are precisely the generalized pentagonal numbers, hence the theorem's name. Writing the formal defintion, the theorem states</p>
                 <div class="mathjax-block">
-                    <p>\(\prod\limits_{n=1}^\infty(1-x^n) = \sum\limits_{k=-\infty}^\infty(-1)^kx^{\frac{k(3k-1)}{2}}\)</p>
+                    <p>\(\prod\limits_{n=1}^{\infty}(1-x^n) = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{\frac{k(3k-1)}{2}} = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{g(k)}\)</p><br />
+                    <p>where \(g(k)\) is the \(k^{th}\) generalized pentagonal number</p>
+                </div>
+            </section>
+            <section>
+                <h2>A Generating Function for <i>p</i>(<i>n</i>)</h2>
+                <p>In order to find a suitable algorithm for the partition function, let's first start with a generating function for <i>p</i>(<i>n</i>). A <b>generating function</b> is a power series whose coefficients form a sequence of a numbers. For example, the Fibonacci sequence (0, 1, 1, 3, 5, 8, 13, ...) can be represented by the power series</p>
+                <div class="mathjax-block">
+                    <p>\(0 + x + 1x^2 + 3x^3 + 5x^4 + 8x^5 + 13x^6 + ...\)</p>
+                </div>
+                <p>Note how the coefficient of the <i>n</i>th term gives the <i>n</i>th Fibonacci number (e.g. the 6th Fibonacci number, 13, is given by the coefficient of <i>x</i><sup>6</sup>). The above power series is then written as the generating function:</p>
+                <div class="mathjax-block">
+                    <p>\(\sum\limits_{n=0}^{\infty}F_nx^n = \frac{1}{1-(x+x^2)}\)</p>
+                </div>
+                <p>where <i>F<sub>n</sub></i> is the <i>n</i>th Fibonacci number and the expression on the right is the generating function's closed form.</p>
+                <p>To find a generating function for <i>p</i>(<i>n</i>), consider the following product:</p>
+                <div class="mathjax-block">
+                    <p>\((1+x+x^2+x^3+...)(1+x^2+x^4+x^6+...)...(1+x^k+x^{2k}+x^{3k}+...)...\)</p>
+                </div>
+                <p>Each factor represents an integer. For example, the factor \((1+x^2+x^4+x^6+...)\) represents the integer 2. Each term in the factor represents all possible <i>quantities</i> of the integer 2 we can choose when creating a partition. For example \(x^6\) in the 2nd factor represents choosing three 2's (\(x^6\ = x^2x^2x^2\)). When this entire product is multiplied out, we pick one term from each factor in all possible ways (with only a finite number of "non-1" terms). For example, if we pick x<sup>3</sup> from the first factor, x<sup>2</sup> from the second factor, x<sup>15</sup> from the fifth factor, and 1's from all the other factors, this would multiply out to x<sup>20</sup>. This term would correspond to picking three 1's (\(x^3\ = x^1x^1x^1\)), one 2 (\(x^2\ = x^2\)), and three 5's (\(x^{15}\ = x^5x^5x^5\)) - the partition 1 + 1 + 1 + 1 + 2 + 2 + 2 + 2 + 2 + 3 + 3 = 20. When multiplying all of the factors in all possible ways, all possible combinations of partitions would be generated.</p>
+                <p>This product is written as</p>
+                <div class="mathjax-block">
+                    <p>\(\prod\limits_{k=1}^{\infty}\sum\limits_{i=0}^{\infty}x^{ki}\)</p>
+                </div>
+                <p>Because we know that the geometric series converges for any <i>k</i>:</p>
+                <div class="mathjax-block">
+                    <p>\(\sum\limits_{i=0}^{\infty}(x^k)^i = 1+x^k+(x^k)^2+(x^k)^3+...=\frac{1}{1-x^k}\)</p>
+                </div>
+                <p>we can rewrite the above product as</p>
+                <div class="mathjax-block">
+                    <p>\(\prod\limits_{k=1}^{\infty}\sum\limits_{i=0}^{\infty}x^{ki} = \prod\limits_{k=1}^{\infty}{\frac{1}{1-x^k}}\)</p>
+                </div>
+                <p>Therefore, the generating function for <i>p</i>(<i>n</i>) is</p>
+                <div class="mathjax-block">
+                    <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = \prod\limits_{k=1}^{\infty}{\frac{1}{1-x^k}}\)</p>
                 </div>
             </section>
             <section>
                 <h2>A Recurrence Relation for <i>p</i>(<i>n</i>)</h2>
-                <p>But how does the Pentagonal number theorem relate to the partition function?</p>
+                <p>Unlike the Fibonacci example earlier, the generating function for <i>p</i>(<i>n</i>) is not known to have a closed form representation. However, using Euler's pentagonal theorem, we can show a recurrence relation (a recursive defintion) that will allow us to calculate <i>p</i>(<i>n</i>) exactly.</p>
+                <p>Note the relationship between the generating function for <i>p</i>(<i>n</i>) and Euler's Pentagonal number theorem:</p>
+                <div class="mathjax-block">
+                    <p>Pentagonal number theorem</p>
+                    <p>\(\prod\limits_{n=1}^{\infty}(1-x^n) = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{\frac{k(3k-1)}{2}}\)</p><br />
+                    <p>Partition function generating function</p>
+                    <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = \prod\limits_{k=1}^{\infty}{\frac{1}{1-x^k}}\) </p><br />
+                    <p>Therefore</p><br />
+                    <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = 1/(\sum\limits_{k=-\infty}^{\infty}(-1)^kx^{\frac{k(3k-1)}{2}})\) or</p><br />
+                    <p>\(1/(\sum\limits_{k=-\infty}^{\infty}(-1)^{k}x^{g(k)})\) where \(g(k)\) is the \(k^{th}\) pentagonal number</p>
+                </div>
+                <p>Starting with the generating function:</p>
+                <div class="mathjax-block">
+                    <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = \prod\limits_{k=1}^{\infty}{\frac{1}{1-x^k}}\)</p><br />
+                    <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = 1/\prod\limits_{n=1}^{\infty}{1-x^n}\)</p><br />
+                    <p>\((\sum\limits_{n=0}^{\infty}p(n)x^n) \cdot (\prod\limits_{n=1}^{\infty}{1-x^n}) = 1\)</p>
+                </div>
+                <p>Multiply out the product on the left into a sum and call the coefficient of the <i>n</i>th term in this sum <i>a<sub>n</sub></i>:</p>
+                <div class="mathjax-block">
+                    <p>\(\prod\limits_{n=1}^{\infty}{1-x^n} = \sum\limits_{n=0}^{\infty}{a_nx^n}\)</p><br />
+                    <p>\(\prod\limits_{n=1}^{\infty}{1-x^n} = \sum\limits_{n=-\infty}^{\infty}{(-1)^nx^{g(n)}}\)</p>
+                    <p>\((\sum\limits_{n=0}^{\infty}p(n)x^n) \cdot (\sum\limits_{n=0}^{\infty}{a_nx^n}) = 1\)</p>
+                </div>
             </section>
 
             <div id="end-page-links">
