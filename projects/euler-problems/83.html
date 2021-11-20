@@ -10,6 +10,8 @@
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
     <script src="/js/nate.js" defer></script>
     <script src="https://kit.fontawesome.com/254df2922f.js" crossorigin="anonymous"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -29,16 +31,29 @@
             <div class="euler-problem-link-container">
                 <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
                 <div class="euler-problem-links">
-                    <a href=""<!--PROBLEM LINK--> target="_blank"><i class="fas fa-link"></i>&nbsp;Problem <!--PROBLEM #--> on Project Euler</a>
-                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem <!--PROBLEM #--> Code</a>
+                    <a href="https://projecteuler.net/problem=83" target="_blank"><i class="fas fa-link"></i>&nbsp;Problem 83 on Project Euler</a>
+                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem 83 Code</a>
                 </div>
             </div>
-            <h1 id="euler-problem-title">Problem <!--PROBLEM #--> - <!--PROBLEM TITLE--></h1>
+            <h1 id="euler-problem-title">Problem 83 - Path sum: four ways</h1>
             <div class="euler-problem-view">
                 <button class="accordion" type="button">View problem</button>
                 <div class="accordion-panel">
-                    <blockquote cite=""<!--PROBLEM LINK-->>
-                        <!--PROBLEM TEXT-->
+                    <blockquote cite="https://projecteuler.net/problem=83">
+                        <p>NOTE: This problem is a significantly more challenging version of <a href="problem=81">Problem 81</a>.</p>
+                        <p>In the 5 by 5 matrix below, the minimal path sum from the top left to the bottom right, by moving left, right, up, and down, is indicated in bold red and is equal to 2297.</p>
+                        <div>
+                            $$
+                            \begin{pmatrix}
+                            \color{red}{131} &amp; 673 &amp; \color{red}{234} &amp; \color{red}{103} &amp; \color{red}{18}\\
+                            \color{red}{201} &amp; \color{red}{96} &amp; \color{red}{342} &amp; 965 &amp; \color{red}{150}\\
+                            630 &amp; 803 &amp; 746 &amp; \color{red}{422} &amp; \color{red}{111}\\
+                            537 &amp; 699 &amp; 497 &amp; \color{red}{121} &amp; 956\\
+                            805 &amp; 732 &amp; 524 &amp; \color{red}{37} &amp; \color{red}{331}
+                            \end{pmatrix}
+                            $$
+                        </div>
+                        <p>Find the minimal path sum from the top left to the bottom right by moving left, right, up, and down in <a href="project/resources/p083_matrix.txt">matrix.txt</a> (right click and "Save Link/Target As..."), a 31K text file containing an 80 by 80 matrix.</p>
                     </blockquote>
                 </div>
             </div>
@@ -47,8 +62,8 @@
             <!-- content here -->
 
             <div id="end-page-links">
-                <a href="/projects/euler-problems/"<!--PREV PROBLEM LINK--> id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: <!--PREV PROBLEM TITLE--></a>
-                <a href="/projects/euler-problems/"<!--NEXT PROBLEM LINK--> id="next-problem">Next: <!--NEXT PROBLEM TITLE-->&nbsp;<i class="fas fa-arrow-right"></i></a>
+                <a href="/projects/euler-problems/76.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Counting summations</a>
+                <a href="/projects/euler-problems/89.html" id="next-problem">Next: Roman numerals&nbsp;<i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
 
