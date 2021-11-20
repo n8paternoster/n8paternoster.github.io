@@ -57,7 +57,7 @@
             <section>
                 <h2>Partitions</h2>
                 <p>In number theory, a <b>partition</b> of a positive integer is a way of writing that integer as a sum of at least 2 other positive integers. For example, the problem lists the six partitions of the number 5. In writing partitions, order does not matter; 4 + 1 is the same partition as 1 + 4. The partition function, <b><i>p</i>(<i>n</i>)</b>, gives the number of partitions of <i>n</i>. In this problem we need to find the value of <i>p</i>(100).</p>
-                <p>Although there is no closed-form expression for <i>p</i>(<i>n</i>), mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Leonhard_Euler">Leonhard Euler</a> (of this project's namesake) proved an identity called the <b>Pentagonal number theorem</b> that leads directly to a recurrence relation for <i>p</i>(<i>n</i>). The following few sections briefly describe the derivation of this recurrence relation to calculate <i>p</i>(100). To see this final equation skip to Implementation.</p>
+                <p>Although there is no closed-form expression for <i>p</i>(<i>n</i>), mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Leonhard_Euler">Leonhard Euler</a> (of this project's namesake) proved an identity called the <b>Pentagonal number theorem</b> that leads directly to a recurrence relation for <i>p</i>(<i>n</i>). The following few sections briefly describe the derivation of this recurrence relation to calculate <i>p</i>(100). To see the final equation skip to <a class="section-link" href="#euler-implementation-anchor">Implementation</a>.</p>
             </section>
             <section>
                 <h2>Pentagonal Number Theorem</h2>
@@ -78,13 +78,13 @@
                 </div>
                 <p>The exponents of this series are precisely the generalized pentagonal numbers, hence the theorem's name. Writing the formal defintion, the theorem states</p>
                 <div class="mathjax-block">
-                    <p>\(\prod\limits_{n=1}^{\infty}(1-x^n) = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{\frac{k(3k-1)}{2}} = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{g(k)}\)</p><br />
-                    <p>where \(g(k)\) is the \(k^{th}\) generalized pentagonal number</p>
+                    <p>\(\prod\limits_{n=1}^{\infty}(1-x^n) = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{\frac{k(3k-1)}{2}} = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{g_k}\)</p><br />
+                    <p>where \(g_k\) is the \(k^{th}\) generalized pentagonal number</p>
                 </div>
             </section>
             <section>
                 <h2>A Generating Function for <i>p</i>(<i>n</i>)</h2>
-                <p>In order to find a suitable algorithm for the partition function, let's first start with a generating function for <i>p</i>(<i>n</i>). A <b>generating function</b> is a power series whose coefficients form a sequence of a numbers. For example, the Fibonacci sequence (0, 1, 1, 3, 5, 8, 13, ...) can be represented by the power series</p>
+                <p>In order to find a suitable algorithm for the partition function, let's start with a generating function for <i>p</i>(<i>n</i>). A <b>generating function</b> is a power series whose coefficients form a sequence of a numbers. For example, the Fibonacci sequence (0, 1, 1, 3, 5, 8, 13, ...) can be represented by the power series</p>
                 <div class="mathjax-block">
                     <p>\(0 + x + 1x^2 + 3x^3 + 5x^4 + 8x^5 + 13x^6 + ...\)</p>
                 </div>
@@ -93,20 +93,24 @@
                     <p>\(\sum\limits_{n=0}^{\infty}F_nx^n = \frac{1}{1-(x+x^2)}\)</p>
                 </div>
                 <p>where <i>F<sub>n</sub></i> is the <i>n</i>th Fibonacci number and the expression on the right is the generating function's closed form.</p>
-                <p>To find a generating function for <i>p</i>(<i>n</i>), consider the following product:</p>
+                <p>What we want is a generating function for <i>p</i>(<i>n</i>), where the coefficient of the <i>n</i>th term gives the number of partitions for the <i>n</i>th integer. To find a generating function for <i>p</i>(<i>n</i>), consider the following infinite product:</p>
                 <div class="mathjax-block">
                     <p>\((1+x+x^2+x^3+...)(1+x^2+x^4+x^6+...)...(1+x^k+x^{2k}+x^{3k}+...)...\)</p>
                 </div>
-                <p>Each factor represents an integer. For example, the factor \((1+x^2+x^4+x^6+...)\) represents the integer 2. Each term in the factor represents all possible <i>quantities</i> of the integer 2 we can choose when creating a partition. For example \(x^6\) in the 2nd factor represents choosing three 2's (\(x^6\ = x^2x^2x^2\)). When this entire product is multiplied out, we pick one term from each factor in all possible ways (with only a finite number of "non-1" terms). For example, if we pick x<sup>3</sup> from the first factor, x<sup>2</sup> from the second factor, x<sup>15</sup> from the fifth factor, and 1's from all the other factors, this would multiply out to x<sup>20</sup>. This term would correspond to picking three 1's (\(x^3\ = x^1x^1x^1\)), one 2 (\(x^2\ = x^2\)), and three 5's (\(x^{15}\ = x^5x^5x^5\)) - the partition 1 + 1 + 1 + 1 + 2 + 2 + 2 + 2 + 2 + 3 + 3 = 20. When multiplying all of the factors in all possible ways, all possible combinations of partitions would be generated.</p>
-                <p>This product is written as</p>
+                <p>Each factor represents an integer. The second factor, \((1+x^2+x^4+x^6+...)\), also written as \((1+(x^2)^1+(x^2)^2+(x^2)^3)\), represents the integer 2. Each term in this factor represents the quantity of 2's that we can choose when creating a partition. For example \(x^6\) represents choosing three 2's (\(x^6\ = x^2x^2x^2\)).</p>
+                <p>When this entire product is multiplied out, we pick one term from each factor in all possible ways. For example, if we pick x<sup>3</sup> from the first factor, x<sup>2</sup> from the second factor, x<sup>15</sup> from the fifth factor, and 1's from all the other factors, this would multiply out to x<sup>20</sup>. This term would correspond to picking three 1's (\(x^3\ = x^1x^1x^1\)), one 2 (\(x^2\ = x^2\)), and three 5's (\(x^{15}\ = x^5x^5x^5\)). This is a partition of 20: 1 + 1 + 1 + 2 + 5 + 5 + 5 = 20.</p>
+                <p> When multiplying all of the factors in all possible ways, all possible combinations of partitions would be generated. The product is written as</p>
                 <div class="mathjax-block">
                     <p>\(\prod\limits_{k=1}^{\infty}\sum\limits_{i=0}^{\infty}x^{ki}\)</p>
                 </div>
-                <p>Because we know that the geometric series converges for any <i>k</i>:</p>
+                <p>Because we know that the geometric series converges,</p>
                 <div class="mathjax-block">
-                    <p>\(\sum\limits_{i=0}^{\infty}(x^k)^i = 1+x^k+(x^k)^2+(x^k)^3+...=\frac{1}{1-x^k}\)</p>
+                    <p>\(\sum\limits_{i=0}^{\infty}x^i = 1+x+x^2+x^3+...=\frac{1}{1-x}\)</p><br />
+                    <p>and</p><br />
+                    <p>\(\sum\limits_{i=0}^{\infty}(x^k)^i = 1+x^k+(x^k)^2+(x^k)^3+...=\frac{1}{1-x^k}\)</p><br />
+                    <p>(Note that even though this series converges only when |x| < 1, for our generating function this is sufficient)</p>
                 </div>
-                <p>we can rewrite the above product as</p>
+                <p>we can then substitute the sum in the above product to get</p>
                 <div class="mathjax-block">
                     <p>\(\prod\limits_{k=1}^{\infty}\sum\limits_{i=0}^{\infty}x^{ki} = \prod\limits_{k=1}^{\infty}{\frac{1}{1-x^k}}\)</p>
                 </div>
@@ -117,31 +121,94 @@
             </section>
             <section>
                 <h2>A Recurrence Relation for <i>p</i>(<i>n</i>)</h2>
-                <p>Unlike the Fibonacci example earlier, the generating function for <i>p</i>(<i>n</i>) is not known to have a closed form representation. However, using Euler's pentagonal theorem, we can show a recurrence relation (a recursive defintion) that will allow us to calculate <i>p</i>(<i>n</i>) exactly.</p>
-                <p>Note the relationship between the generating function for <i>p</i>(<i>n</i>) and Euler's Pentagonal number theorem:</p>
-                <div class="mathjax-block">
-                    <p>Pentagonal number theorem</p>
-                    <p>\(\prod\limits_{n=1}^{\infty}(1-x^n) = \sum\limits_{k=-\infty}^{\infty}(-1)^kx^{\frac{k(3k-1)}{2}}\)</p><br />
-                    <p>Partition function generating function</p>
-                    <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = \prod\limits_{k=1}^{\infty}{\frac{1}{1-x^k}}\) </p><br />
-                    <p>Therefore</p><br />
-                    <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = 1/(\sum\limits_{k=-\infty}^{\infty}(-1)^kx^{\frac{k(3k-1)}{2}})\) or</p><br />
-                    <p>\(1/(\sum\limits_{k=-\infty}^{\infty}(-1)^{k}x^{g(k)})\) where \(g(k)\) is the \(k^{th}\) pentagonal number</p>
-                </div>
+                <p>Unlike the Fibonacci example earlier, the generating function for <i>p</i>(<i>n</i>) is not known to have a closed form representation. However, using the generating function and Euler's pentagonal theorem, we can show a recurrence relation (a recursive defintion) that will allow us to calculate <i>p</i>(<i>n</i>) exactly.</p>
                 <p>Starting with the generating function:</p>
                 <div class="mathjax-block">
                     <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = \prod\limits_{k=1}^{\infty}{\frac{1}{1-x^k}}\)</p><br />
                     <p>\(\sum\limits_{n=0}^{\infty}p(n)x^n = 1/\prod\limits_{n=1}^{\infty}{1-x^n}\)</p><br />
                     <p>\((\sum\limits_{n=0}^{\infty}p(n)x^n) \cdot (\prod\limits_{n=1}^{\infty}{1-x^n}) = 1\)</p>
                 </div>
-                <p>Multiply out the product on the left into a sum and call the coefficient of the <i>n</i>th term in this sum <i>a<sub>n</sub></i>:</p>
+                <p>From the Pentagonal number theorem we can replace the infinite product \(\prod\limits_{n=1}^{\infty}({1-x^n})\) with the infinite sum \(\sum\limits_{k=-\infty}^{\infty}(-1)^kx^{g(k)}\) derived previously:</p>
                 <div class="mathjax-block">
-                    <p>\(\prod\limits_{n=1}^{\infty}{1-x^n} = \sum\limits_{n=0}^{\infty}{a_nx^n}\)</p><br />
-                    <p>\(\prod\limits_{n=1}^{\infty}{1-x^n} = \sum\limits_{n=-\infty}^{\infty}{(-1)^nx^{g(n)}}\)</p>
-                    <p>\((\sum\limits_{n=0}^{\infty}p(n)x^n) \cdot (\sum\limits_{n=0}^{\infty}{a_nx^n}) = 1\)</p>
+                    <p>\((\sum\limits_{n=0}^{\infty}p(n)x^n) \cdot (\sum\limits_{k=-\infty}^{\infty}(-1)^kx^{g(k)}) = 1\)</p>
+                </div>
+                <p>Expanding both infinite sums:</p>
+                <div class="mathjax-block">
+                    <p>\((p(0)+p(1)x+p(2)x^2+p(3)x^3+...) \cdot\)\((1-x-x^2+x^5+x^7-x^{12}+...) = 1\)</p>
+                </div>
+                <p>As the only term in the left factor with no <i>x</i>, p(0) must = 1 for this equality to hold, therefore</p>
+                <div class="mathjax-block">
+                    <p>\((1+p(1)x+p(2)x^2+p(3)x^3+...) \cdot\)\((1-x-x^2+x^5+x^7-x^{12}+...) = 1\)</p>
+                </div>
+                <p>When the left side of this equation is multiplied out, each power of <i>x</i> will have some coefficient <i>a<sub>n</sub></i></p>
+                <div class="mathjax-block">
+                    <p>\((1+a_1x+a_2x^2+a_3x^3+a_4x^4-a_5x^5+...) = 1\)</p>
+                </div>
+                <p>Thus for \(n>=1\), the coefficient <i>a<sub>n</sub></i> must = 0.</p>
+                <p>Consider again the equality:</p>
+                <div class="mathjax-block">
+                    <p>\((p(0)+p(1)x+p(2)x^2+p(3)x^3+...) \cdot\)\((1-x-x^2+x^5+x^7-x^{12}+...) = 1\)</p>
+                </div>
+                <p>To find, for example, the resulting coefficient, <i>a</i><sub>10</sub>, for <i>x</i><sup>10</sup> once the equation is multiplied out, it's important to recognize that only certain combinations of terms can be multiplied together to produce <i>x</i><sup>10</sup>. For example,</p>
+                <div class="mathjax-block">
+                    <p>\(p(10)x^{10} \cdot 1 = p(10)x^{10}\)</p>
+                    <p>\(p(9)x^{9} \cdot -x = -p(9)x^{10}\)</p>
+                    <p>\(p(8)x^{8} \cdot -x^2 = -p(8)x^{10}\)</p>
+                    <p>\(p(5)x^{5} \cdot x^5 = p(5)x^{10}\)</p>
+                    <p>\(p(3)x^{3} \cdot x^7 = p(3)x^{10}\)</p>
+                </div>
+                <p>These terms all contribute to <i>a</i><sub>10</sub>.</p>
+                <div class="mathjax-block">
+                    <p>\((p(10)-p(9)-p(8)+p(5)+p(3))x^{10}\)</p>
+                    <p>\(p(10)-p(9)-p(8)+p(5)+p(3) = a_{10}\)</p><br />
+                    <p>However, since \(a_{10}=0\)</p><br />
+                    <p>\(p(10)-p(9)-p(8)+p(5)+p(3) = 0\)</p>
+                </div>
+                <p>Rearranging to solve for p(10), we find the following recurrence relation:</p>
+                <div class="mathjax-block">
+                    <p>\(p(10) = p(9)+p(8)-p(5)-p(3)\)</p>
+                </div>
+                <p>More generally, the recurrence relation to calculate <i>p</i>(<i>n</i>) for any <i>n</i> is:</p>
+                <div class="mathjax-block">
+                    <p>\(p(n) = \sum\limits_{k\neq0}{(-1)^{k-1}p(n-g_k)}\)<p><br />
+                    <p>where \(g_k\) is the \(k^{th}\) generalized pentagonal number</p>
                 </div>
             </section>
-
+            <section>
+                <span id="euler-implementation-anchor"></span>
+                <h2>Implementation</h2>
+                <p>First I use a recursive function to implement the recurrence relation above.</p>
+                <code><pre>
+int countPartitions(int *p, int n) {
+&#9;if (n &lt; 0) return 0;
+&#9;if (p[n]) return p[n];
+&#9;int count = 0, k = 1, gk = 1;
+&#9;while (n - gk &gt;= 0) {
+&#9;&#9;count += countPartitions(p, n-gk) * (k % 2 == 0 ? -1 : 1);
+&#9;&#9;k *= -1;
+&#9;&#9;if (k &gt; 0) k++;
+&#9;&#9;gk = (k*(3*k-1)) / 2;
+&#9;}
+&#9;p[n] = count;
+&#9;return count;
+}</pre></code>
+                <p>This function uses the base cases <i>p</i>(0) = 1 and <i>p</i>(<i>n</i>) = 0 for any <i>n</i> &lt; 0. In addition, I found it necessary to cache the value of each partition found in array <samp>p</samp>. In order to calculate all of the generalized pentagonal numbers, I use the lines</p>
+                <code><pre>
+k *= -1;
+if (k &gt; 0) k++;
+gk = (k*(3*k-1)) / 2;</pre></code>
+                <p>This produces the following iterations of <samp>k: 1, -1, 2, -2, ...</samp> and the corresponding pentagonal numbers <samp>gk</samp>.</p>
+                <p>Finally, the driver function to produce the value of <i>p</i>(<i>n</i>):</p>
+                <code><pre>
+int numPartitions(int n) {
+    int *p = new int[n+1]();
+    p[0] = 1;   // base case
+    int result = countPartitions(p, n);
+    delete[] p;
+    return result-1;
+}</pre></code>
+                <p><b>Important to note</b>: the problem's wording specifically asks for the number of partitions having <i>at least 2 terms</i>. The recurrence method I used to calculate the number of partitions includes the singular partition (100). Therefore, a final subtraction by 1 is necessary to produce the correct answer of 190,569,291 ways to partition 100 into at least 2 integers.</p>
+            </section>
             <div id="end-page-links">
                 <a href="/projects/euler-problems/75.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Singular integer right triangles</a>
                 <a href="/projects/euler-problems/78.html" id="next-problem">Next: Coin partitions&nbsp;<i class="fas fa-arrow-right"></i></a>

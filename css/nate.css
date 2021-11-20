@@ -4,6 +4,7 @@
 
 html, body {    
     height: 100%;   /* allows footer to stay on bottom */
+    scroll-behavior: smooth;
 }
 
 body {
@@ -72,8 +73,8 @@ header {
 }
 
 .topnav {
-    position: -webkit-sticky; /* Safari */
-    position: sticky;
+    /*position: -webkit-sticky;*/ /* Safari */
+    /*position: sticky;*/
     top: 0;
     width: 100%;
     margin: 0;

@@ -498,6 +498,25 @@ pre {
     font-size: 1em !important;
 }
 
+section {
+    position: relative;
+}
+
+.section-link {
+    color: #45aa3d; /* light green */
+    font-style: italic;
+}
+.section-link:hover {
+    color: #ad420b; /* dark orange */
+}
+
+#euler-implementation-anchor {
+    visibility: hidden;
+    position: absolute;
+    /*top: -4rem;*/ /* allow space for topnav */
+    top: -1rem;
+}
+
 /* ----------- Media Queries ----------- */
 
 @media screen and (max-width: 670px) {
