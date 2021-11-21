@@ -143,11 +143,11 @@
                     <p>Simplify and take the inverse of the fraction part:</p>
                     <p>\(\frac{\sqrt{23}+4}{7}-1 = \frac{\sqrt{23}+4}{7}-\frac{7}{7} = \frac{\sqrt{23}-3}{7} \rightarrow \frac{7}{\sqrt{23}-3}\) (inverse)</p>
                 </div>
-                <p>For irrational square roots, this process will repeat forever. One key insight that helps us detect when to stop this algorithm is given by mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/%C3%89variste_Galois">Évariste Galois</a>. One of the derived results of his papers states that</p>
+                <p>For irrational square roots, this process will repeat forever. One key insight that helps us detect when to stop this algorithm is given by mathematician <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/%C3%89variste_Galois" target="_blank">Évariste Galois</a>. One of the derived results of his papers states that</p>
                 <div class="mathjax-block">
                     <p>\(\sqrt{S} = [a_0; (a_1, a_2, ..., a_2, a_1, 2a_0)]\)</p>
                 </div>
-                <p>This says that every irrational square root, S, will have a periodic continued fraction representation whose coefficients form a palindrome after <i>a<sub>0</sub></i> and contain a final coefficient of twice <i>a<sub>0</sub></i>. For further reading on the math leading to this result, a good place to start is the wiki page on <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Periodic_continued_fraction">Periodic continued fractions</a>. However, for our purposes, this observation tells us that we can terminate the algorithm when we run into a coefficient <i>a<sub>n</sub></i> that is equal to 2*<i>a<sub>0</sub></i>. </p>
+                <p>This says that every irrational square root, S, will have a periodic continued fraction representation whose coefficients form a palindrome after <i>a<sub>0</sub></i> and contain a final coefficient of twice <i>a<sub>0</sub></i>. For further reading on the math leading to this result, a good place to start is the wiki page on <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Periodic_continued_fraction" target="_blank">Periodic continued fractions</a>. However, for our purposes, this observation tells us that we can terminate the algorithm when we run into a coefficient <i>a<sub>n</sub></i> that is equal to 2*<i>a<sub>0</sub></i>. </p>
             </section>
             <section>
                 <h2>Implementation</h2>

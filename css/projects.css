@@ -470,6 +470,15 @@ img {
     margin: 2em auto;
 }
 
+figure img {
+    margin-bottom: 0.5em;
+}
+
+figcaption {
+    text-align: center;
+    font-style: italic;
+}
+
 code, .mathjax-block {
     display: block;
     margin: auto 2em;

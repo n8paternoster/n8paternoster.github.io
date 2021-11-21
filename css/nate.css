@@ -4,6 +4,9 @@
 
 html, body {    
     height: 100%;   /* allows footer to stay on bottom */
+}
+
+html.smooth-scroll {
     scroll-behavior: smooth;
 }
 
