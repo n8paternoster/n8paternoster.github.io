@@ -27,7 +27,7 @@ body {
 .content h4 {
     font-size: 1.25em;
 }
-.content p, .content a {
+.content p, .content a, .content ul li {
     font-size: 1.2em;
 }
 

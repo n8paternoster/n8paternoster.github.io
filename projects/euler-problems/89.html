@@ -55,8 +55,189 @@
                 </div>
             </div>
             <hr />
+            <section>
+                <p><i>For reference, standard Roman numerals represent the following values</i>:</p>
+                <code><pre>
+I = 1
+V = 5
+X = 10
+L = 50
+C = 100
+D = 500
+M = 1000</pre></code>
+            </section>
+            <section>
+                <h2>Implementation</h2>
+                <p>The idea to solving this problem is to write two functions, one to convert a valid Roman numeral to its decimal equivalent and another to convert a decimal number to its minimal Roman numeral representation. Then when the file of Roman numerals is read, each numeral will be converted to decimal and back to minimal Roman numeral form to compare the amount of characters saved. The decimal &rarr; Roman numeral function is simpler to write, so we'll start with that.</p>
+                <p>One important consideration is the range of numbers that can be represented as Roman numerals. According to the provided instructions, the largest representable number in minimal form would be 3,999 (MMMCMXCIX) since there is no standard symbol for 5,000. For this problem, knowing that we will have to read non-standard Roman numerals, I arbitrarily chose 100,000 as the upper limit. Numbers over 3,999 will simply have additional M's prefixed at the front (i.e. 4000 = MMMM, 11593 = MMMMMMMMMMMDXCIII).</p>
+                <h4>Decimal &rarr; Roman Function</h4>
+                <p>An array of possible Roman numeral combinations will simplify writing the two functions:</p>
+                <code>
+                    <pre>
+#include &lt;string&gt;
+#include &lt;cctype&gt;&#9;&#9;// std::toupper
+#include &lt;fstream&gt;
+#include &lt;iostream&gt;&#9;&#9;// std::cerr
 
-            <!-- content here -->
+// 0, 100, 200, 300, ... 0, 10, 20, 30, ... 0, 1, 2, 3, ...
+const std::string romanNumerals[][10] = {
+&#9;{"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"}, 
+&#9;{"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"},
+&#9;{"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"}
+};</pre>
+                </code>
+                <p>This array represents every possible hundred's digit, ten's digit, and one's digit in order. The first index chooses the decimal place and the second index is the value of the digit. To get the Roman numeral for each digit of "679," index [0][6] gives "DC", index [1][7] gives "LXX", and index [2][9] gives "IX". Together, DCLXXIX = 679.</p>
+                <p>With this array, the decimal &rarr; Roman function is simple:</p>
+                <code>
+                    <pre>
+std::string decimalToRoman(int decimal) {
+&#9;std::string roman = "";
+&#9;if (decimal &lt;= 0 || decimal &gt; 100'000) return roman;
+
+&#9;// thousands
+&#9;int count = decimal / 1'000;
+&#9;decimal -= 1'000*count;
+&#9;roman.append(count, 'M');
+
+&#9;// hundreds, tens, ones
+&#9;for (int i = 0, e = 100; i &lt; 3; i++, e /= 10) {	
+&#9;&#9;int digit = (decimal / e) % 10;
+&#9;&#9;roman += romanNumerals[i][digit];
+&#9;&#9;decimal -= e*digit;
+&#9;}
+&#9;return roman;
+}</pre>
+                </code>
+                <p>This function constructs a string digit-by-digit to represent the Roman numeral. If the input is invalid an empty string is returned. The thousand's digit simply corresponds to a leading number of M's. The hundred's, ten's, and one's digits use the array above.</p>
+                <h4>Roman &rarr; Decimal Function</h4>
+                <p>The second function, to convert a Roman numeral to a decimal is a little trickier. According to the problem's extra details, a valid Roman numeral must follow these rules:</p>
+                <code>
+                    <pre>
+(1) Numerals must be arranged in descending order of size
+(2) M, C, and X cannot be equaled or exceeded by smaller denominations
+(3) D, L, and V can each only appear once</pre>
+                </code>
+                <p>In addition to these rules, the use of subtractive combinations (e.g. 9 = IX rather than VIIII) introduces these additional rules:</p>
+                <code>
+                    <pre>
+(4) Only one I, X, and C can be used as the leading numeral in part of a subtractive pair
+(5) I can only be placed before V and X
+(6) X can only be placed before L and C
+(7) C can only be placed before D and M</pre>
+                </code>
+                <p>Our function needs to be able to accept an arbitrary string and correctly parse its decimal value while also adhering to these rules. I'll use the following variables in this function:</p>
+                <code><pre>
+int decimalVal = 0;
+int denomVal = 0;
+int prevDenomVal = 1'000;
+int fives[3]{};</pre></code>
+                <p><samp>decimalVal</samp> will store the resulting value of the Roman numeral input. <samp>denomVal</samp> will store the decimal value of the current character being processed and <samp>denomVal</samp> and <samp>prevDenomVal</samp> together will be used to check for subtractive combinations and that rule (1) is followed. The <samp>fives</samp> array will be used to check for rule (3) violations (D, L, and V are 5, 50, and 500 respectively).</p>
+                <p>With these values, the input string, given as <samp>numeral</samp>, will be checked one character at a time from left to right:</p>
+                <code><pre>
+for (int i = 0; i &lt; numeral.size(); i++) {
+&#9;switch (std::toupper(numeral[i])) {
+&#9;&#9;case 'I': denomVal = 1; break;
+&#9;&#9;case 'V': denomVal = 5; fives[0]++; break;
+&#9;&#9;case 'X': denomVal = 10; break;
+&#9;&#9;case 'L': denomVal = 50; fives[1]++; break;
+&#9;&#9;case 'C': denomVal = 100; break;
+&#9;&#9;case 'D': denomVal = 500; fives[2]++; break;
+&#9;&#9;case 'M': denomVal = 1000; break;
+&#9;&#9;default: return -1;
+&#9;}
+&#9;if (denomVal &gt; prevDenomVal) {	// check for subtractive combo
+&#9;&#9;// subtractive combo can only have 1 leading numeral
+&#9;&#9;if ((decimalVal/prevDenomVal)%10 != 1) return -1;
+&#9;&#9;int r = denomVal / prevDenomVal;
+&#9;&#9;if (r == 5) denomVal = (3*denomVal / 5);&#9;&#9;// IV, XL, CD
+&#9;&#9;else if (r == 10) denomVal = (8*denomVal / 10);&#9;// IX, XC, CM
+&#9;&#9;else return -1;&#9;&#9;// numerals not in descending order
+&#9;} else if (prevDenomVal/denomVal == 3 || prevDenomVal/denomVal == 8) {
+&#9;&#9;// subtractive combo cannot be followed by the same
+&#9;&#9;// leading numeral (ex: XLX)
+&#9;&#9;return -1;
+	}
+&#9;decimalVal += denomVal;
+&#9;prevDenomVal = denomVal;
+}
+</pre></code>
+                <p>If the input is not a valid Roman numeral, the function will return -1. </p>
+                <p>Because we are reading the numeral from left to right, rule (1) implies that the only valid case where the current denomination value will be larger than the previous is when there is a subtractive combination. The next two if statements check for valid subtractive combinations and enforce rules (1), (4), (5), (6), and (7). I use the fact that a valid subtractive combination is one of two types:</p>
+                <ul class="bulleted-list">
+                    <li>One unit less than 5, 50, or 500 (IV, XL, CD)</li>
+                    <li>One unit less than 10, 100, or 1000 (IX, XC, CM)</li>
+                </ul>
+                <p>The lines</p>
+                <code><pre>
+int r = denomVal / prevDenomVal;
+if (r == 5) denomVal = (3*denomVal / 5);&#9;&#9;// IV, XL, CD
+else if (r == 10) denomVal = (8*denomVal / 10);&#9;// IX, XC, CM</pre></code>
+                <p>check which type the subtractive pair is. Once one is detected, the value of the first character will have already been added to the total in the previous loop iteration. Therefore a modified value should be added in the current iteration to account for the combination. For example, when processing the "V" in an IV combination, the combined value is 4 but a 1 has already been added from the previous iteration. So only 3 should be added this iteration rather than 5 a "V" would normally imply.</p>
+                <p>This check:</p>
+                <code><pre>
+// subtractive combo can only have 1 leading numeral
+if ((decimalVal/prevDenomVal)%10 != 1) return -1;</pre></code>
+                <p>enforces rule (4). It makes sure the last non-zero digit of the running total is 1. For example, if CXL is entered, once "L" is encountered, the current value will be 110 (100 + 10). If instead the invalid input CXXL is, the value will be 120 (100 + 10 + 10).</p>
+                <p>Finally, the <samp>fives</samp> array is checked for rule (3) violations:</p>
+                <code><pre>
+for (auto count : fives) if (count &gt; 1) return -1;</pre></code>
+                <p>The full function as well as the driver function are given below.</p>
+                <code><pre>
+int romanToDecimal(std::string numeral) {
+&#9;if (numeral.empty()) return 0;
+&#9;int decimalVal = 0;
+&#9;int denomVal = 0;
+&#9;int prevDenomVal = 1'000;
+&#9;int fives[3]{};	// 'V', 'L', 'D' can only appear once each
+&#9;for (int i = 0; i &lt; numeral.size(); i++) {
+&#9;&#9;switch (std::toupper(numeral[i])) {
+&#9;&#9;&#9;case 'I': denomVal = 1; break;
+&#9;&#9;&#9;case 'V': denomVal = 5; fives[0]++; break;
+&#9;&#9;&#9;case 'X': denomVal = 10; break;
+&#9;&#9;&#9;case 'L': denomVal = 50; fives[1]++; break;
+&#9;&#9;&#9;case 'C': denomVal = 100; break;
+&#9;&#9;&#9;case 'D': denomVal = 500; fives[2]++; break;
+&#9;&#9;&#9;case 'M': denomVal = 1000; break;
+&#9;&#9;&#9;default: return -1;
+&#9;&#9;}
+&#9;&#9;if (denomVal &gt; prevDenomVal) {	// check for subtractive combo
+&#9;&#9;&#9;// subtractive combo can only have 1 leading numeral
+&#9;&#9;&#9;if ((decimalVal/prevDenomVal)%10 != 1) return -1;
+&#9;&#9;&#9;int r = denomVal / prevDenomVal;
+&#9;&#9;&#9;if (r == 5) denomVal = (3*denomVal / 5);&#9;&#9;// IV, XL, CD
+&#9;&#9;&#9;else if (r == 10) denomVal = (8*denomVal / 10);&#9;// IX, XC, CM
+&#9;&#9;&#9;else return -1;&#9;&#9;// numerals not in descending order
+&#9;&#9;} else if (prevDenomVal/denomVal == 3 || prevDenomVal/denomVal == 8) {
+&#9;&#9;&#9;// subtractive combo cannot be followed by the same
+&#9;&#9;&#9;// leading numeral (ex: XLX)
+&#9;&#9;&#9;return -1;
+	}
+&#9;&#9;decimalVal += denomVal;
+&#9;&#9;prevDenomVal = denomVal;
+&#9;}
+&#9;for (auto count : fives) if (count &gt; 1) return -1;
+&#9;return decimalVal;
+}
+
+int numExtraChars(std::string file) {
+&#9;std::ifstream f(file);
+&#9;if (!f) {
+&#9;&#9;std::cerr &lt;&lt; "Error opening file";
+&#9;&#9;return -1;
+&#9;}
+&#9;int numReducedChars = 0;
+&#9;std::string numeral;
+&#9;while (f &gt;&gt; numeral) {
+&#9;&#9;std::string reduced = decimalToRoman(romanToDecimal(numeral));
+&#9;&#9;if (reduced.empty()) {
+&#9;&#9;&#9;std::cerr &lt;&lt; "Invalid input";
+&#9;&#9;&#9;return -1;
+&#9;&#9;}
+&#9;&#9;numReducedChars += (numeral.size() - reduced.size());
+&#9;}
+&#9;return numReducedChars;
+}</pre></code>
+            </section>
 
             <div id="end-page-links">
                 <a href="/projects/euler-problems/83.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Path sum: four ways</a>

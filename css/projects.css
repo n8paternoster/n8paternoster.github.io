@@ -109,6 +109,10 @@ img {
     list-style-type: none;
 }
 
+.content ul.bulleted-list {
+    list-style-type: disc;
+}
+
 /* ---- Copyable text box ---- */
 
 .friend-link {
