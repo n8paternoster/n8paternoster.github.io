@@ -68,16 +68,13 @@ M = 1000</pre></code>
             </section>
             <section>
                 <h2>Implementation</h2>
-                <p>The idea to solving this problem is to write two functions, one to convert a valid Roman numeral to its decimal equivalent and another to convert a decimal number to its minimal Roman numeral representation. Then when the file of Roman numerals is read, each numeral will be converted to decimal and back to minimal Roman numeral form to compare the amount of characters saved. The decimal &rarr; Roman numeral function is simpler to write, so we'll start with that.</p>
+                <p>My idea for solving this problem is to write two functions, one to convert a valid Roman numeral to its decimal equivalent and another to convert a decimal number to its minimal Roman numeral representation. Then when the file of Roman numerals is read, each numeral will be converted to decimal and back to minimal Roman numeral form to compare the amount of characters saved. The decimal &rarr; Roman numeral function is simpler to write, so we'll start with that.</p>
                 <p>One important consideration is the range of numbers that can be represented as Roman numerals. According to the provided instructions, the largest representable number in minimal form would be 3,999 (MMMCMXCIX) since there is no standard symbol for 5,000. For this problem, knowing that we will have to read non-standard Roman numerals, I arbitrarily chose 100,000 as the upper limit. Numbers over 3,999 will simply have additional M's prefixed at the front (i.e. 4000 = MMMM, 11593 = MMMMMMMMMMMDXCIII).</p>
                 <h4>Decimal &rarr; Roman Function</h4>
                 <p>An array of possible Roman numeral combinations will simplify writing the two functions:</p>
                 <code>
                     <pre>
 #include &lt;string&gt;
-#include &lt;cctype&gt;&#9;&#9;// std::toupper
-#include &lt;fstream&gt;
-#include &lt;iostream&gt;&#9;&#9;// std::cerr
 
 // 0, 100, 200, 300, ... 0, 10, 20, 30, ... 0, 1, 2, 3, ...
 const std::string romanNumerals[][10] = {
@@ -162,7 +159,7 @@ for (int i = 0; i &lt; numeral.size(); i++) {
 }
 </pre></code>
                 <p>If the input is not a valid Roman numeral, the function will return -1. </p>
-                <p>Because we are reading the numeral from left to right, rule (1) implies that the only valid case where the current denomination value will be larger than the previous is when there is a subtractive combination. The next two if statements check for valid subtractive combinations and enforce rules (1), (4), (5), (6), and (7). I use the fact that a valid subtractive combination is one of two types:</p>
+                <p>Because we are reading the numeral from left to right, rule (1) implies that the only valid case where the current denomination value will be larger than the previous is when there is a subtractive combination. The two if statements check for valid subtractive combinations and enforce rules (1), (4), (5), (6), and (7). I use the fact that a valid subtractive combination is one of two types:</p>
                 <ul class="bulleted-list">
                     <li>One unit less than 5, 50, or 500 (IV, XL, CD)</li>
                     <li>One unit less than 10, 100, or 1000 (IX, XC, CM)</li>
@@ -172,17 +169,21 @@ for (int i = 0; i &lt; numeral.size(); i++) {
 int r = denomVal / prevDenomVal;
 if (r == 5) denomVal = (3*denomVal / 5);&#9;&#9;// IV, XL, CD
 else if (r == 10) denomVal = (8*denomVal / 10);&#9;// IX, XC, CM</pre></code>
-                <p>check which type the subtractive pair is. Once one is detected, the value of the first character will have already been added to the total in the previous loop iteration. Therefore a modified value should be added in the current iteration to account for the combination. For example, when processing the "V" in an IV combination, the combined value is 4 but a 1 has already been added from the previous iteration. So only 3 should be added this iteration rather than 5 a "V" would normally imply.</p>
+                <p>check which type the subtractive pair is. Once a pair is detected, the value of the first character will have already been added to the total in the previous loop iteration. Therefore a modified value should be added in the current iteration to account for the combination. For example, when processing the "V" in an IV combination, the combined value is 4 but a 1 has already been added from the previous iteration. So only 3 should be added this iteration rather than 5 a "V" would normally imply.</p>
                 <p>This check:</p>
                 <code><pre>
 // subtractive combo can only have 1 leading numeral
 if ((decimalVal/prevDenomVal)%10 != 1) return -1;</pre></code>
-                <p>enforces rule (4). It makes sure the last non-zero digit of the running total is 1. For example, if CXL is entered, once "L" is encountered, the current value will be 110 (100 + 10). If instead the invalid input CXXL is, the value will be 120 (100 + 10 + 10).</p>
+                <p>enforces rule (4). It makes sure the last non-zero digit of the running total is 1. For example, if CXL is entered, once "L" is encountered, the current value will be 110 (100 + 10). If instead the invalid input CXXL is entered, the value will be 120 (100 + 10 + 10).</p>
                 <p>Finally, the <samp>fives</samp> array is checked for rule (3) violations:</p>
                 <code><pre>
 for (auto count : fives) if (count &gt; 1) return -1;</pre></code>
                 <p>The full function as well as the driver function are given below.</p>
                 <code><pre>
+#include &lt;cctype&gt;&#9;&#9;// std::toupper
+#include &lt;fstream&gt;
+#include &lt;iostream&gt;&#9;&#9;// std::cerr
+
 int romanToDecimal(std::string numeral) {
 &#9;if (numeral.empty()) return 0;
 &#9;int decimalVal = 0;

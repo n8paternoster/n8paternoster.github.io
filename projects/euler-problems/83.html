@@ -71,7 +71,6 @@
                 <h2>Dijkstra's Shortest Path Algorithm</h2>
                 <p><a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm" target="_blank">Dijkstra's algorithm</a> makes use of several data structures. A graph, <i>G</i>, represents a structure to store all of the vertices. An array, <i>D</i>, stores the tentative shortest distance between a vertex <i>v</i> and the starting vertex. A priority queue, <i>Q</i>, is typically used to process vertices. In some implementations, an array, <i>P</i>, can be used to store the previous vertex in the tentative shortest path for any vertex in the graph. This can then be reconstructed once the shortest path is found to show the steps of the path. I do not use this structure for this problem.</p>
                 <p>The priority queue, <i>Q</i>, will hold vertices currently being processed and order them using their minimum distance in <i>D</i>. The vertex with the lowest distance recorded in <i>D</i> will have the highest priority and be placed at the front of the queue.</p>
-                <p>The pseudocode for the algorithm is as follows</p>
                 <code><pre>
 (1) Initialize:
 &#9;&#9;D[n] = INFINITY for every vertex n in G

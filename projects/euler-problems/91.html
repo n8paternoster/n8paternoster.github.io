@@ -3,13 +3,15 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Nathan Paternoster | Project Euler Problem <!--PROBLEM #--></title>
+    <title>Nathan Paternoster | Project Euler Problem 91</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/css/nate.css" />
     <link rel="stylesheet" type="text/css" href="/css/projects.css" />
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
     <script src="/js/nate.js" defer></script>
     <script src="https://kit.fontawesome.com/254df2922f.js" crossorigin="anonymous"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -29,26 +31,182 @@
             <div class="euler-problem-link-container">
                 <a href="../euler.html" class="back-link"><i class="fas fa-arrow-left"></i>&nbsp;Back to Problems</a>
                 <div class="euler-problem-links">
-                    <a href=""<!--PROBLEM LINK--> target="_blank"><i class="fas fa-link"></i>&nbsp;Problem <!--PROBLEM #--> on Project Euler</a>
-                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem <!--PROBLEM #--> Code</a>
+                    <a href="https://projecteuler.net/problem=91" target="_blank"><i class="fas fa-link"></i>&nbsp;Problem 91 on Project Euler</a>
+                    <a href=""<!--GITHUB LINK--> target="_blank"><i class="fas fa-code"></i>&nbsp;Problem 91 Code</a>
                 </div>
             </div>
-            <h1 id="euler-problem-title">Problem <!--PROBLEM #--> - <!--PROBLEM TITLE--></h1>
+            <h1 id="euler-problem-title">Problem 91 - Right triangles with integer coordinates</h1>
             <div class="euler-problem-view">
                 <button class="accordion" type="button">View problem</button>
                 <div class="accordion-panel">
-                    <blockquote cite=""<!--PROBLEM LINK-->>
-                        <!--PROBLEM TEXT-->
+                    <blockquote cite="https://projecteuler.net/problem=91">
+                        <p>The points P (<i>x</i><sub>1</sub>, <i>y</i><sub>1</sub>) and Q (<i>x</i><sub>2</sub>, <i>y</i><sub>2</sub>) are plotted at integer co-ordinates and are joined to the origin, O(0,0), to form ΔOPQ.</p>
+                        <img src="/project-assets/euler/p091_1.png" alt="" />
+                        <p>There are exactly fourteen triangles containing a right angle that can be formed when each co-ordinate lies between 0 and 2 inclusive; that is,<br />0 ≤ <i>x</i><sub>1</sub>, <i>y</i><sub>1</sub>, <i>x</i><sub>2</sub>, <i>y</i><sub>2</sub> ≤ 2.</p>
+                        <img src="/project-assets/euler/p091_2.png" alt="" />
+                        <p>Given that 0 ≤ <i>x</i><sub>1</sub>, <i>y</i><sub>1</sub>, <i>x</i><sub>2</sub>, <i>y</i><sub>2</sub> ≤ 50, how many right triangles can be formed?</p>
                     </blockquote>
                 </div>
             </div>
             <hr />
+            <section>
+                <h2>Right Triangle Locations</h2>
+                <p>I think upon first reading this problem, most people would begin to look for patterns in the fourteen triangle solutions shown. Doing this, I noticed that you could divide these triangles into three groups depending on where the right angle falls, either: (1) at the origin, (2) on the x- or y-axis, or (3) any other point.</p>
+                <img src="/project-assets/euler/right-triangle-types.png" alt="right triangle placement"/>
+                <p>For class one triangles, we can choose any 2 points, one on the x-axis and the other on the y-axis (both &ge; 1), and the resulting triangle will be a valid right triangle. The total number of combinations of these 2 points is N&times;N (where N is the grid size). Therefore the number of triangle solutions with the right angle at the origin = N&times;N.</p>
+                <p>For the second class of triangles, it's pretty easy to see that for any given point on one axis, there are N valid right triangles, one for each point &ge; 1 on the other axis. For example, triangle (2) above has a right angle at (0, 1) and solution triangles with a right angle located there could have a third point at (1, 1), (2, 1), (3, 1), ... up to (N, 1).</p>
+                <p>The challenge for this problem, then, comes down to finding all right triangles of the third type. It was here I needed to break out Pythagoras.</p>
+            </section>
+            <section>
+                <h2>Pythagorean Theorem</h2>
+                <p>Given some arbitrary point (<i>a</i>, <i>b</i>) for <i>a</i> &ge; 1 and <i>b</i> &ge; 1, we can use the Pythagorean theorem to find some other point (<i>x</i>, <i>y</i>) that, with a point at the origin, forms a right triangle with right angle at (<i>a</i>, <i>b</i>).</p>
+                <img style="max-height: 250px" src="/project-assets/euler/solving-for-integer-right-triangles.png" alt="right triangle example"/>
+                <p>For</p>
+                <div class="mathjax-block">
+                    <p>\(F = \sqrt{a^2+b^2}\)</p>
+                    <p>\(G = \sqrt{(a-x)^2+(b-y)^2}\)</p>
+                    <p>\(H = \sqrt{x^2+y^2}\)</p>
+                </div>
+                <p>the Pythagorean theorem gives:</p>
+                <div class="mathjax-block">
+                    <p>\(F^2+G^2 = H^2\)</p><br />
+                    <p>\((\sqrt{a^2+b^2})^2+(\sqrt{(a-x)^2+(b-y)^2})^2 = (\sqrt{x^2+y^2})^2\)</p>
+                    <p>\(a^2+b^2+(a-x)^2+(b-y)^2 = x^2+y^2\)</p>
+                    <p>\(a^2+b^2+a^2-2ax+x^2+b^2-2by+y^2 = x^2+y^2\)</p>
+                    <p>\(2a^2+2b^2-2ax-2by = 0\)</p><br />
+                    <p>\(ax+by = (a^2+b^2)\)</p>
+                </div>
+                <p>For a given point (<i>a</i>, <i>b</i>), this turns into a linear <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Diophantine_equation#Linear_Diophantine_equations" target="_blank">Diophantine equation</a> with two unknowns, <i>x</i> and <i>y</i>. Solving this equation for <i>x</i> and <i>y</i> in the range [0, N] will give all right triangles with right angle at (<i>a</i>, <i>b</i>). To find all these pairs we'll first find an initial solution (<i>x<sub>0</sub></i>, <i>y<sub>0</sub></i>) to the equation. From that solution we can generate all other solutions.</p>
+            </section>
+            <section>
+                <h2>Finding an Initial Solution</h2>
+                <p><a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity" target="_blank">Bézout's Identity</a> states that for integers <i>a</i> and <i>b</i> with greatest common divisor <i>d</i>, there are integers <i>s</i> and <i>t</i> (called Bézout's coefficients) that satisfy</p>
+                <div class="mathjax-block">
+                    <p>\(s \cdot a+t \cdot b = d\)</p>
+                </div>
+                <p>This also means that there are only solutions to</p>
+                <div class="mathjax-block">
+                    <p>\(ax+by = (a^2+b^2)\)</p>
+                </div>
+                <p>if (<i>a</i><sup>2</sup> + <i>b</i><sup>2</sup>) divides <i>d</i>. Using the <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm" target="_blank">extended Euclidean algorithm</a>, we can calculate the gcd of <i>a</i> and <i>b</i> as well as Bézout's coefficients <i>s</i> and <i>t</i>:</p>
+                <code><pre>
+extendedEuclidean(a, b)
 
-            <!-- content here -->
+(1) Initialize the Bézout coefficient (s) and remainder (r)
+&#9;&#9;s = 0, s_prev = 1
+&#9;&#9;r = b, r_prev = a
+(2) While (r &ne; 0)
+&#9;(i) Calculate the quotient
+&#9;&#9;&#9;quotient = floor(r_prev / r)
+&#9;(ii) Update s and r
+&#9;&#9;&#9;(r, r_prev) = (r_prev - quotient*r, r)
+&#9;&#9;&#9;(s, s_prev) = (s_prev - quotient*s, s)
+(3) Set the Bézout coefficients
+&#9;&#9;t = (b == 0) ? 0 : floor((r_prev - s_prev*a) / b)
+&#9;&#9;s = s_prev
+(4) Set the gcd (d)
+&#9;&#9;d = r_prev
+(4) Return d, s, t</pre></code>
+                <p>From <i>s</i> and <i>t</i>, an initial solution for (<i>x<sub>0</sub></i>, <i>y<sub>0</sub></i>) follows:</p>
+                <div class="mathjax-block">
+                    <p>\(x_0 = s \cdot \frac{(a^2+b^2)}{d}\)</p>
+                    <p>\(y_0 = t \cdot \frac{(a^2+b^2)}{d}\)</p>
+                </div>
+            </section>
+            <section>
+                <h2>Generating all Solutions</h2>
+                <p>For any linear Diophantine equation, the existence of one solution implies the existence of an infinite amount of solutions. All other solutions are given by</p>
+                <div class="mathjax-block">
+                    <p>\((x, y) = (x_0+k\cdot\frac{b}{d}, y_0-k\cdot\frac{a}{d})\)</p><br />
+                    <p>where \(d = gcd(a, b)\), \(k\) is an arbitrary integer</p>
+                </div>
+                <p>The initial solution calculated above does not necessarily contain positive integers. To solve this problem we need to find which values of <i>k</i> produce values of <i>x</i> and <i>y</i> &ge; 0. To find these values of <i>k</i>, rearrange the above equations for <i>x</i> and <i>y</i> and solve both for <i>k</i>.</p>
+                <div class="mathjax-block">
+                    <p>\(x = x_0+k\cdot\frac{b}{d} \geq 0\)</p>
+                    <p>\(k \geq -x_0\cdot\lfloor\frac{d}{b}\rfloor\)</p><br />
+                    <p>and</p><br />
+                    <p>\(y = y_0-k\cdot\frac{a}{d} \geq 0\)</p>
+                    <p>\(k \leq y_0\cdot\lfloor\frac{d}{a}\rfloor\)</p>
+                </div>
+                <p>Now we only need to check which produce values of <i>x</i> and <i>y</i> in the range [0, N] (excluding the solution (<i>x</i>, <i>y</i>) = (<i>a</i>, <i>b</i>)) to find all solution triangles of the third case.</p>
+            </section>
+            <section>
+                <h2>Implementation</h2>
+                <p>First, a function for the extended Euclidean algorithm:</p>
+                <code><pre>
+int extendedEuclideanGCD(int a, int b, int &bezout_s, int &bezout_t) {
+&#9;// compute the gcd of (a, b) and the Bezout coefficients s and t such that a*s + b*t = gcd(a, b)
+&#9;int r_prev = std::abs(a), r = std::abs(b);
+&#9;int s_prev = 1, s = 0;
+&#9;while (r != 0) {
+&#9;&#9;int q = r_prev / r;
+&#9;&#9;int temp = r_prev;
+&#9;&#9;r_prev = r;
+&#9;&#9;r = temp - q*r;
+&#9;&#9;temp = s_prev;
+&#9;&#9;s_prev = s;
+&#9;&#9;s = temp - q*s;
+&#9;}
+&#9;bezout_s = s_prev;
+&#9;bezout_t = (b == 0) ? 0 : (r_prev-a*s_prev)/b;
+&#9;return r_prev;
+}</pre></code>
+                <p>This function returns the gcd of <samp>a</samp> and <samp>b</samp> directly and returns <samp>bezout_s</samp> and <samp>bezout_t</samp> by reference.</p>
+                <p>Then, a function to find the initial solution (<i>x<sub>0</sub></i>, <i>y<sub>0</sub></i>):</p>
+                <code><pre>
+bool findInitialSolution(int a, int b, int &x0, int &y0, int &d) {
+&#9;d = extendedEuclideanGCD(a, b, x0, y0);	// a*bezout_s + b*bezout_t = d
+&#9;int c = a*a + b*b;
+&#9;if (d == 0 || c % d != 0) return false;	// no solutions if (a^2+b^2) doesn't divide d
+&#9;x0 *= c/d;	// x0 = bezout_s * (a^2+b^2)/d
+&#9;y0 *= c/d;	// y0 = bezout_t * (a^2+b^2)/d
+&#9;return true;
+}</pre></code>
+                <p>Here, the initial solution is returned by reference (<samp>x0</samp>, <samp>y0</samp>) along with the gcd, <samp>d</samp>. The function returns true if solutions exist for (<i>a</i>, <i>b</i>) and false if not.</p>
+                <p>The main function <samp>countSolutions</samp> returns how many right triangles exist in an <samp>n</samp>&times;<samp>n</samp> grid with right angle located at (<samp>a</samp>, <samp>b</samp>).</p>
+                <code><pre>
+int countSolutions(int a, int b, int n) {
+&#9;if (a == 0 && b == 0) return n*n;&#9;&#9;// n^2 solutions at the origin
+&#9;else if (a == 0 || b == 0) return n;&#9;// n solutions when (a, b) is on the x or y axis
+
+&#9;// Get the gcd(a,b) and an initial solution
+&#9;int x0 = 0, y0 = 0, d = 0;
+&#9;if (!findInitialSolution(a, b, x0, y0, d)) return 0;
+
+&#9;/*
+&#9;All other solutions are generated from the initial solution by:
+&#9;&#9;x = x0 + k*(b/d)
+&#9;&#9;y = y0 - k*(a/d)
+&#9;for any integer k. Solve for the min and max values of k that give positive solutions for (x, y) 
+&#9;*/
+&#9;int minK = -x0 * d/b;
+&#9;int maxK = y0 * d/a;
+&#9;int count = 0;
+&#9;for (int k = minK; k &lt;= maxK; k++) {
+&#9;&#9;int x = x0 + k * b/d;
+&#9;&#9;int y = y0 - k * a/d;
+&#9;&#9;if (x &gt; n || y &lt; 0) break;&#9;// while k increases, x increases and y decreases
+&#9;&#9;if (x == a && y == b) continue;&#9;// (x, y) must be a new point
+&#9;&#9;if (x &gt;= 0 && y &lt;= n) count++;
+&#9;}
+&#9;return count;
+}</pre></code>
+                <p>Lastly, the driver function:</p>
+                <code><pre>
+int numRightTriangles(int n) {
+&#9;int count = 0;
+&#9;for (int a = 0; a <= n; a++) {
+&#9;&#9;for (int b = 0; b <= n; b++) {
+&#9;&#9;&#9;count += countSolutions(a, b, n);
+&#9;&#9;}
+&#9;}
+&#9;return count;
+}</pre></code>
+            </section>
 
             <div id="end-page-links">
-                <a href="/projects/euler-problems/"<!--PREV PROBLEM LINK--> id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: <!--PREV PROBLEM TITLE--></a>
-                <a href="/projects/euler-problems/"<!--NEXT PROBLEM LINK--> id="next-problem">Next: <!--NEXT PROBLEM TITLE-->&nbsp;<i class="fas fa-arrow-right"></i></a>
+                <a href="/projects/euler-problems/89.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Roman numerals</a>
+                <a href="/projects/euler-problems/93.html" id="next-problem">Next: Arithmetic expressions&nbsp;<i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
 
