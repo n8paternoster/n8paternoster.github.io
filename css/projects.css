@@ -397,14 +397,20 @@ img {
     margin-top: 3em;
 }
 
+#end-page-links a {
+    flex-basis: 0;
+    flex-grow: 1;
+}
+
 #prev-problem {
-    margin-right: auto;
+    margin-right: 0.5em;
 }
 #prev-problem:hover {
     color: #ad420b; /* dark orange */
 }
 #next-problem {
-    margin-left: auto;
+    margin-left: 0.5em;
+    text-align: right;
 }
 #next-problem:hover {
     color: #ad420b; /* dark orange */
@@ -566,5 +572,10 @@ section {
     .euler-problem-view blockquote {
         margin-left: 0.8em;
         margin-right: 0.8em;    /* just enough space for shadow */
+    }
+
+    code, .mathjax-block {
+        margin-left: 0;
+        margin-right: 0;
     }
 }

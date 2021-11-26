@@ -79,8 +79,8 @@
 (3) Remove the minimum vertex, u, from Q
 (4) If (u == destination) go to (7)
 (5) For each neighbor v of u
-&#9;(a) alt = D[u] + cost(v)
-&#9;(b) if (alt &lt; D[v])
+&#9;(i) alt = D[u] + cost(v)
+&#9;(ii) if (alt &lt; D[v])
 &#9;&#9;&#9;D[v] = alt
 &#9;&#9;&#9;Add v to Q
 (6) If Q is not empty go to (3)
