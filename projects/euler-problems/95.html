@@ -51,9 +51,9 @@
             </div>
             <hr />
             <section>
-                <h2>Divisor Function</h2>
-                <p>This problem requires us to find the longest chain of amicable numbers. This means we'll need to think about this in the context of graph theory and apply an appropriate algorithm to detect chains, or <i>cycles</i>, within a graph. However, before we can begin that, we first have the problem of building our graph - that is, finding all of the amicable numbers. </p>
-                <p>It's helpful to work through this problem in a bottom-up approach. First, we'll find an efficient way to generate all of the proper divisors of a number <i>n</i>. The simplest way to achieve this is by testing every number &lt; <i>n</i> to see which are divisible by <i>n</i>. However, performing this for the required first million numbers will be very time consuming - on the order of <i>n</i><sup>2</sup> operations.</p>
+                <h2>Starting with the Primes</h2>
+                <p>This problem requires us to find the longest chain of amicable numbers. This means we can think about this in the context of graph theory and apply an appropriate algorithm to detect chains, or <i>cycles</i>, within a graph. However, before considering graph algorithms, we first have the problem of building the graph - that is, finding all of the amicable numbers.</p>
+                <p>I find that it's helpful to work through this problem in a bottom-up approach. First, we'll find an efficient way to generate all of the proper divisors of a number <i>n</i>. The simplest way to achieve this is by testing every number &lt; <i>n</i> to see which are divisible by <i>n</i>. However, performing this for the required first million numbers will be very time consuming - on the order of <i>n</i><sup>2</sup> operations.</p>
                 <p>Instead, we can use a faster method that relies on the distinct prime factors of <i>n</i>. The sum of divisors (&sigma;) of <i>n</i> is given by:</p>
                 <div class="mathjax-block">
                     <p>\(\sigma(n) = \prod\limits_{i=1}^{r}{\frac{p_i^{a_i+1}-1}{p_i-1}}\)</p><br />
@@ -63,6 +63,250 @@
                     <p><i>a<sub>i</sub></i> = the multiplicity of <i>p<sub>i</sub></i></p>
                 </div>
                 <p>Here, the multiplicity means the number of times <i>p<sub>i</sub></i> divides <i>n</i>. Using this formula only requires finding the distinct prime factors of <i>n</i> rather than testing the divisibility of every number &lt; <i>n</i>. For a large amount of numbers, this process can be sped up by pre-calculating the prime numbers.</p>
+                <p>Therefore, before implementing the above algorithm we need a function to generate prime numbers. An efficient way to do this is to use the <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes" target="_blank">Sieve of Eratosthenes</a>.</p>
+                <figure>
+                    <figcaption>Sieve of Eratosthenes for n = 120</figcaption>
+                    <img style="max-height: 300px" alt="Sieve of Eratosthenes Animation" src="/project-assets/euler/sieve-of-eratosthenes-animation.gif">
+                    <figcaption>Credit: <a class="wiki-link-inline" href="https://commons.wikimedia.org/wiki/File:Animation_Sieve_of_Eratosth.gif">SKopp</a>, <a class="wiki-link-inline" href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons</figcaption>
+                </figure>
+                <p>The sieve finds all prime numbers up to <i>n</i> by marking all multiples of primes as <i>not prime</i> and taking those remaining unmarked numbers as prime. Consider the function:</p>
+                <code>
+                    <pre>
+#include &lt;vector&gt;
+
+std::vector&lt;int&gt; generatePrimes(int n) {
+&#9;bool *primeSieve = new bool[n]();
+&#9;for (int i = 2; i &lt; n; i++) primeSieve[i] = true;
+&#9;for (int i = 2; i*i &lt; n; i++)
+&#9;&#9;if (primeSieve[i])
+&#9;&#9;&#9;for (int j = i*i; j &lt; n; j += i) primeSieve[j] = false;
+&#9;std::vector&lt;int&gt; primes;
+&#9;for (int i = 0; i &lt; n; i++)
+&#9;&#9;if (primeSieve[i]) primes.push_back(i);
+&#9;delete[] primeSieve;
+&#9;return primes;
+}</pre>
+                </code>
+                <p>This function returns a <output>std::vector</output> containing the prime numbers below <samp>n</samp>. The sieve is represented as an array of bools all initially set to <output>true</output>. Multiples of primes (denoted with <samp>j</samp> in the inner loop) are marked <output>false</output>. This implementation uses an optimization where you only need to check multiples of <samp>i</samp> starting from <samp>i</samp><sup>2</sup> as smaller multiples will have already been marked from smaller primes.</p>
+            </section>
+            <section>
+                <h2>&sigma;(<i>n</i>) and the Aliquot Sum</h2>
+                <p>As mentioned earlier, the sum of divisors of <i>n</i> is given by:</p>
+                <div class="mathjax-block">
+                    <p>\(\sigma(n) = \prod\limits_{i=1}^{r}{\frac{p_i^{a_i+1}-1}{p_i-1}}\)</p><br />
+                    <p>where</p>
+                    <p><i>r</i> = the number of distinct prime factors of <i>n</i></p>
+                    <p><i>p<sub>i</sub></i> = the <i>i</i>th prime factor</p>
+                    <p><i>a<sub>i</sub></i> = the multiplicity of <i>p<sub>i</sub></i></p>
+                </div>
+                <p>Using 220 as an example, we find that its proper divisors (all divisors not including 220 itself) are {1, 2, 4, 5, 10, 11, 20, 22, 44, 55, 110}. The sum of these proper divisors, also known as the <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Aliquot_sum" target="_blank">Aliquot sum</a>, is 284 as given in the problem.</p>
+                <p>If we instead consider the prime factors of 220,</p>
+                <div class="mathjax-block">
+                    <p>\(220 = 2^2 \cdot 5 \cdot 11\)</p>
+                </div>
+                <p>the above formula gives</p>
+                <div class="mathjax-block">
+                    <p>\(\sigma(220) = \frac{2^{2+1}-1}{2-1}\) \(\cdot\) \(\frac{5^{1+1}-1}{5-1}\) \(\cdot\) \(\frac{11^{1+1}-1}{11-1}\)</p>
+                    <p>\(\sigma(220) = 7 \cdot 6 \cdot 12 = 504\)</p>
+                </div>
+                <p>To get the Aliquot sum as required by the problem we simply subtract out the number itself:</p>
+                <div class="mathjax-block">
+                    <p>\(aliquot(220) = \sigma(220) - 220\)</p>
+                    <p>\(aliquot(220) = 504 - 220 = 284\)</p>
+                </div>
+                <p>Using the primes we generated previously we can find the distinct factors of <i>n</i> by testing divisibility:</p>
+                <code><pre>
+int num = n;&#9;// make a copy of n to reduce 
+int sigma = 1;
+// Find the distinct prime factors of n up to sqrt(n)
+for (auto p : primes) {
+&#9;if (p*p &gt; n) break;
+&#9;if (n % p != 0) continue;
+&#9;int m = p;&#9;&#9;&#9;// m = p^(a+1)
+&#9;while (n % m == 0)&#9;// get the multiplicity of p
+&#9;&#9;m *= p;
+&#9;num /= (m/p);&#9;&#9;// reduce n at each step
+&#9;sigma *= (m-1)/(p-1);
+}
+// If n is prime or has a prime factor &gt; sqrt(n) it is a distinct prime factor with multiplicity of 1
+if (num &gt; 1) sigma *= (num+1);    
+aliquot[n] = sigma - n;</pre></code>
+                <p>I use an optimization where <i>n</i> (as the variable <samp>num</samp>) is divided by its prime factors as they are found. This means we only need to check primes up to \(\sqrt{n}\). If <i>n</i> has a prime factor &gt; \(\sqrt{n}\), it will be leftover in <samp>num</samp> and is guaranteed to have a multiplicity of 1.</p>
+                <p>This optimization also means that the upper limit on primes we need to generate is \(\sqrt{1,000,000}\).</p>
+            </section>
+            <section>
+                <h2>Building the Graph</h2>
+                <p>Now that we have a method to generate all Aliquot sums, we can think about how to find chains of amicable numbers. Remember that <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Amicable_numbers" target="_blank">amicable numbers</a> are 2 numbers where each number has an Aliquot sum equal to the other number. Amicable chains extend this concept to &gt;2 numbers. To start, think of the chain of 5 amicable numbers stated in the problem as forming a cyclic, directed graph like so:</p>
+                <img style="max-height: 200px" src="/project-assets/euler/amicable-chain-5.png" alt="Amicable chain graph" />
+                <p>Actually, the full graph implied by this problem includes a vertex for every number up to 1,000,000:</p>
+                <img style="max-height: 300px" src="/project-assets/euler/amicable-numbers-graph.png" alt="Amicable numbers graph" />
+                <p>We can draw a few conclusions about this graph. Every vertex will have exactly one outgoing edge pointing to the value of its Aliquot sum. Every prime number vertex will have its edge pointing to 1 and the number 1 itself will point to 0 (which will be considered a dead end). There are V = 1,000,000 vertices and E = 1,000,000 edges which implies a relatively sparse graph.</p>
+                <p>This graph can be stored as an <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Adjacency_list">adjacency list</a> where each list only contains one neighbor node (given by the Aliquot sum). A simple array containing the Aliquot sums of every number up to <i>n</i> = 1,000,000 is sufficient to serve as our graph's adjacency list.</p>
+            </section>
+            <section>
+                <h2>Detecting Graph Cycles</h2>
+                <p>A <i>cycle</i> in a graph consists of a path of at least 2 vertices where the the start and end vertices are the same (the term <i>cycle</i> will be synonymous with 'chain' stated in the problem). The algorithm I use to find all cycles in this directed graph is a modified <i>depth-first search</i> (DFS). First I'll define values to represent the processing state of a vertex:</p>
+                <code><pre>
+enum class color {
+&#9;white,&#9;// unvisited
+&#9;grey,&#9;// visiting
+&#9;black&#9;// visited
+};</pre></code>
+                <p>and an array to represent which vertices need to be processed:</p>
+                <code><pre>
+// initialize all vertices as white (unvisited)
+std::vector&lt;color&gt; visited = std::vector&lt;color&gt;(N+1, color::white);</pre></code>
+                <p>A recursive DFS function will check whether a given vertex belongs to a cycle. This function is described by the following pseudocode.</p>
+                <code><pre>
+bool dfs(currVertex, vertices, visited, N, &cycle)
+// return true if currVertex is part of a cycle, false if not
+
+(1) If the current vertex has already been visited or is out of range
+&#9;(i) Return false
+
+(2) If the current vertex is a dead-end (leads to "1")
+&#9;(i) Mark the current vertex as visited
+&#9;(ii) Return false
+
+(2) If the current vertex has been seen before
+&#9;<i>the current vertex is part of a cycle</i>
+&#9;(i) Add the current vertex to cycle
+&#9;(ii) Mark the current vertex as visited
+&#9;(iii) Return true
+
+(3) The current vertex is unvisited, mark it as visiting 
+
+(4) Recursively call dfs on the current vertex's single neighbor
+&#9;(i) If this call returns true and the current vertex is still marked as visiting
+&#9;&#9;<i>the current vertex is part of a cycle</i>
+&#9;&#9;(a) Add the current vertex to cycle
+&#9;&#9;(b) Mark the current vertex as visited
+&#9;&#9;(c) Return true
+&#9;(i) Else
+&#9;&#9;<i>the current vertex is not part of a cycle</i>
+&#9;&#9;(a) Mark the current vertex as visited
+&#9;&#9;(b) Return false</pre></code>
+                <p>In the main function we call the recursive DFS function on every unvisited vertex and record when a discovered cycle is longer than the longest discovered so far.</p>
+                <code><pre>
+int *aliquot;&#9;// graph adjacency list
+std::vector&lt;int&gt; cycle, longestCycle;
+for (int n = 2; n &lt; N+1; n++) {
+&#9;if (aliquot[n] == 1 || visited[n] == color::black) continue;
+&#9;dfs(n, aliquot, N+1, visited, cycle);
+&#9;if (cycle.size() &gt; longestCycle.size()) longestCycle = cycle;
+&#9;cycle.clear();
+}</pre></code>
+            </section>
+            <section>
+                <h2>Implementation</h2>
+                <p>Putting all the pieces together, this is the final implementation.</p>
+                <code><pre>
+#include &lt;vector&gt;
+#include &lt;cmath&gt;&#9;&#9;// std::sqrt
+#include &lt;algorithm&gt;&#9;// std::min_element
+#include &lt;iostream&gt;&#9;&#9;// std::cout
+
+// unvisited, visiting, visited
+enum class color { white, grey, black };
+
+std::vector&lt;int&gt; generatePrimes(int N) {
+&#9;bool *primeSieve = new bool[N]();
+&#9;for (int i = 2; i &lt; N; i++) primeSieve[i] = true;
+&#9;for (int i = 2; i*i &lt; N; i++)
+&#9;&#9;if (primeSieve[i])
+&#9;&#9;&#9;for (int j = i*i; j &lt; N; j += i) primeSieve[j] = false;
+&#9;std::vector&lt;int&gt; primes;
+&#9;for (int i = 0; i &lt; N; i++)
+&#9;&#9;if (primeSieve[i]) primes.push_back(i);
+&#9;delete[] primeSieve;
+&#9;return primes;
+}
+
+void getAliquotSums(int *aliquot, int N, const std::vector&lt;int&gt; &primes) {
+&#9;for (int n = 2; n &lt; N; n++) {
+&#9;&#9;int num = n;&#9;// make a copy of n to reduce 
+&#9;&#9;int sigma = 1;
+&#9;&#9;// Find the distinct prime factors of n up to sqrt(n)
+&#9;&#9;for (auto p : primes) {
+&#9;&#9;&#9;if (p*p &gt; n) break;
+&#9;&#9;&#9;if (n % p != 0) continue;
+&#9;&#9;&#9;int m = p;&#9;&#9;&#9;// m = p^(a+1)
+&#9;&#9;&#9;while (n % m == 0)&#9;// get the multiplicity of p
+&#9;&#9;&#9;&#9;m *= p;
+&#9;&#9;&#9;num /= (m/p);&#9;&#9;// reduce n with each prime factor
+&#9;&#9;&#9;sigma *= (m-1)/(p-1);
+&#9;&#9;}
+&#9;&#9;// If n is prime or has a prime factor &gt; sqrt(n),
+&#9;&#9;// it is a distinct prime factor with multiplicity of 1
+&#9;&#9;if (num &gt; 1) sigma *= (num+1);    
+&#9;&#9;aliquot[n] = sigma - n;
+&#9;}
+}
+
+bool dfs(int curr, int *vertices, int N, std::vector&lt;color&gt; &visited, std::vector&lt;int&gt; &cycle) {
+&#9;// Return true if the curr vertex is part of a cycle, false if not
+    
+&#9;// vertex is out of range, already visited, or a dead-end
+&#9;if (curr &gt;= N || visited[curr] == color::black) return false;
+&#9;if (vertices[curr] == 1) {  // dead-end
+&#9;&#9;visited[curr] = color::black;
+&#9;&#9;return false;
+&#9;}
+
+&#9;// vertex was seen before, cycle detected
+&#9;if (visited[curr] == color::grey) {
+&#9;&#9;cycle.push_back(curr);
+&#9;&#9;visited[curr] = color::black;
+&#9;&#9;return true;
+&#9;}
+
+&#9;// vertex is unvisited, mark as visiting
+&#9;visited[curr] = color::grey;
+
+&#9;// check the single neighbor of curr
+&#9;if (dfs(vertices[curr], vertices, N, visited, cycle) && visited[curr] == color::grey) {
+&#9;&#9;// the vertex that curr points to is part of a cycle
+&#9;&#9;// and curr belongs to that cycle
+&#9;&#9;cycle.push_back(curr);
+&#9;&#9;visited[curr] = color::black;
+&#9;&#9;return true;
+&#9;} else {
+&#9;&#9;// vertex is not part of a cycle, mark as visited
+&#9;&#9;visited[curr] = color::black;
+&#9;&#9;return false;
+&#9;}
+}
+
+int longestAmicableChain(int N) {
+&#9;// Generate all of the primes under sqrt(N)
+&#9;std::vector&lt;int&gt; primes = generatePrimes(static_cast&lt;int&gt;(std::sqrt(N)));
+
+&#9;// Get the aliquot sum for every number up to N
+&#9;int *aliquot = new int[N+1]();
+&#9;getAliquotSums(aliquot, N, primes);
+
+&#9;// Find every cycle and record the longest one
+&#9;std::vector&lt;color> visited = std::vector&lt;color&gt;(N+1, color::white);
+&#9;std::vector&lt;int&gt; cycle, longestCycle;
+&#9;for (int n = 2; n &lt; N+1; n++) {
+&#9;&#9;if (aliquot[n] == 1 || visited[n] == color::black)
+&#9;&#9;&#9;continue;
+&#9;&#9;dfs(n, aliquot, N+1, visited, cycle);
+&#9;&#9;if (cycle.size() &gt; longestCycle.size())
+&#9;&#9;&#9;longestCycle = cycle;
+&#9;&#9;cycle.clear();
+&#9;}
+&#9;delete[] aliquot;
+&#9;if (longestCycle.empty()) return 0;&#9;// no cycle found
+
+&#9;// Print chain
+&#9;std::cout &lt;&lt; "Chain of length " &lt;&lt; longestCycle.size() &lt;&lt; " found:\n";
+&#9;for (auto it = longestCycle.rbegin(); it != longestCycle.rend(); ++it)
+&#9;&#9;std::cout &lt;&lt; *it &lt;&lt; "-&gt;";
+&#9;std::cout &lt;&lt; longestCycle.back() &lt;&lt; "\n";
+&#9;return *std::min_element(longestCycle.begin(), longestCycle.end());
+}
+</pre></code>
             </section>
 
             <div id="end-page-links">
