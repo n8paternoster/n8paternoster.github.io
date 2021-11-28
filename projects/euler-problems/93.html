@@ -53,8 +53,120 @@
                 </div>
             </div>
             <hr />
+            <section>
+                <h2>Expression format</h2>
+                <p>On first reading, this problem may seem almost hopelessly complex - there are so many different possible expressions. Although the problem's wording asks us to find target numbers (the results of expressions), it would be a mistake to approach the problem by trying to find an expression for a given target number. The key is to recognize that the number of expressions is low enough to brute force.</p>
+                <p>To count how many possible expressions there are, consider the possible variables. An expression has the following form:</p>
+                <div class="mathjax-block">
+                    <p><i>a</i> O<sub>1</sub> <i>b</i> O<sub>2</sub> <i>c</i> O<sub>3</sub> <i>d</i> = target</p><br />
+                    <p>{<i>a</i>, <i>b</i>, <i>c</i>, <i>d</i>} are 4 distinct numbers in the range [1, 9].</p>
+                    <p>{O<sub>1</sub>, O<sub>2</sub>, O<sub>3</sub>} are 3 arithmetic operators (+, &minus;, &times;, &divide;)</p>
+                </div>
+                <p>In addition, parentheses may be used anywhere. It turns out the number of different combinations of valid parentheses is given by the <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Catalan_number" target="_blank">Catalan numbers</a>. The <i>n</i>th Catalan number gives the number of different ways <i>n</i>+1 terms can be parenthesized. The sequence of Catalan numbers begins 1, 1, 2, 5, 14, 42, ... With 4 terms, there are C<sub>4</sub> = 5 different ways to place parentheses on the above expression. Those ways are:</p>
+                <div class="mathjax-block">
+                    <p>((<i>a</i> + <i>b</i>) + <i>c</i>) + <i>d</i></p>
+                    <p>(<i>a</i> + (<i>b</i> + <i>c</i>)) + <i>d</i></p>
+                    <p><i>a</i> + ((<i>b</i> + <i>c</i>) + <i>d</i>)</p>
+                    <p><i>a</i> + (<i>b</i> + (<i>c</i> + <i>d</i>))</p>
+                    <p>(<i>a</i> + <i>b</i>) + (<i>c</i> + <i>d</i>)</p>
+                </div>
+                <p>With these we can calculate how many total expressions there are to evaluate:</p>
+                <ul>
+                    <li>Sets of 4 numbers (9 choose 4 = 126 sets) &times;</li>
+                    <li>Permutations of a set (4! = 24 permutations) &times;</li>
+                    <li>Arrangements of 3 operators (4&times;4&times;4 = 64 arrangements) &times;</li>
+                    <li>Arrangements of parentheses (C<sub>4</sub> = 5 arrangements)</li>
+                    <li>= <b>967,680 total expressions</b></li>
+                </ul>
+            </section>
+            <section>
+                <h2>Implementation</h2>
+                <p>In order to check all expressions, we need a way to iterate through the 4 variables above. First I'll define the problem specifications:</p>
+                <code><pre>
+constexpr int maxNumber = 9;&#9;// starting from 1
+constexpr int setSize = 4;&#9;&#9;// {a, b, c, d}
+constexpr int numOpCodes = 4;
+// 0 = addition
+// 1 = subtraction
+// 2 = multiplication
+// 3 = division
+constexpr int numParenthesesCodes = 5;
+// 0 = ((ab)c)d
+// 1 = (a(bc))d
+// 2 = a(b(cd))
+// 3 = a(b(cd))
+// 4 = (ab)(cd)
+constexpr int maxSolution = (maxNumber)*(maxNumber-1)*(maxNumber-2)*(maxNumber-3);</pre></code>
+                <p>As notated, I assigned integer codes to represent each arithmetic operator and arrangement of parentheses. <samp>maxSolution</samp> is simply the highest possible target number reachable with the problem's specifications (declared <samp>constexpr</samp> to be used with std::array).</p>
+                <p>I also define a couple type aliases to simplify the code:</p>
+                <code><pre>
+#include &lt;array&gt;
+#include &lt;tuple&gt;
 
-            <!-- content here -->
+using setArray = std::array&lt;float, setSize&gt;
+using opArray = std::array&lt;int, setSize-1&gt;</pre></code>
+                <p>A <samp>setArray</samp> variable will hold the values of {<i>a</i>, <i>b</i>, <i>c</i>, <i>d</i>} and an <samp>opArray</samp> variable will hold the values of {O<sub>1</sub>, O<sub>2</sub>, O<sub>3</sub>}. Why is there a <samp>float</samp> in there? While the problem specifies integer set numbers and integer targets, we'll see later that non-integer numbers can (and must!) be used in the intermediate values calculated in the process of evaluating an expression.</p>
+                <p>Before writing code to iterate through all 967,680 expressions, I'll write a couple helper functions to evaluate the result of a given expression. First, a function to perform a single operation on two numbers:</p>
+                <code><pre>
+inline float calculate(float x, float y, int opCode, bool &valid) {
+&#9;switch (opCode) {
+&#9;&#9;case 0: return x + y;
+&#9;&#9;case 1: return x - y;
+&#9;&#9;case 2: return x * y;
+&#9;&#9;case 3:
+&#9;&#9;&#9;if ((y &gt; 0 ? (y &lt; 0.001f) : (y &gt; -0.001f))) {
+&#9;&#9;&#9;&#9;// division by 0
+&#9;&#9;&#9;&#9;valid = false;
+&#9;&#9;&#9;&#9;return 0.0f;
+&#9;&#9;&#9;} else return x / y;
+&#9;}
+&#9;valid = false;
+&#9;return 0.0f;
+}</pre></code>
+                <p>The <samp>valid</samp> flag will indicate if the result of the calculation can be considered valid. The only complication arises when a division by 0 is input. Since this function operates on floating-point numbers, an arbitrarily close approximation to 0 needs to be used instead of direct comparison.</p>
+                <p><samp>evaluateExpression</samp> will calculate the result of a full expression:</p>
+                <code><pre>
+int evaluateExpression(const setArray &numbers, int pCode, const opArray &opCode, bool &valid) {
+&#9;valid = true;
+&#9;float result = 0;
+&#9;switch (pCode) {
+&#9;case 0:&#9;&#9;// ((a + b) + c) + d
+&#9;&#9;result = calculate(numbers[0], numbers[1], opCode[0], valid);
+&#9;&#9;result = calculate(result, numbers[2], opCode[1], valid);
+&#9;&#9;result = calculate(result, numbers[3], opCode[2], valid);
+&#9;&#9;break;
+&#9;case 1:&#9;&#9;// (a + (b + c)) + d
+&#9;&#9;result = calculate(numbers[1], numbers[2], opCode[1], valid);
+&#9;&#9;result = calculate(numbers[0], result, opCode[0], valid);
+&#9;&#9;result = calculate(result, numbers[3], opCode[2], valid);
+&#9;&#9;break;
+&#9;case 2:&#9;&#9;// a + ((b + c) + d)
+&#9;&#9;result = calculate(numbers[1], numbers[2], opCode[1], valid);
+&#9;&#9;result = calculate(result, numbers[3], opCode[2], valid);
+&#9;&#9;result = calculate(numbers[0], result, opCode[0], valid);
+&#9;&#9;break;
+&#9;case 3:&#9;&#9;// a + (b + (c + d))
+&#9;&#9;result = calculate(numbers[2], numbers[3], opCode[2], valid);
+&#9;&#9;result = calculate(numbers[1], result, opCode[1], valid);
+&#9;&#9;result = calculate(numbers[0], result, opCode[0], valid);
+&#9;&#9;break;
+&#9;case 4: {&#9;// (a + b) + (c + d) 
+&#9;&#9;result = calculate(numbers[0], numbers[1], opCode[0], valid);
+&#9;&#9;float temp = calculate(numbers[2], numbers[3], opCode[2], valid);
+&#9;&#9;result = calculate(result, temp, opCode[1], valid);
+&#9;&#9;break;
+&#9;}
+&#9;default:
+&#9;&#9;valid = false;
+&#9;&#9;break;
+&#9;}
+&#9;int iResult = static_cast&lt;int&gt;(result);
+&#9;if (iResult != result) valid = false;
+&#9;return iResult;
+}</pre></code>
+                <p>An invalid result from this function is one that does not produce an integer or contains a division by 0.</p>
+                <p>Now we can generate all expressions to find which produces the most consecutive solutions. To iterate through the 126 combinations of 4 numbers, I use a mask</p>
+            </section>
 
             <div id="end-page-links">
                 <a href="/projects/euler-problems/91.html" id="prev-problem"><i class="fas fa-arrow-left"></i>&nbsp;Previous: Right triangles with integer coordinates</a>

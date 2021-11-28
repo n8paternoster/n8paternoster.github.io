@@ -140,7 +140,7 @@ aliquot[n] = sigma - n;</pre></code>
                 <img style="max-height: 200px" src="/project-assets/euler/amicable-chain-5.png" alt="Amicable chain graph" />
                 <p>Actually, the full graph implied by this problem includes a vertex for every number up to 1,000,000:</p>
                 <img style="max-height: 300px" src="/project-assets/euler/amicable-numbers-graph.png" alt="Amicable numbers graph" />
-                <p>We can draw a few conclusions about this graph. Every vertex will have exactly one outgoing edge pointing to the value of its Aliquot sum. Every prime number vertex will have its edge pointing to 1 and the number 1 itself will point to 0 (which will be considered a dead end). There are V = 1,000,000 vertices and E = 1,000,000 edges which implies a relatively sparse graph.</p>
+                <p>We can draw a few conclusions about this graph. Every vertex will have exactly one outgoing edge pointing to the value of its Aliquot sum. Every prime number vertex will have its edge pointing to 1 and the number 1 itself will point to 0 (which will be considered a dead end). There are V = 1,000,000 vertices and E = 1,000,000 edges which imply a relatively sparse graph.</p>
                 <p>This graph can be stored as an <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Adjacency_list">adjacency list</a> where each list only contains one neighbor node (given by the Aliquot sum). A simple array containing the Aliquot sums of every number up to <i>n</i> = 1,000,000 is sufficient to serve as our graph's adjacency list.</p>
             </section>
             <section>
