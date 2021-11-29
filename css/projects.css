@@ -515,6 +515,12 @@ pre {
     tab-size: 4;
     margin: 0;
 }
+pre.small-tab {
+    tab-size: 2;
+}
+pre.small-text {
+    font-size: 0.9em;
+}
 
 .MathJax {
     font-size: 1em !important;
@@ -540,6 +546,13 @@ section {
 }
 
 /* ----------- Media Queries ----------- */
+
+@media screen and (max-width: 768px) {
+    code, .mathjax-block {  /* full width code/math blocks */
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
 
 @media screen and (max-width: 670px) {
     #project-title-container {
@@ -575,10 +588,5 @@ section {
     .euler-problem-view blockquote {
         margin-left: 0.8em;
         margin-right: 0.8em;    /* just enough space for shadow */
-    }
-
-    code, .mathjax-block {
-        margin-left: 0;
-        margin-right: 0;
     }
 }

@@ -10,6 +10,8 @@
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
     <script src="/js/nate.js" defer></script>
     <script src="https://kit.fontawesome.com/254df2922f.js" crossorigin="anonymous"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -74,15 +76,16 @@
                 <ul>
                     <li>Sets of 4 numbers (9 choose 4 = 126 sets) &times;</li>
                     <li>Permutations of a set (4! = 24 permutations) &times;</li>
-                    <li>Arrangements of 3 operators (4&times;4&times;4 = 64 arrangements) &times;</li>
+                    <li>Arrangements of 3 operators (4<sup>3</sup> = 64 arrangements) &times;</li>
                     <li>Arrangements of parentheses (C<sub>4</sub> = 5 arrangements)</li>
                     <li>= <b>967,680 total expressions</b></li>
                 </ul>
             </section>
             <section>
                 <h2>Implementation</h2>
-                <p>In order to check all expressions, we need a way to iterate through the 4 variables above. First I'll define the problem specifications:</p>
-                <code><pre>
+                <p>First I'll define the problem specifications:</p>
+                <code>
+                    <pre>
 constexpr int maxNumber = 9;&#9;// starting from 1
 constexpr int setSize = 4;&#9;&#9;// {a, b, c, d}
 constexpr int numOpCodes = 4;
@@ -96,18 +99,22 @@ constexpr int numParenthesesCodes = 5;
 // 2 = a(b(cd))
 // 3 = a(b(cd))
 // 4 = (ab)(cd)
-constexpr int maxSolution = (maxNumber)*(maxNumber-1)*(maxNumber-2)*(maxNumber-3);</pre></code>
-                <p>As notated, I assigned integer codes to represent each arithmetic operator and arrangement of parentheses. <samp>maxSolution</samp> is simply the highest possible target number reachable with the problem's specifications (declared <samp>constexpr</samp> to be used with std::array).</p>
+constexpr int maxSolution = (maxNumber)*(maxNumber-1)*(maxNumber-2)*(maxNumber-3);</pre>
+                </code>
+                <p>I assign integer codes to represent each arithmetic operator and arrangement of parentheses. <samp>maxSolution</samp> is the highest possible target number reachable with the problem's specifications (declared <samp>constexpr</samp> to be used with std::array).</p>
                 <p>I also define a couple type aliases to simplify the code:</p>
-                <code><pre>
+                <code>
+                    <pre>
 #include &lt;array&gt;
 #include &lt;tuple&gt;
 
-using setArray = std::array&lt;float, setSize&gt;
-using opArray = std::array&lt;int, setSize-1&gt;</pre></code>
-                <p>A <samp>setArray</samp> variable will hold the values of {<i>a</i>, <i>b</i>, <i>c</i>, <i>d</i>} and an <samp>opArray</samp> variable will hold the values of {O<sub>1</sub>, O<sub>2</sub>, O<sub>3</sub>}. Why is there a <samp>float</samp> in there? While the problem specifies integer set numbers and integer targets, we'll see later that non-integer numbers can (and must!) be used in the intermediate values calculated in the process of evaluating an expression.</p>
-                <p>Before writing code to iterate through all 967,680 expressions, I'll write a couple helper functions to evaluate the result of a given expression. First, a function to perform a single operation on two numbers:</p>
-                <code><pre>
+using setArray_t = std::array&lt;float, setSize&gt;
+using opArray_t = std::array&lt;int, setSize-1&gt;</pre>
+                </code>
+                <p>A <samp>setArray_t</samp> variable will hold the values of {<i>a</i>, <i>b</i>, <i>c</i>, <i>d</i>} and an <samp>opArray_t</samp> variable will hold the values of {O<sub>1</sub>, O<sub>2</sub>, O<sub>3</sub>}. Why is there a <samp>float</samp> in there? While the problem specifies integer set numbers and integer targets, we'll see later that non-integer numbers can (and must!) be used in the intermediate values calculated in the process of evaluating an expression.</p>
+                <p>Next, a couple helper functions to evaluate a given expression. First, a function to perform a single operation on two numbers:</p>
+                <code>
+                    <pre>
 inline float calculate(float x, float y, int opCode, bool &valid) {
 &#9;switch (opCode) {
 &#9;&#9;case 0: return x + y;
@@ -122,38 +129,40 @@ inline float calculate(float x, float y, int opCode, bool &valid) {
 &#9;}
 &#9;valid = false;
 &#9;return 0.0f;
-}</pre></code>
-                <p>The <samp>valid</samp> flag will indicate if the result of the calculation can be considered valid. The only complication arises when a division by 0 is input. Since this function operates on floating-point numbers, an arbitrarily close approximation to 0 needs to be used instead of direct comparison.</p>
+}</pre>
+                </code>
+                <p>The <samp>valid</samp> flag will indicate if the result of the calculation can be considered valid. The only complication arises when a division by 0 is inputted. Since this function operates on floating-point numbers, an arbitrarily close approximation to 0 needs to be used instead of direct comparison.</p>
                 <p><samp>evaluateExpression</samp> will calculate the result of a full expression:</p>
-                <code><pre>
-int evaluateExpression(const setArray &numbers, int pCode, const opArray &opCode, bool &valid) {
+                <code>
+                    <pre class="small-text">
+int evaluateExpression(const setArray_t &numbers, const opArray_t &operations, int pCode, bool &valid) {
 &#9;valid = true;
 &#9;float result = 0;
 &#9;switch (pCode) {
 &#9;case 0:&#9;&#9;// ((a + b) + c) + d
-&#9;&#9;result = calculate(numbers[0], numbers[1], opCode[0], valid);
-&#9;&#9;result = calculate(result, numbers[2], opCode[1], valid);
-&#9;&#9;result = calculate(result, numbers[3], opCode[2], valid);
+&#9;&#9;result = calculate(numbers[0], numbers[1], operations[0], valid);
+&#9;&#9;result = calculate(result, numbers[2], operations[1], valid);
+&#9;&#9;result = calculate(result, numbers[3], operations[2], valid);
 &#9;&#9;break;
 &#9;case 1:&#9;&#9;// (a + (b + c)) + d
-&#9;&#9;result = calculate(numbers[1], numbers[2], opCode[1], valid);
-&#9;&#9;result = calculate(numbers[0], result, opCode[0], valid);
-&#9;&#9;result = calculate(result, numbers[3], opCode[2], valid);
+&#9;&#9;result = calculate(numbers[1], numbers[2], operations[1], valid);
+&#9;&#9;result = calculate(numbers[0], result, operations[0], valid);
+&#9;&#9;result = calculate(result, numbers[3], operations[2], valid);
 &#9;&#9;break;
 &#9;case 2:&#9;&#9;// a + ((b + c) + d)
-&#9;&#9;result = calculate(numbers[1], numbers[2], opCode[1], valid);
-&#9;&#9;result = calculate(result, numbers[3], opCode[2], valid);
-&#9;&#9;result = calculate(numbers[0], result, opCode[0], valid);
+&#9;&#9;result = calculate(numbers[1], numbers[2], operations[1], valid);
+&#9;&#9;result = calculate(result, numbers[3], operations[2], valid);
+&#9;&#9;result = calculate(numbers[0], result, operations[0], valid);
 &#9;&#9;break;
 &#9;case 3:&#9;&#9;// a + (b + (c + d))
-&#9;&#9;result = calculate(numbers[2], numbers[3], opCode[2], valid);
-&#9;&#9;result = calculate(numbers[1], result, opCode[1], valid);
-&#9;&#9;result = calculate(numbers[0], result, opCode[0], valid);
+&#9;&#9;result = calculate(numbers[2], numbers[3], operations[2], valid);
+&#9;&#9;result = calculate(numbers[1], result, operations[1], valid);
+&#9;&#9;result = calculate(numbers[0], result, operations[0], valid);
 &#9;&#9;break;
 &#9;case 4: {&#9;// (a + b) + (c + d) 
-&#9;&#9;result = calculate(numbers[0], numbers[1], opCode[0], valid);
-&#9;&#9;float temp = calculate(numbers[2], numbers[3], opCode[2], valid);
-&#9;&#9;result = calculate(result, temp, opCode[1], valid);
+&#9;&#9;result = calculate(numbers[0], numbers[1], operations[0], valid);
+&#9;&#9;float temp = calculate(numbers[2], numbers[3], operations[2], valid);
+&#9;&#9;result = calculate(result, temp, operations[1], valid);
 &#9;&#9;break;
 &#9;}
 &#9;default:
@@ -163,9 +172,189 @@ int evaluateExpression(const setArray &numbers, int pCode, const opArray &opCode
 &#9;int iResult = static_cast&lt;int&gt;(result);
 &#9;if (iResult != result) valid = false;
 &#9;return iResult;
-}</pre></code>
+}</pre>
+                </code>
                 <p>An invalid result from this function is one that does not produce an integer or contains a division by 0.</p>
-                <p>Now we can generate all expressions to find which produces the most consecutive solutions. To iterate through the 126 combinations of 4 numbers, I use a mask</p>
+                <h4>Generating all expressions</h4>
+                <p>The four variables to iterate through are:</p>
+                <ul>
+                    <li>Sets of 4 numbers</li>
+                    <li>Permutations of a set</li>
+                    <li>Arrangements of 3 operators</li>
+                    <li>Arrangements of parentheses</li>
+                </ul>
+                <p>The sets of numbers are specifically the combinations of 9 numbers taken 4 at a time (<sub>9</sub>C<sub>4</sub> = 126 combinations). To iterate through these 126 sets, I use a binary mask to represent numbers in a set. Indices in the mask correspond to numbers. For example,</p>
+                <div class="mathjax-block">
+                    <p>\(001101001\) (mask) &#10132; \(\{3, 4, 6, 9\}\)</p>
+                </div>
+                <p>Taking all the permutations of this mask generates all combinations of 4 numbers. The next few permutations are:</p>
+                <div class="mathjax-block">
+                    <p>...</p>
+                    <p>\(001100110\) &#10132; \(\{3, 4, 7, 8\}\)</p>
+                    <p>\(001100101\) &#10132; \(\{3, 4, 7, 9\}\)</p>
+                    <p>\(001100011\) &#10132; \(\{3, 4, 8, 9\}\)</p>
+                    <p>\(001011100\) &#10132; \(\{3, 5, 6, 7\}\)</p>
+                    <p>...</p>
+                </div>
+                <p>Using std::fill to initialize the mask to 0111100000 (unused 0 index) and std::prev_permutation we can get all sets like so:</p>
+                <code><pre>
+#include &lt;array&gt;
+#include &lt;algorithm&gt;
+
+std::array&lt;bool, maxNumber+1&gt; mask = {};
+std::fill(mask.begin()+1, mask.begin()+1+setSize, true);
+do {
+&#9;setArray_t set;
+&#9;// read the mask
+&#9;for (int i = 1, n = 0; i <= maxNumber; i++)
+&#9;&#9;if (mask[i]) set[n++] = static_cast&lt;float&gt;(i);
+&#9;// all sets
+} while (std::prev_permutation(mask.begin()+1, mask.end()));</pre></code>
+                <p>The permutations of each set can also be generated using the similar std::next_permutation:</p>
+                <code><pre>
+setArray_t set;
+...
+do {
+&#9;// all permutations of a set
+} while (std::next_permutation(set.begin(), set.end()));</pre></code>
+                <p>However, arrangements of arithmetic operators can also include repeated operators. Assigning numbers to represent each operator as above, <samp>opCode</samp> represents the 3 operators in one expression:</p>
+                <code><pre>
+opArray_t opCode = {};&#9;// initialize to {0, 0, 0}</pre></code>
+                <p>For example, {0, 3, 1} corresponds to <i>a</i>+<i>b</i>&divide;<i>c</i>&minus;<i>d</i> and {2, 2, 3} corresponds to <i>a</i>&times;<i>b</i>&times;<i>c</i> &divide;<i>d</i>. I use a closure to handle all permutations with repetition:</p>
+                <code><pre>
+auto nextOpCode = [&]() -&gt; bool {
+&#9;for (int i = 0; i &lt; setSize-1; i++) {
+&#9;&#9;if (++opCode[i] &gt;= numOpCodes) {
+&#9;&#9;&#9;opCode[i] = 0;
+&#9;&#9;&#9;if (i == setSize-2) return false;
+&#9;&#9;} else break;
+&#9;}
+&#9;return true;
+};</pre></code>
+                <p>Finally, since there are only 5 different arrangements of parentheses, a simple for loop handles iteration:</p>
+                <code><pre>
+for (int pCode = 0; pCode &lt; numParenthesesCodes; pCode++) {
+&#9;// all parentheses arrangements
+}</pre></code>
+                <h4>Putting it all together</h4>
+                <p>Combining the above iteration methods, the final function finds the set of 4 numbers that produce the longest consecutive string of target numbers. The target numbers reachable by a given set are stored in <samp>solutions</samp>, a boolean array. The indices represent target numbers and a value of true at index <i>i</i> means <i>i</i> is a reachable target number.</p>
+                <code><pre class="small-text">
+#include &lt;string&gt;
+#include &lt;array&gt;
+#include &lt;algorithm&gt;
+
+std::string longestSolutionSet() {
+&#9;std::array&lt;bool, maxNumber+1&gt; mask = {};
+&#9;std::fill(mask.begin()+1, mask.begin()+1+setSize, true);
+
+&#9;opArray_t opCode = {};
+&#9;auto nextOpCode = [&]() -&gt; bool {
+&#9;&#9;for (int i = 0; i &lt; setSize-1; i++) {
+&#9;&#9;&#9;if (++opCode[i] &gt;= numOpCodes) {
+&#9;&#9;&#9;&#9;opCode[i] = 0;
+&#9;&#9;&#9;&#9;if (i == setSize-2) return false;
+&#9;&#9;&#9;} else break;
+&#9;&#9;}
+&#9;&#9;return true;
+&#9;};
+
+&#9;int longestSequence = 0;
+&#9;setArray_t solutionSet;
+
+&#9;do { // All sets of 4 numbers
+
+&#9;&#9;setArray_t set;
+&#9;&#9;for (int i = 1, n = 0; i &lt;= maxNumber; i++) // read mask
+&#9;&#9;&#9;if (mask[i]) set[n++] = static_cast&lt;float&gt;(i);
+&#9;&#9;std::array&lt;bool, maxSolution+1&gt; solutions = {};
+
+&#9;&#9;// Generate all expressions possible with this set
+&#9;&#9;do { // All permutations of this set
+&#9;&#9;&#9;do { // All operator arrangements
+&#9;&#9;&#9;&#9;for (int pCode = 0; pCode &lt; numParenthesesCodes; pCode++) {
+&#9;&#9;&#9;&#9;&#9;// All parentheses arrangements
+&#9;&#9;&#9;&#9;&#9;bool valid = true;
+&#9;&#9;&#9;&#9;&#9;int result = evaluateExpression(set, opCode, pCode, valid);
+&#9;&#9;&#9;&#9;&#9;if (valid && result &gt; 0 && !solutions[result]) 
+&#9;&#9;&#9;&#9;&#9;&#9;solutions[result] = true;
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;} while (nextOpCode());
+&#9;&#9;} while (std::next_permutation(set.begin(), set.end()));
+
+&#9;&#9;// Check the number of consecutive target numbers
+&#9;&#9;int sequenceLength = std::find(++solutions.begin(), solutions.end(), false) - solutions.begin() - 1;
+&#9;&#9;if (sequenceLength &gt; longestSequence) {
+&#9;&#9;&#9;longestSequence = sequenceLength;
+&#9;&#9;&#9;solutionSet = set;
+&#9;&#9;}
+
+&#9;} while (std::prev_permutation(mask.begin()+1, mask.end()));
+
+&#9;// Convert the solution set into a std::string
+&#9;std::string result = "";
+&#9;for (auto i : solutionSet) result += ('0' + static_cast&lt;int&gt;(i));
+
+&#9;return result;
+}</pre></code>
+            </section>
+            <section>
+                <h2>Final Thoughts</h2>
+                <p>On my Github page I added a couple extra functions not shown here that enable my program to print the expressions and target numbers of the problem's solution and and also of sets input on the command line. The problem's entire solution found by my program is below.</p>
+                <code><pre class="small-text">
+1258 produces 51 consecutive solutions:
+((1 + 2) + 5) / 8 = 1
+(1 - (2 + 5)) + 8 = 2
+((1 - 2) * 5) + 8 = 3
+((1 + 5) * 2) - 8 = 4
+((1 * 2) - 5) + 8 = 5
+((1 + 2) - 5) + 8 = 6
+((1 + 2) * 5) - 8 = 7
+((1 - 5) + 8) * 2 = 8
+((1 / 2) * 8) + 5 = 9
+1 + (5 + (8 / 2)) = 10
+((1 * 2) * 8) - 5 = 11
+((1 - 2) + 5) + 8 = 12
+((1 + 8) * 2) - 5 = 13
+((2 - 1) + 5) + 8 = 14
+((1 * 2) + 5) + 8 = 15
+((1 + 2) + 5) + 8 = 16
+((2 * 5) - 1) + 8 = 17
+((1 * 2) * 5) + 8 = 18
+(1 + (2 * 5)) + 8 = 19
+((1 / 2) * 5) * 8 = 20
+((1 * 2) * 8) + 5 = 21
+(1 + (2 * 8)) + 5 = 22
+((1 + 2) * 5) + 8 = 23
+(1 - 5) * (2 - 8) = 24
+1 - ((2 - 5) * 8) = 25
+1 * (2 * (5 + 8)) = 26
+1 + (2 * (5 + 8)) = 27
+(1 + (5 / 2)) * 8 = 28
+((1 + 2) * 8) + 5 = 29
+1 * (5 * (8 - 2)) = 30
+1 - ((2 - 8) * 5) = 31
+((1 - 2) + 5) * 8 = 32
+(5 * (8 - 1)) - 2 = 33
+2 - ((1 - 5) * 8) = 34
+((1 - 2) + 8) * 5 = 35
+(1 + 5) * (8 - 2) = 36
+2 - ((1 - 8) * 5) = 37
+((1 * 5) * 8) - 2 = 38
+(1 + 2) * (5 + 8) = 39
+((2 - 1) * 5) * 8 = 40
+(2 - 1) + (5 * 8) = 41
+1 * (2 + (5 * 8)) = 42
+1 + (2 + (5 * 8)) = 43
+((1 / 2) + 5) * 8 = 44
+((2 - 1) + 8) * 5 = 45
+((1 + 5) * 8) - 2 = 46
+((1 + 8) * 5) + 2 = 47
+((2 - 1) + 5) * 8 = 48
+(2 + 5) * (8 - 1) = 49
+((1 * 2) + 8) * 5 = 50
+1 + ((2 + 8) * 5) = 51</pre></code>
+                <p>In solving this problem, I tried my best to generalize my solution as much as possible. The biggest challenge was finding a general way to handle the arrangements of parentheses. While the other variables to iterate were relatively simple, I found it out of the scope of this problem to implement a general algorithm for different parentheses. Therefore I hardcoded the different arrangements in <samp>evaluateExpression</samp> with a switch statement.</p>
+                <p>A truly general solution would most likely require an entirely different way of representing expressions, perhaps using <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Polish_notation" target="_blank">Polish notation</a>. For the interested reader I think it would be a fun challenge.</p>
             </section>
 
             <div id="end-page-links">
