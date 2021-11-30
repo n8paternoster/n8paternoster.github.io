@@ -188,7 +188,7 @@ header {
 
 .project-card:hover .clickable-card-link {
     /*color: #d96a20;*/ /* dark orange*/
-    border-color: #d96a20; /* dark orange*/
+    /*border-color: #d96a20;*/ /* dark orange*/
 }
 
 .project-card a.clickable-card-link {

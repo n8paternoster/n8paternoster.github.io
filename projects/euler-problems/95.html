@@ -79,7 +79,8 @@ std::vector&lt;int&gt; generatePrimes(int n) {
 &#9;for (int i = 2; i &lt; n; i++) primeSieve[i] = true;
 &#9;for (int i = 2; i*i &lt; n; i++)
 &#9;&#9;if (primeSieve[i])
-&#9;&#9;&#9;for (int j = i*i; j &lt; n; j += i) primeSieve[j] = false;
+&#9;&#9;&#9;for (int j = i*i; j &lt; n; j += i)
+&#9;&#9;&#9;&#9;primeSieve[j] = false;
 &#9;std::vector&lt;int&gt; primes;
 &#9;for (int i = 0; i &lt; n; i++)
 &#9;&#9;if (primeSieve[i]) primes.push_back(i);
@@ -91,7 +92,7 @@ std::vector&lt;int&gt; generatePrimes(int n) {
             </section>
             <section>
                 <h2>&sigma;(<i>n</i>) and the Aliquot Sum</h2>
-                <p>As mentioned earlier, the sum of divisors of <i>n</i> is given by:</p>
+                <p>As mentioned above, the sum of divisors of <i>n</i> is given by:</p>
                 <div class="mathjax-block">
                     <p>\(\sigma(n) = \prod\limits_{i=1}^{r}{\frac{p_i^{a_i+1}-1}{p_i-1}}\)</p><br />
                     <p>where</p>
@@ -109,7 +110,7 @@ std::vector&lt;int&gt; generatePrimes(int n) {
                     <p>\(\sigma(220) = \frac{2^{2+1}-1}{2-1}\) \(\cdot\) \(\frac{5^{1+1}-1}{5-1}\) \(\cdot\) \(\frac{11^{1+1}-1}{11-1}\)</p>
                     <p>\(\sigma(220) = 7 \cdot 6 \cdot 12 = 504\)</p>
                 </div>
-                <p>To get the Aliquot sum as required by the problem we simply subtract out the number itself:</p>
+                <p>To get the Aliquot sum we simply subtract out the number itself:</p>
                 <div class="mathjax-block">
                     <p>\(aliquot(220) = \sigma(220) - 220\)</p>
                     <p>\(aliquot(220) = 504 - 220 = 284\)</p>
@@ -191,16 +192,18 @@ bool dfs(currVertex, vertices, visited, N, &cycle)
 int *aliquot;&#9;// graph adjacency list
 std::vector&lt;int&gt; cycle, longestCycle;
 for (int n = 2; n &lt; N+1; n++) {
-&#9;if (aliquot[n] == 1 || visited[n] == color::black) continue;
+&#9;if (aliquot[n] == 1 || visited[n] == color::black)
+&#9;&#9;continue;
 &#9;dfs(n, aliquot, N+1, visited, cycle);
-&#9;if (cycle.size() &gt; longestCycle.size()) longestCycle = cycle;
+&#9;if (cycle.size() &gt; longestCycle.size())
+&#9;&#9;longestCycle = cycle;
 &#9;cycle.clear();
 }</pre></code>
             </section>
             <section>
                 <h2>Implementation</h2>
                 <p>Putting all the pieces together, this is the final implementation.</p>
-                <code><pre>
+                <code><pre class="small-text">
 #include &lt;vector&gt;
 #include &lt;cmath&gt;&#9;&#9;// std::sqrt
 #include &lt;algorithm&gt;&#9;// std::min_element

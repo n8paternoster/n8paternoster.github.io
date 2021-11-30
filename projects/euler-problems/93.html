@@ -57,7 +57,7 @@
             <hr />
             <section>
                 <h2>Expression format</h2>
-                <p>On first reading, this problem may seem almost hopelessly complex - there are so many different possible expressions. Although the problem's wording asks us to find target numbers (the results of expressions), it would be a mistake to approach the problem by trying to find an expression for a given target number. The key is to recognize that the number of expressions is low enough to brute force.</p>
+                <p>On first reading, this problem may seem almost hopelessly complex - there are so many different possible expressions. Although the problem's wording asks us to find target numbers (the results of expressions), it would be a mistake to approach the problem by trying to find an expression for a given target number. The key is to recognize that the number of expressions is low enough to obtain the answer by brute force.</p>
                 <p>To count how many possible expressions there are, consider the possible variables. An expression has the following form:</p>
                 <div class="mathjax-block">
                     <p><i>a</i> O<sub>1</sub> <i>b</i> O<sub>2</sub> <i>c</i> O<sub>3</sub> <i>d</i> = target</p><br />
@@ -102,7 +102,7 @@ constexpr int numParenthesesCodes = 5;
 constexpr int maxSolution = (maxNumber)*(maxNumber-1)*(maxNumber-2)*(maxNumber-3);</pre>
                 </code>
                 <p>I assign integer codes to represent each arithmetic operator and arrangement of parentheses. <samp>maxSolution</samp> is the highest possible target number reachable with the problem's specifications (declared <samp>constexpr</samp> to be used with std::array).</p>
-                <p>I also define a couple type aliases to simplify the code:</p>
+                <p>I also define a couple of type aliases to simplify the code:</p>
                 <code>
                     <pre>
 #include &lt;array&gt;
@@ -112,7 +112,7 @@ using setArray_t = std::array&lt;float, setSize&gt;
 using opArray_t = std::array&lt;int, setSize-1&gt;</pre>
                 </code>
                 <p>A <samp>setArray_t</samp> variable will hold the values of {<i>a</i>, <i>b</i>, <i>c</i>, <i>d</i>} and an <samp>opArray_t</samp> variable will hold the values of {O<sub>1</sub>, O<sub>2</sub>, O<sub>3</sub>}. Why is there a <samp>float</samp> in there? While the problem specifies integer set numbers and integer targets, we'll see later that non-integer numbers can (and must!) be used in the intermediate values calculated in the process of evaluating an expression.</p>
-                <p>Next, a couple helper functions to evaluate a given expression. First, a function to perform a single operation on two numbers:</p>
+                <p>Next, helper functions to evaluate a given expression. First, a function to perform a single operation on two numbers:</p>
                 <code>
                     <pre>
 inline float calculate(float x, float y, int opCode, bool &valid) {
@@ -132,7 +132,8 @@ inline float calculate(float x, float y, int opCode, bool &valid) {
 }</pre>
                 </code>
                 <p>The <samp>valid</samp> flag will indicate if the result of the calculation can be considered valid. The only complication arises when a division by 0 is inputted. Since this function operates on floating-point numbers, an arbitrarily close approximation to 0 needs to be used instead of direct comparison.</p>
-                <p><samp>evaluateExpression</samp> will calculate the result of a full expression:</p>
+                <p>Then, <samp>evaluateExpression</samp> will calculate the result of a full expression:</p>
+                <p>Then, <samp>evaluateExpression</samp> will calculate the result of a full expression:</p>
                 <code>
                     <pre class="small-text">
 int evaluateExpression(const setArray_t &numbers, const opArray_t &operations, int pCode, bool &valid) {
@@ -231,7 +232,7 @@ auto nextOpCode = [&]() -&gt; bool {
 &#9;}
 &#9;return true;
 };</pre></code>
-                <p>Finally, since there are only 5 different arrangements of parentheses, a simple for loop handles iteration:</p>
+                <p>Finally, since there are only 5 different arrangements of parentheses, a simple <samp>for loop</samp> handles iteration:</p>
                 <code><pre>
 for (int pCode = 0; pCode &lt; numParenthesesCodes; pCode++) {
 &#9;// all parentheses arrangements
@@ -299,7 +300,7 @@ std::string longestSolutionSet() {
             </section>
             <section>
                 <h2>Final Thoughts</h2>
-                <p>On my Github page I added a couple extra functions not shown here that enable my program to print the expressions and target numbers of the problem's solution and and also of sets input on the command line. The problem's entire solution found by my program is below.</p>
+                <p>On my Github page I added a couple extra functions not shown here that enable my program to print the expressions and target numbers of the problem's solution and also of sets input on the command line. The problem's entire solution found by my program is below.</p>
                 <code><pre class="small-text">
 1258 produces 51 consecutive solutions:
 ((1 + 2) + 5) / 8 = 1
@@ -354,7 +355,7 @@ std::string longestSolutionSet() {
 ((1 * 2) + 8) * 5 = 50
 1 + ((2 + 8) * 5) = 51</pre></code>
                 <p>In solving this problem, I tried my best to generalize my solution as much as possible. The biggest challenge was finding a general way to handle the arrangements of parentheses. While the other variables to iterate were relatively simple, I found it out of the scope of this problem to implement a general algorithm for different parentheses. Therefore I hardcoded the different arrangements in <samp>evaluateExpression</samp> with a switch statement.</p>
-                <p>A truly general solution would most likely require an entirely different way of representing expressions, perhaps using <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Polish_notation" target="_blank">Polish notation</a> (and may be eased with a language other than C++!). For the interested reader I think it would be a fun challenge.</p>
+                <p>A truly general solution would most likely require an entirely different way of representing expressions, perhaps using <a class="wiki-link-inline" href="https://en.wikipedia.org/wiki/Polish_notation" target="_blank">Polish notation</a> (and may be easier with a language other than C++!). For the interested reader I think it would make a fun challenge.</p>
             </section>
 
             <div id="end-page-links">
