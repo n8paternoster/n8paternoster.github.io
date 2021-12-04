@@ -1,14 +1,19 @@
 ﻿var sudokuBoard = document.getElementById("sudoku-board-container");
 var boardData;
 
+/* return the input element for the next sequential cell */
+function nextCell(id) {
+    let index = parseInt(id, 10);
+    index = (index + 1) % 81;
+    let nextID = ((index < 10) ? "0" : "") + index.toString();
+    return sudokuBoard.querySelector("[id='" + nextID + "']");
+}
+
 /* prevent non-numeric input from displaying, handle tab presses */
 sudokuBoard.addEventListener("keydown", function (e) {
-    if (e.key === "Tab" || e.key === "Enter") {
+    if (e.key === "Tab" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        let index = parseInt(e.target.id, 10);
-        index = (index + 1) % 81;
-        let nextCell = ((index < 10) ? "0" : "") + index.toString();
-        sudokuBoard.querySelector("[id='" + nextCell + "']").focus();
+        nextCell(e.target.id).select();
         return;
     }
     else if (e.key.length === 1 && /\D/.test(e.key) && !e.ctrlKey) {
@@ -16,9 +21,23 @@ sudokuBoard.addEventListener("keydown", function (e) {
     }
 });
 
-/* prevent invalid numeric from displaying, delegate event to sudokuBoard */
+/* auto tab after a number is entered */
+sudokuBoard.addEventListener("input", function (e) {
+    if (e.target.value.length === 1) {
+        if (e.target.value === '0') e.target.value = "";
+        nextCell(e.target.id).select();
+    }
+});
+/* prevent invalid numeric from displaying */
 sudokuBoard.addEventListener("change", function (e) {
-    if (e.target.value > 9) e.target.value = "";
+    if (e.target.value.length > 1) e.target.value = "";
+});
+/* highlight text when cell is selected */
+sudokuBoard.addEventListener("click", function (e) {
+    if (e.target.tagName === "INPUT") {
+        e.stopPropagation();
+        e.target.select();
+    }
 });
 
 function readBoardInput() {
