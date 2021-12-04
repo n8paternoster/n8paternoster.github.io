@@ -10,6 +10,7 @@
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
     <script src="/js/nate.js" defer></script>
     <script src="/js/sudoku.js" defer></script>
+    <script src="/js/sudokuSolver.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -26,119 +27,120 @@
 
         <!-- Page content -->
         <div class="content">
-            <form autocomplete="off">
+            <form id="sudoku-board-form" autocomplete="off">
                 <div id="sudoku-board-container">
                     <div class="board-grid">
                         <div class="box-grid box1">
-                            <div class="cell cell1"><input type="number" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="00" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="01" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="02" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="09" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="10" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="11" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="18" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="19" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="20" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box2">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="03" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="04" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="05" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="12" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="13" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="14" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="21" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="22" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="23" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box3">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="06" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="07" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="08" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="15" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="16" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="17" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="24" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="25" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="26" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box4">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="27" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="28" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="29" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="36" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="37" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="38" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="45" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="46" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="47" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box5">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="30" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="31" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="32" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="39" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="40" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="41" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="48" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="49" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="50" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box6">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="33" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="34" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="35" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="42" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="43" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="44" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="51" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="52" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="53" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box7">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="54" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="55" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="56" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="63" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="64" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="65" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="72" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="73" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="74" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box8">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="57" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="58" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="59" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="66" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="67" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="68" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="75" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="76" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="77" type="number" min="0" max="9"/></div>
                         </div>
 
                         <div class="box-grid box9">
-                            <div class="cell cell1"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell2"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell3"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell4"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell5"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell6"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell7"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell8"><input type="text" min="0" max="9"/></div>
-                            <div class="cell cell9"><input type="text" min="0" max="9"/></div>
+                            <div class="cell cell1"><input id="60" type="number" min="0" max="9"/></div>
+                            <div class="cell cell2"><input id="61" type="number" min="0" max="9"/></div>
+                            <div class="cell cell3"><input id="62" type="number" min="0" max="9"/></div>
+                            <div class="cell cell4"><input id="69" type="number" min="0" max="9"/></div>
+                            <div class="cell cell5"><input id="70" type="number" min="0" max="9"/></div>
+                            <div class="cell cell6"><input id="71" type="number" min="0" max="9"/></div>
+                            <div class="cell cell7"><input id="78" type="number" min="0" max="9"/></div>
+                            <div class="cell cell8"><input id="79" type="number" min="0" max="9"/></div>
+                            <div class="cell cell9"><input id="80" type="number" min="0" max="9"/></div>
                         </div>
                     </div>
                 </div>
             </form>
+            <button id="solveButton">Solve</button>
         </div>
 
         <div id="push"></div>
