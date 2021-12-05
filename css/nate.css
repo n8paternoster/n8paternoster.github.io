@@ -137,6 +137,10 @@ header {
     max-width: 800px;
 }
 
+.wide-content {
+    max-width: 1000px;
+}
+
 #home-content { /* override content dimensions for the home page */
     max-width: unset;
 }
@@ -338,6 +342,12 @@ header {
 }
 
 /* ------------ Media Rules ------------ */
+
+@media screen and (max-width: 880px) {
+    .content {
+        width: 95%;
+    }
+}
 
 @media screen and (max-width: 768px) { 
     /* change the splash cards to a single column */

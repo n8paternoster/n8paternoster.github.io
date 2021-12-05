@@ -481,7 +481,7 @@ img, figure {
 }
 
 figure img {
-    margin: 0.5em auto;;
+    margin: 0.5em auto;
 }
 
 figcaption {
@@ -548,8 +548,102 @@ section {
 /* ----------- Sudoku Solver ----------- */
 
 #sudoku-board-container {
+    display: flex;
+    flex-wrap: nowrap;
     width: 100%;
+    justify-content: center;
 }
+
+#board-left, #board-right {
+    flex: 1;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#board-left {
+    align-items: flex-end;
+    padding-right: 30px;
+}
+#board-right {
+    align-items: flex-start;
+    padding-left: 30px;
+}
+
+/* -------- Sudoku board left panel -------- */
+
+#left-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#puzzle-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto; /* float clear/solve buttons to bottom */
+}
+
+#solve-button, #clear-button {
+    text-align: center;
+    font-size: 1.25em;
+    padding: 10px 0;
+    width: 48%;
+    border: 0.1em solid black;
+    background-color: #91c48d; /* light green */
+    transition: all 0.2s;
+}
+
+#solve-button:hover, #clear-button:hover {
+    cursor: pointer;
+    background-color: #45aa3d;  /* dark green */ 
+}
+
+#puzzle-select {
+    display: flex;
+    flex-direction: column;
+    background-color: #91c48d; /* light green */
+    border: 0.1em solid black;
+}
+#puzzle-select label, #puzzle-select select {
+    margin: 2rem 1.5em;
+}
+#puzzle-select label {
+    text-align: center;
+    font-size: 1.25em;
+}
+#puzzle-select select {
+    margin-top: 0;
+    border: 0.1em solid black;
+    padding: 0;
+}
+
+/* -------- Sudoku board right panel -------- */
+
+.cell-input-buttons {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.cell-input-buttons button {
+    text-align: center;
+    min-width: 4rem;
+    padding: 5px 0;
+    border: 0.1em solid black;
+    font-size: 1.25em;
+    background-color: #dedede; /* light grey */
+}
+
+.cell-input-buttons button:hover {
+    cursor: pointer;
+    background-color: #c08dc4;  /* light purple */ 
+}
+
+/* ------- Sudoku board grid layout ------- */
 
 .board-grid {
     display: grid;
@@ -577,12 +671,40 @@ section {
     border-top: 0.3rem solid black;
     border-left: 0.3rem solid black;
 }
+
+.candidate-grid {
+    display: grid;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-areas:
+        "can1 can2 can3"
+        "can4 can5 can6"
+        "can7 can8 can9";
+    justify-content: center;
+    align-content: center;
+    line-height: initial;
+    font-size: 14px;
+    background-color: transparent;
+}
+
 .box-grid:nth-child(3n) {   /* boxes in the right column */
     border-right: 0.3rem solid black;
 }
 .box-grid:nth-last-child(-n+3) {    /* boxes in the bottom row*/
     border-bottom: 0.3rem solid black;
 }
+.cell:not(:nth-child(3n)) { /* every cell except those in the right column */
+    border-right: 0.1rem solid black;
+}
+.cell:not(:nth-last-child(-n+3)) {  /* every cell except those in the bottom row */
+    border-bottom: 0.1rem solid black;
+}
+
 .cell {
     width: 50px;
     height: 50px;
@@ -590,12 +712,6 @@ section {
     background-color: white;
     line-height: 50px;
     text-align: center;
-}
-.cell:not(:nth-child(3n)) { /* every cell except those in the right column */
-    border-right: 0.1rem solid black;
-}
-.cell:not(:nth-last-child(-n+3)) {  /* every cell except those in the bottom row */
-    border-bottom: 0.1rem solid black;
 }
 
 .cell input[type=text], input[type=number] {
@@ -613,7 +729,7 @@ section {
 }
 
 .cell input[type=text]:focus, input[type=number]:focus {
-    background-color: pink;
+    background-color: #7dc0ed;  /* blue */
     border: none;
     outline: none;
 }
@@ -628,6 +744,9 @@ section {
 .cell input[type=number] {
     /* Firefox */
     -moz-appearance: textfield;
+}
+
+.candidate {
 }
 
 .box1 { grid-area: box1; }
@@ -650,8 +769,24 @@ section {
 .cell8 { grid-area: cell8; }
 .cell9 { grid-area: cell9; }
 
+.can1 { grid-area: can1; }
+.can2 { grid-area: can2; }
+.can3 { grid-area: can3; }
+.can4 { grid-area: can4; }
+.can5 { grid-area: can5; }
+.can6 { grid-area: can6; }
+.can7 { grid-area: can7; }
+.can8 { grid-area: can8; }
+.can9 { grid-area: can9; }
+
 
 /* ----------- Media Queries ----------- */
+
+@media screen and (max-width: 1000px) {
+    #sudoku-board-container {
+        flex-direction: column;
+    }
+}
 
 @media screen and (max-width: 768px) {
     code, .mathjax-block {  /* full width code/math blocks */

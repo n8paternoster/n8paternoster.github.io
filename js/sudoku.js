@@ -1,37 +1,68 @@
-﻿var sudokuBoard = document.getElementById("sudoku-board-container");
+﻿var sudokuBoard = document.getElementById("sudoku-board");
 var boardData;
 
-/* return the input element for the next sequential cell */
-function nextCell(id) {
-    let index = parseInt(id, 10);
-    index = (index + 1) % 81;
-    let nextID = ((index < 10) ? "0" : "") + index.toString();
-    return sudokuBoard.querySelector("[id='" + nextID + "']");
+function cellFromIndex(index) {
+    if (index < 0 || index > 80) return null;
+    let id = ((index < 10) ? "0" : "") + index.toString();
+    return sudokuBoard.querySelector("[id='" + id + "']");
+}
+
+function handleKey(e) {
+    const tabKeys = ["Tab", "Enter", " "];
+    const arrowKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+    if (tabKeys.includes(e.key)) {
+        /* tab forward or backward to a sequential cell */
+        e.preventDefault();
+        let index = parseInt(e.target.id, 10);
+        let newIndex = e.shiftKey ? index - 1 : (index + 1) % 81;
+        if (newIndex < 0) newIndex = 80;
+        cellFromIndex(newIndex).select();
+    } else if (arrowKeys.includes(e.key)) {
+        /* navigate to an adjacent cell */
+        e.preventDefault();
+        let index = parseInt(e.target.id, 10);
+        let newIndex = index;
+        let allowNav = true;
+        switch (e.key) {
+            case "ArrowUp": newIndex -= 9; break;
+            case "ArrowDown": newIndex += 9; break;
+            case "ArrowLeft":
+                newIndex -= 1;
+                if (Math.floor(index / 9) !== Math.floor(newIndex / 9))
+                    allowNav = false;
+                break;
+            case "ArrowRight":
+                newIndex += 1;
+                if (Math.floor(index / 9) !== Math.floor(newIndex / 9))
+                    allowNav = false;
+                break;
+        }
+        if (allowNav && newIndex >= 0 && newIndex <= 80)
+            cellFromIndex(newIndex).select();
+    } else if (e.key.length === 1 && /\D/.test(e.key) && !e.ctrlKey) {
+        /* prevent invalid input from displaying */
+        e.preventDefault();
+    }
 }
 
 /* prevent non-numeric input from displaying, handle tab presses */
-sudokuBoard.addEventListener("keydown", function (e) {
-    if (e.key === "Tab" || e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        nextCell(e.target.id).select();
-        return;
-    }
-    else if (e.key.length === 1 && /\D/.test(e.key) && !e.ctrlKey) {
-        e.preventDefault();
-    }
-});
+sudokuBoard.addEventListener("keydown", handleKey);
 
 /* auto tab after a number is entered */
 sudokuBoard.addEventListener("input", function (e) {
     if (e.target.value.length === 1) {
         if (e.target.value === '0') e.target.value = "";
-        nextCell(e.target.id).select();
+        let index = parseInt(e.target.id, 10);
+        let newIndex = (index + 1) % 81;
+        cellFromIndex(newIndex).select();
     }
 });
+
 /* prevent invalid numeric from displaying */
 sudokuBoard.addEventListener("change", function (e) {
     if (e.target.value.length > 1) e.target.value = "";
 });
+
 /* highlight text when cell is selected */
 sudokuBoard.addEventListener("click", function (e) {
     if (e.target.tagName === "INPUT") {
@@ -84,5 +115,5 @@ function solveBoard() {
     fillBoard();
 }
 
-document.getElementById("solveButton").addEventListener("click", solveBoard);
-document.getElementById("clearButton").addEventListener("click", clearBoard);
+document.getElementById("solve-button").addEventListener("click", solveBoard);
+document.getElementById("clear-button").addEventListener("click", clearBoard);
