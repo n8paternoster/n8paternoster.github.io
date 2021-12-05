@@ -69,7 +69,7 @@ sudokuBoard.addEventListener("click", function (e) {
         e.stopPropagation();
         e.target.select();
     }
-});
+}, true);
 
 function readBoardInput() {
     var array = Array(81).fill('0');

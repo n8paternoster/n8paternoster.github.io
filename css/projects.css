@@ -690,6 +690,10 @@ section {
     line-height: initial;
     font-size: 14px;
     background-color: transparent;
+    pointer-events: none;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
 }
 
 .box-grid:nth-child(3n) {   /* boxes in the right column */
@@ -747,6 +751,7 @@ section {
 }
 
 .candidate {
+    visibility: hidden;
 }
 
 .box1 { grid-area: box1; }
