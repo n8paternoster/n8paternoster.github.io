@@ -545,7 +545,7 @@ section {
     top: -1rem;
 }
 
-/* ----------- Sudoku Solver ----------- */
+/* ----------- Sudoku.html ----------- */
 
 #sudoku-board-container {
     display: flex;
@@ -572,7 +572,7 @@ section {
 
 /* -------- Sudoku board left panel -------- */
 
-#left-panel {
+.left-panel {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -620,30 +620,69 @@ section {
 
 /* -------- Sudoku board right panel -------- */
 
-.cell-input-buttons {
+.right-panel {
     display: flex;
     height: 100%;
-    width: 100%;
+/*    width: 100%;*/
     flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
 }
 
-.cell-input-buttons button {
+#cell-input {
+/*    display: flex;
+    flex-direction: column;*/
+    background-color: orange;
+}
+
+#digit-input-buttons {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#digit-input-left, #digit-input-right {
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+    justify-content: space-between;
+}
+
+button.digit-button {
     text-align: center;
-    min-width: 4rem;
+    width: 100%;
     padding: 5px 0;
     border: 0.1em solid black;
     font-size: 1.25em;
     background-color: #dedede; /* light grey */
 }
 
-.cell-input-buttons button:hover {
+button.digit-button:hover {
     cursor: pointer;
+}
+
+/* hover on unselected cell */
+/*button.digit-button:not(.digit-input-selected):not(.digit-input-locked):hover {
+    background-color: #c08dc4;*/  /* light purple */ 
+/*}*/
+
+/* selected cell */
+button.digit-input-selected {
     background-color: #c08dc4;  /* light purple */ 
 }
 
-/* ------- Sudoku board grid layout ------- */
+/* hover on selected cell */
+/*button.digit-input-selected:not(.digit-input-locked):hover {
+    background-color: #a659ab;*/  /* dark purple */
+/*}*/
+
+/* locked cell */
+button.digit-input-locked {
+    background-color: #a659ab;  /* dark purple */
+}
+
+/* ------- Sudoku board ------- */
 
 .board-grid {
     display: grid;
@@ -718,7 +757,12 @@ section {
     text-align: center;
 }
 
-.cell input[type=text], input[type=number] {
+/* class to change cursor on hover */
+.sudoku-board-hover .cell input[type=number] {
+    cursor: pointer;
+}
+
+.cell input[type=number] {
     position: absolute;
     top: 0;
     left: 0;
@@ -732,7 +776,7 @@ section {
     font-family: monospace;
 }
 
-.cell input[type=text]:focus, input[type=number]:focus {
+.cell input[type=number]:focus {
     background-color: #7dc0ed;  /* blue */
     border: none;
     outline: none;
