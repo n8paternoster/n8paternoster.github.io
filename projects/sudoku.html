@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="/css/nate.css" />
     <link rel="stylesheet" type="text/css" href="/css/projects.css" />
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
+    <script src="https://kit.fontawesome.com/254df2922f.js" crossorigin="anonymous"></script>
     <script src="/js/nate.js" defer></script>
     <script src="/js/sudoku.js" defer></script>
     <script src="/js/sudokuSolver.js"></script>
@@ -30,13 +31,14 @@
             <div id="sudoku-board-container">
                 <div id="board-left">
                     <div class="left-panel">
-                        <div id="puzzle-select">
-                            <label for="puzzles">Board Input</label>
-                            <select id="puzzles">
-                                <option>Custom Board</option>
-                                <option>Easy Example</option>
-                                <option>Medium Example</option>
-                                <option>Hard Example</option>
+                        <h3 class="panel-title">Board Input</h3>
+                        <div id="puzzles">
+                            <label for="puzzle-select">Puzzles</label>
+                            <select id="puzzle-select">
+                                <option value="custom">Custom Board</option>
+                                <option value="easy1">Easy Example</option>
+                                <option value="medium1">Medium Example</option>
+                                <option value="hard1">Hard Example</option>
                                 <option>Looooooooooooooooooong Example</option>
                             </select>
                         </div>
@@ -50,7 +52,7 @@
                     <!-- Top -->
                     <div class="box-grid box1">
                         <div class="cell cell1">
-                            <input id="00" type="number" min="0" max="9" />
+                            <input id="00" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -64,7 +66,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="01" type="number" min="0" max="9" />
+                            <input id="01" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -78,7 +80,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="02" type="number" min="0" max="9" />
+                            <input id="02" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -92,7 +94,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="09" type="number" min="0" max="9" />
+                            <input id="09" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -106,7 +108,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="10" type="number" min="0" max="9" />
+                            <input id="10" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -120,7 +122,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="11" type="number" min="0" max="9" />                            <div class="candidate-grid">
+                            <input id="11" type="number" inputmode="none" min="0" max="9" />                            <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -133,7 +135,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="18" type="number" min="0" max="9" />                            <div class="candidate-grid">
+                            <input id="18" type="number" inputmode="none" min="0" max="9" />                            <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -146,7 +148,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="19" type="number" min="0" max="9" />                            <div class="candidate-grid">
+                            <input id="19" type="number" inputmode="none" min="0" max="9" />                            <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -159,7 +161,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="20" type="number" min="0" max="9" />                            <div class="candidate-grid">
+                            <input id="20" type="number" inputmode="none" min="0" max="9" />                            <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -175,7 +177,7 @@
 
                     <div class="box-grid box2">
                         <div class="cell cell1">
-                            <input id="03" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="03" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -188,7 +190,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="04" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="04" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -201,7 +203,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="05" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="05" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -214,7 +216,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="12" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="12" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -227,7 +229,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="13" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="13" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -240,7 +242,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="14" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="14" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -253,7 +255,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="21" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="21" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -266,7 +268,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="22" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="22" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -279,7 +281,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="23" type="number" min="0" max="9" />                      <div class="candidate-grid">
+                            <input id="23" type="number" inputmode="none" min="0" max="9" />                      <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
                                 <div class="candidate can3">3</div>
@@ -295,7 +297,7 @@
 
                     <div class="box-grid box3">
                         <div class="cell cell1">
-                            <input id="06" type="number" min="0" max="9" />
+                            <input id="06" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -309,7 +311,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="07" type="number" min="0" max="9" />
+                            <input id="07" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -323,7 +325,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="08" type="number" min="0" max="9" />
+                            <input id="08" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -337,7 +339,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="15" type="number" min="0" max="9" />
+                            <input id="15" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -351,7 +353,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="16" type="number" min="0" max="9" />
+                            <input id="16" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -365,7 +367,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="17" type="number" min="0" max="9" />
+                            <input id="17" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -379,7 +381,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="24" type="number" min="0" max="9" />
+                            <input id="24" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -393,7 +395,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="25" type="number" min="0" max="9" />
+                            <input id="25" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -407,7 +409,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="26" type="number" min="0" max="9" />
+                            <input id="26" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -425,7 +427,7 @@
                     <!-- Middle -->
                     <div class="box-grid box4">
                         <div class="cell cell1">
-                            <input id="27" type="number" min="0" max="9" />
+                            <input id="27" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -439,7 +441,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="28" type="number" min="0" max="9" />
+                            <input id="28" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -453,7 +455,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="29" type="number" min="0" max="9" />
+                            <input id="29" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -467,7 +469,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="36" type="number" min="0" max="9" />
+                            <input id="36" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -481,7 +483,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="37" type="number" min="0" max="9" />
+                            <input id="37" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -495,7 +497,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="38" type="number" min="0" max="9" />
+                            <input id="38" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -509,7 +511,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="45" type="number" min="0" max="9" />
+                            <input id="45" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -523,7 +525,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="46" type="number" min="0" max="9" />
+                            <input id="46" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -537,7 +539,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="47" type="number" min="0" max="9" />
+                            <input id="47" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -554,7 +556,7 @@
 
                     <div class="box-grid box5">
                         <div class="cell cell1">
-                            <input id="30" type="number" min="0" max="9" />
+                            <input id="30" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -568,7 +570,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="31" type="number" min="0" max="9" />
+                            <input id="31" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -582,7 +584,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="32" type="number" min="0" max="9" />
+                            <input id="32" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -596,7 +598,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="39" type="number" min="0" max="9" />
+                            <input id="39" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -610,7 +612,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="40" type="number" min="0" max="9" />
+                            <input id="40" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -624,7 +626,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="41" type="number" min="0" max="9" />
+                            <input id="41" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -638,7 +640,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="48" type="number" min="0" max="9" />
+                            <input id="48" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -652,7 +654,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="49" type="number" min="0" max="9" />
+                            <input id="49" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -666,7 +668,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="50" type="number" min="0" max="9" />
+                            <input id="50" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -683,7 +685,7 @@
 
                     <div class="box-grid box6">
                         <div class="cell cell1">
-                            <input id="33" type="number" min="0" max="9" />
+                            <input id="33" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -697,7 +699,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="34" type="number" min="0" max="9" />
+                            <input id="34" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -711,7 +713,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="35" type="number" min="0" max="9" />
+                            <input id="35" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -725,7 +727,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="42" type="number" min="0" max="9" />
+                            <input id="42" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -739,7 +741,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="43" type="number" min="0" max="9" />
+                            <input id="43" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -753,7 +755,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="44" type="number" min="0" max="9" />
+                            <input id="44" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -767,7 +769,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="51" type="number" min="0" max="9" />
+                            <input id="51" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -781,7 +783,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="52" type="number" min="0" max="9" />
+                            <input id="52" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -795,7 +797,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="53" type="number" min="0" max="9" />
+                            <input id="53" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -813,7 +815,7 @@
                     <!-- Bottom -->
                     <div class="box-grid box7">
                         <div class="cell cell1">
-                            <input id="54" type="number" min="0" max="9" />
+                            <input id="54" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -827,7 +829,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="55" type="number" min="0" max="9" />
+                            <input id="55" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -841,7 +843,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="56" type="number" min="0" max="9" />
+                            <input id="56" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -855,7 +857,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="63" type="number" min="0" max="9" />
+                            <input id="63" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -869,7 +871,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="64" type="number" min="0" max="9" />
+                            <input id="64" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -883,7 +885,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="65" type="number" min="0" max="9" />
+                            <input id="65" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -897,7 +899,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="72" type="number" min="0" max="9" />
+                            <input id="72" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -911,7 +913,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="73" type="number" min="0" max="9" />
+                            <input id="73" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -925,7 +927,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="74" type="number" min="0" max="9" />
+                            <input id="74" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -942,7 +944,7 @@
 
                     <div class="box-grid box8">
                         <div class="cell cell1">
-                            <input id="57" type="number" min="0" max="9" />
+                            <input id="57" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -956,7 +958,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="58" type="number" min="0" max="9" />
+                            <input id="58" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -970,7 +972,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="59" type="number" min="0" max="9" />
+                            <input id="59" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -984,7 +986,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="66" type="number" min="0" max="9" />
+                            <input id="66" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -998,7 +1000,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="67" type="number" min="0" max="9" />
+                            <input id="67" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1012,7 +1014,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="68" type="number" min="0" max="9" />
+                            <input id="68" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1026,7 +1028,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="75" type="number" min="0" max="9" />
+                            <input id="75" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1040,7 +1042,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="76" type="number" min="0" max="9" />
+                            <input id="76" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1054,7 +1056,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="77" type="number" min="0" max="9" />
+                            <input id="77" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1071,7 +1073,7 @@
 
                     <div class="box-grid box9">
                         <div class="cell cell1">
-                            <input id="60" type="number" min="0" max="9" />
+                            <input id="60" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1085,7 +1087,7 @@
                             </div>
                         </div>
                         <div class="cell cell2">
-                            <input id="61" type="number" min="0" max="9" />
+                            <input id="61" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1099,7 +1101,7 @@
                             </div>
                         </div>
                         <div class="cell cell3">
-                            <input id="62" type="number" min="0" max="9" />
+                            <input id="62" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1113,7 +1115,7 @@
                             </div>
                         </div>
                         <div class="cell cell4">
-                            <input id="69" type="number" min="0" max="9" />
+                            <input id="69" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1127,7 +1129,7 @@
                             </div>
                         </div>
                         <div class="cell cell5">
-                            <input id="70" type="number" min="0" max="9" />
+                            <input id="70" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1141,7 +1143,7 @@
                             </div>
                         </div>
                         <div class="cell cell6">
-                            <input id="71" type="number" min="0" max="9" />
+                            <input id="71" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1155,7 +1157,7 @@
                             </div>
                         </div>
                         <div class="cell cell7">
-                            <input id="78" type="number" min="0" max="9" />
+                            <input id="78" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1169,7 +1171,7 @@
                             </div>
                         </div>
                         <div class="cell cell8">
-                            <input id="79" type="number" min="0" max="9" />
+                            <input id="79" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1183,7 +1185,7 @@
                             </div>
                         </div>
                         <div class="cell cell9">
-                            <input id="80" type="number" min="0" max="9" />
+                            <input id="80" type="number" inputmode="none" min="0" max="9" />
                             <div class="candidate-grid">
                                 <div class="candidate can1">1</div>
                                 <div class="candidate can2">2</div>
@@ -1200,25 +1202,22 @@
                 </div>
                 <div id="board-right">
                     <div class="right-panel">
-                        <div id="cell-input">
-                            <label for="digit-input-toggle">Cell Input</label>
-                            <button id="digit-input-toggle">Solution</button>
+                        <h3 class="panel-title">Cell Input</h3>
+                        <div id="digit-input-toggle-buttons">
+                            <button class="digit-input-toggle-active" id="digit-input-solution">Solution</button>
+                            <button id="digit-input-candidate">Candidate</button>
                         </div>
-                        <div id="digit-input-buttons">
-                            <div id="digit-input-left">
-                                <button class="digit-button" id="digitInput1">1</button>
-                                <button class="digit-button" id="digitInput3">3</button>
-                                <button class="digit-button" id="digitInput5">5</button>
-                                <button class="digit-button" id="digitInput7">7</button>
-                                <button class="digit-button" id="digitInput9">9</button>
-                            </div>
-                            <div id="digit-input-right">
-                                <button class="digit-button" id="digitInput2">2</button>
-                                <button class="digit-button" id="digitInput4">4</button>
-                                <button class="digit-button" id="digitInput6">6</button>
-                                <button class="digit-button" id="digitInput8">8</button>
-                                <button class="digit-button" id="digitInput0">Erase</button>
-                            </div>
+                        <div id="digit-input-grid">
+                            <button class="digit-button" id="digitInput1"><i class="fas fa-lock left-lock"></i>1<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput2"><i class="fas fa-lock left-lock"></i>2<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput3"><i class="fas fa-lock left-lock"></i>3<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput4"><i class="fas fa-lock left-lock"></i>4<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput5"><i class="fas fa-lock left-lock"></i>5<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput6"><i class="fas fa-lock left-lock"></i>6<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput7"><i class="fas fa-lock left-lock"></i>7<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput8"><i class="fas fa-lock left-lock"></i>8<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput9"><i class="fas fa-lock left-lock"></i>9<i class="fas fa-lock right-lock"></i></button>
+                            <button class="digit-button" id="digitInput0"><i class="fas fa-lock left-lock"></i><i class="fas fa-eraser eraser"></i><i class="fas fa-lock right-lock"></i></button>
                         </div>
                     </div>
                 </div>
