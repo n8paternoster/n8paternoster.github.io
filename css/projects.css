@@ -590,50 +590,72 @@ section {
 
 /* -------- Sudoku board left panel -------- */
 
-#board-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: auto; /* float clear/solve buttons to bottom */
-    margin-bottom: 0;
-}
-
-#solve-button, #clear-button {
-    text-align: center;
-    font-size: 1.25em;
-    padding: 10px 0;
-    width: 48%;
-    border: 0.1em solid black;
-    background-color: #91c48d; /* light green */
-    transition: all 0.2s;
-}
-
-#solve-button:hover, #clear-button:hover {
-    cursor: pointer;
-    background-color: #45aa3d;  /* dark green */ 
-}
-
+/* Puzzle input buttons */
 #puzzles {
     display: flex;
     flex-direction: column;
     background-color: #91c48d; /* light green */
-    border: 0.1em solid black;
+    border: 0.12rem solid black;
     text-align: center;
 }
-#puzzles label, #puzzles select {
+#puzzles > * {
     margin: 0.5rem 5%;
 }
 #puzzles label {
     font-size: 1.25em;
 }
 #puzzles select {
-    margin-top: 0;
-    border: 0.1em solid black;
+    border: 0.12rem solid black;
     padding: 0;
     max-width: inherit;
+}
+.puzzle-buttons {
+    display: flex;
+}
+#puzzle-verify-button, #puzzle-restart-button {
+    flex: 1; /* fill all of the available space, share evenly*/
+    text-align: center;
+    font-size: 1em;
+    padding: 5px 0;
+    border: 0.12rem solid black;
+    background-color: #c08dc4; /* light purple */
+    background-color: #91c48d; /* light green */
+    transition: all 0.2s;
+}
+#puzzle-restart-button {
+    margin-right: inherit;  /* space between buttons */
+}
+#puzzle-verify-button:hover, #puzzle-restart-button:hover {
+    cursor: pointer;
+    background-color: #45aa3d; /* dark green */
+}
+
+/* Board buttons */
+#board-buttons {
+    display: flex;
+    margin-top: auto;   /* move board buttons to bottom */
+    margin-bottom: 0;   /* flush with bottom of sudoku board */
+}
+#solve-button, #clear-button {
+    flex: 1; /* fill all of the available space, share evenly*/
+    text-align: center;
+    font-size: 1.25em;
+    padding: 10px 0;
+    border: 0.12rem solid black;
+    background-color: #91c48d; /* light green */
+    transition: all 0.2s;
+}
+#clear-button {
+    margin-right: 5%;   /* space between buttons */
+}
+#solve-button:hover, #clear-button:hover {
+    cursor: pointer;
+    background-color: #45aa3d; /* dark green */
 }
 
 /* -------- Sudoku board right panel -------- */
 
+/* Digit input toggle buttons */
 #digit-input-toggle-buttons {
     display: flex;
     justify-content: space-between;
@@ -643,7 +665,7 @@ section {
     font-size: 1.25em;
     padding: 3px 0;
     width: 48%;
-    border: 0.1em solid black;
+    border: 0.12rem solid black;
     transition: all 0.2s;
     cursor: pointer;
     background-color: #dedede;
@@ -655,6 +677,7 @@ section {
     opacity: 1;
 }
 
+/* Digit input buttons */
 #digit-input-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -668,23 +691,12 @@ section {
     grid-gap: 0.5em;
 }
 
-#digitInput1 { grid-area: digit1; }
-#digitInput2 { grid-area: digit2; }
-#digitInput3 { grid-area: digit3; }
-#digitInput4 { grid-area: digit4; }
-#digitInput5 { grid-area: digit5; }
-#digitInput6 { grid-area: digit6; }
-#digitInput7 { grid-area: digit7; }
-#digitInput8 { grid-area: digit8; }
-#digitInput9 { grid-area: digit9; }
-#digitInput0 { grid-area: digit0; }
-
 button.digit-button {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 5px 0;
-    border: 0.1rem solid black;
+    border: 0.12rem solid black;
     font-size: 1.5em;
     font-weight: bold;
     background-color: #dedede; /* light grey */
@@ -694,32 +706,21 @@ button.digit-button i {
     margin: auto;
     font-size: 0.65em;
     pointer-events: none;
+    visibility: hidden;
 }
 button.digit-button i.eraser {
     font-size: 1em;
-}
-i.left-lock, i.right-lock {
-    visibility: hidden;
+    visibility: visible;
 }
 
 button.digit-button:hover {
     cursor: pointer;
 }
 
-/* hover on unselected cell */
-/*button.digit-button:not(.digit-input-selected):not(.digit-input-locked):hover {
-    background-color: #c08dc4;*/  /* light purple */ 
-/*}*/
-
 /* selected cell */
 button.digit-input-selected {
     background-color: #c08dc4;  /* light purple */ 
 }
-
-/* hover on selected cell */
-/*button.digit-input-selected:not(.digit-input-locked):hover {
-    background-color: #a659ab;*/  /* dark purple */
-/*}*/
 
 /* locked cell */
 button.digit-input-locked {
@@ -878,6 +879,17 @@ button.digit-input-locked .left-lock {
 .can7 { grid-area: can7; }
 .can8 { grid-area: can8; }
 .can9 { grid-area: can9; }
+
+#digitInput1 { grid-area: digit1; }
+#digitInput2 { grid-area: digit2; }
+#digitInput3 { grid-area: digit3; }
+#digitInput4 { grid-area: digit4; }
+#digitInput5 { grid-area: digit5; }
+#digitInput6 { grid-area: digit6; }
+#digitInput7 { grid-area: digit7; }
+#digitInput8 { grid-area: digit8; }
+#digitInput9 { grid-area: digit9; }
+#digitInput0 { grid-area: digit0; }
 
 
 /* ----------- Media Queries ----------- */

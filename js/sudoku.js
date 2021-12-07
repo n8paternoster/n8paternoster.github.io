@@ -11,6 +11,9 @@ const savedPuzzles = new Map([
     ["Easy Example", "270306009040015027008090400750000004029000760800000092002030500190650040600204018"],
     ["Medium Example", "002608100000143000030000060097804520100000008085706910020000030000279000004301700"],
     ["Hard Example", "320000040004500200000000070075010068000409000280070310030000000008002100060000052"],
+    ["Pointing Pairs", "500200040000603000030009007003007000007008000600000020080000003000400600000100500"],
+    ["Minimum Clue Easy", "000870200640200000050000000807000300000051000000000000300700000000000051000000040"],
+    ["Minimum Clue Hard", "002090300805000000100000000090060040000000058000000001070000200300500000000100000"],
     ["Looooooooooooooooooong Example", "123456789123456789123456789123456789123456789123456789123456789123456789123456789"]
 ]);
 
@@ -49,6 +52,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
         opt.textContent = key;
         select.appendChild(opt);
     });
+
+    /* select a default puzzle and load it */
+    select.value = "Easy Example";
+    boardData = savedPuzzles.get(select.value);
+    fillBoard();
 });
 
 /* ----------------- sudokuBoard handlers ----------------- */
@@ -361,17 +369,22 @@ function clearBoard() {
     /* remove cell candidates */
     sudokuBoard.querySelectorAll(".candidate-active").forEach((el) => el.classList.remove("candidate-active"));
 
-    /* reset board data */
-    boardData = "";
-
     /* clear selected digit/cell */
     if (digitInputSelection != -1)
         deselectDigitButton(digitButtonFromIndex(digitInputSelection));
     if (cellInputSelection != -1)
         deselectCell(cellFromIndex(cellInputSelection));
 
+    /* change cell input to solution */
+    document.getElementById("digit-input-solution").classList.add("digit-input-toggle-active");
+    document.getElementById("digit-input-candidate").classList.remove("digit-input-toggle-active");
+    digitInputIsSolution = true;
+
     /* select custom board puzzle */
     document.getElementById("puzzle-select").value = "Custom";
+
+    /* reset board data */
+    boardData = "";
 }
 
 function solveBoard() {
