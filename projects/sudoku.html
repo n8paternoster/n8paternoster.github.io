@@ -34,15 +34,13 @@
                         <h3 class="panel-title">Board Input</h3>
                         <div id="puzzles">
                             <label for="puzzle-select">Puzzles</label>
-                            <select id="puzzle-select">
-                                <option value="custom">Custom Board</option>
-                                <option value="easy1">Easy Example</option>
-                                <option value="medium1">Medium Example</option>
-                                <option value="hard1">Hard Example</option>
-                                <option>Looooooooooooooooooong Example</option>
-                            </select>
+                            <select id="puzzle-select"></select>
+                            <div class="puzzle-buttons">
+                                <button>Validate</button>
+                                <button>Reset</button>
+                            </div>
                         </div>
-                        <div id="puzzle-buttons">
+                        <div id="board-buttons">
                             <button id="clear-button">Clear</button>
                             <button id="solve-button">Solve</button>
                         </div>
@@ -1204,7 +1202,7 @@
                     <div class="right-panel">
                         <h3 class="panel-title">Cell Input</h3>
                         <div id="digit-input-toggle-buttons">
-                            <button class="digit-input-toggle-active" id="digit-input-solution">Solution</button>
+                            <button class="digit-input-toggle-active" id="digit-input-solution">Digit</button>
                             <button id="digit-input-candidate">Candidate</button>
                         </div>
                         <div id="digit-input-grid">

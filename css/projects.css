@@ -590,7 +590,7 @@ section {
 
 /* -------- Sudoku board left panel -------- */
 
-#puzzle-buttons {
+#board-buttons {
     display: flex;
     justify-content: space-between;
     margin-top: auto; /* float clear/solve buttons to bottom */

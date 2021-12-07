@@ -7,10 +7,11 @@ var digitInputIsLocked = false; /* currently selected digit is locked */
 var digitInputIsSolution = true;/* (true): digit input treated as solution, (false): digit input treated as candidate toggle */
 
 const savedPuzzles = new Map([
-    ["custom", "000000000000000000000000000000000000000000000000000000000000000000000000000000000"],
-    ["easy1", "123123123123123123123123123123123123123123123123123123123123123123123123123123123"],
-    ["medium1", "456456456456456456456456456456456456456456456456456456456456456456456456456456456"],
-    ["hard1", "789789789789789789789789789789789789789789789789789789789789789789789789789789789"]
+    ["Custom", "000000000000000000000000000000000000000000000000000000000000000000000000000000000"],
+    ["Easy Example", "270306009040015027008090400750000004029000760800000092002030500190650040600204018"],
+    ["Medium Example", "002608100000143000030000060097804520100000008085706910020000030000279000004301700"],
+    ["Hard Example", "320000040004500200000000070075010068000409000280070310030000000008002100060000052"],
+    ["Looooooooooooooooooong Example", "123456789123456789123456789123456789123456789123456789123456789123456789123456789"]
 ]);
 
 function cellFromIndex(index) {
@@ -37,6 +38,17 @@ document.addEventListener("click", function (e) {
         /* deselect the selected digit input button */
         if (!digitInputIsLocked) deselectDigitButton(digitButtonFromIndex(digitInputSelection));
     }
+});
+
+document.addEventListener("DOMContentLoaded", function (e) {
+    /* add saved puzzles to puzzle select */
+    var select = document.getElementById("puzzle-select");
+    savedPuzzles.forEach(function (value, key) {
+        var opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = key;
+        select.appendChild(opt);
+    });
 });
 
 /* ----------------- sudokuBoard handlers ----------------- */
@@ -357,6 +369,9 @@ function clearBoard() {
         deselectDigitButton(digitButtonFromIndex(digitInputSelection));
     if (cellInputSelection != -1)
         deselectCell(cellFromIndex(cellInputSelection));
+
+    /* select custom board puzzle */
+    document.getElementById("puzzle-select").value = "Custom";
 }
 
 function solveBoard() {
