@@ -585,32 +585,35 @@ section {
 }
 
 .right-panel > *, .left-panel > * {
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;    /* space between vertical panel items */
 }
 
 /* -------- Sudoku board left panel -------- */
 
 /* Puzzle input buttons */
-#puzzles {
+#puzzle-box {
     display: flex;
     flex-direction: column;
     background-color: #91c48d; /* light green */
     border: 0.12rem solid black;
     text-align: center;
+    padding-top: 0.625rem;  /* match margin-bottom of children for even spacing */
 }
-#puzzles > * {
-    margin: 0.5rem 5%;
+#puzzle-box > * {
+    margin: 0 5%;
+    margin-bottom: 0.625rem;    /* space between vertical puzzle box items */
 }
-#puzzles label {
+#puzzle-box label {
     font-size: 1.25em;
 }
-#puzzles select {
+#puzzle-box select {
     border: 0.12rem solid black;
     padding: 0;
     max-width: inherit;
 }
 .puzzle-buttons {
     display: flex;
+    flex-wrap: wrap;    /* allow wrap to ensure both are displayed */
 }
 #puzzle-verify-button, #puzzle-restart-button {
     flex: 1; /* fill all of the available space, share evenly*/
@@ -618,7 +621,6 @@ section {
     font-size: 1em;
     padding: 5px 0;
     border: 0.12rem solid black;
-    background-color: #c08dc4; /* light purple */
     background-color: #91c48d; /* light green */
     transition: all 0.2s;
 }
@@ -803,9 +805,9 @@ button.digit-input-locked .left-lock {
     background-color: white;
     line-height: 50px;
     text-align: center;
+    color: black;
 }
 
-/* class to change cursor on hover */
 .sudoku-board-hover .cell input[type=number] {
     cursor: pointer;
 }
@@ -818,16 +820,21 @@ button.digit-input-locked .left-lock {
     height: 100%;
     background-color: transparent;
     border: none;
+    outline: none;
     text-align: center;
     padding: 0;
     font-size: 2rem;
     font-family: monospace;
+    color: black;
+}
+.cell input.cell-input-locked { /* locked, "clue" cell */
+    background-color: #e8e8e8;
+    pointer-events: none;
+    font-weight: bold;
 }
 
 .cell input[type=number]:focus {
     background-color: #7dc0ed;  /* blue */
-    border: none;
-    outline: none;
 }
 
 /* Remove arrows from number input */
