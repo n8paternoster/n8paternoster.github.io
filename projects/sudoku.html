@@ -35,7 +35,7 @@
                         <div id="puzzle-box">
                             <label for="puzzle-select">Puzzles</label>
                             <select id="puzzle-select"></select>
-                            <div class="puzzle-buttons">
+                            <div class="puzzle-buttons-row">
                                 <button id="puzzle-help-button">Help</button>
                                 <button id="puzzle-verify-button">Verify</button>
                             </div>
@@ -43,20 +43,17 @@
                         <div id="show-custom-editor">
                             <div id="custom-editor-box">
                                 <h4>Custom Board Editor</h4>
-                                <div id="custom-input-type-container">
-                                    <label for="custom-input-type">Enter:</label>
+                                <div id="custom-input-container">
+                                    <label for="custom-input">Input:</label>
                                     <div id="radio-container">
-                                        <label>Clue
-                                            <input type="radio" name="custom-input-type" value="Clue" checked="checked"/>
-                                        </label>
-                                        <label>Solution
-                                            <input type="radio" name="custom-input-type" value="Solution"/>
-                                        </label>
+                                        <label><input type="radio" name="custom-input" value="Clue" checked="checked" />Clue</label>
+                                        <label><input type="radio" name="custom-input" value="Solution" />Solution</label>
                                     </div>
                                 </div>
-                                <div class="puzzle-buttons">
+                                <div class="puzzle-buttons-row">
                                     <button id="custom-clear-button">Clear</button>
                                     <button id="custom-save-button">Save</button>
+                                    <button id="custom-load-button">Load</button>
                                 </div>
                             </div>
                         </div>

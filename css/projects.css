@@ -598,6 +598,18 @@ section {
     border: 0.12rem solid black;
     text-align: center;
 }
+#puzzle-box button, #custom-editor-box button {
+    text-align: center;
+    font-size: 1em;
+    padding: 3px 0;
+    border: 0.12rem solid black;
+    background-color: #91c48d; /* light green */
+    transition: all 0.2s;
+}
+#puzzle-box button:hover, #custom-editor-box button:hover {
+    cursor: pointer;
+    background-color: #45aa3d; /* dark green */
+}
 #puzzle-box > *, #custom-editor-box > * {
     margin: 0 5%;
     margin-bottom: 0.625rem;    /* space between vertical puzzle box items */
@@ -614,25 +626,15 @@ section {
     padding: 0;
     max-width: inherit;
 }
-.puzzle-buttons {
+.puzzle-buttons-row {
     display: flex;
-    flex-wrap: wrap;    /* allow wrap to ensure both are displayed */
+    flex-wrap: wrap;    /* allow wrap to ensure buttons are displayed */
 }
-.puzzle-buttons button {
+.puzzle-buttons-row button {
     flex: 1; /* fill all of the available space, share evenly*/
-    text-align: center;
-    font-size: 1em;
-    padding: 5px 0;
-    border: 0.12rem solid black;
-    background-color: #91c48d; /* light green */
-    transition: all 0.2s;
 }
-.puzzle-buttons button:first-child {
+.puzzle-buttons-row > *:not(:last-child) {
     margin-right: inherit;  /* space between buttons */
-}
-.puzzle-buttons button:hover {
-    cursor: pointer;
-    background-color: #45aa3d; /* dark green */
 }
 
 /* Custom editor box */
@@ -641,15 +643,10 @@ section {
     overflow: hidden;
     transition: max-height ease-in-out 0.2s;
 }
-#custom-input-type-container {
+#custom-input-container {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-around;
     align-items: center;
-}
-#radio-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
 }
 
 
