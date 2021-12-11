@@ -847,7 +847,7 @@ button.digit-input-locked .left-lock {
 }
 .cell input.cell-input-locked { /* locked, "clue" cell */
     background-color: #e8e8e8;
-    pointer-events: none;
+/*    pointer-events: none;*/
     font-weight: bold;
 }
 

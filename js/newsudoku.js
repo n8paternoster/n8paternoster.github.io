@@ -1,9 +1,8 @@
 ﻿var sudokuBoard = document.getElementById("sudoku-board");
 
 var currentPuzzle = "Easy Example"; /* default puzzle */
-var boardData = "";
-var customPuzzleData = "";          /* empty when no data is saved */
-//var customLockedCells = "";         /* 0 = solution cell, 1 = clue cell */
+var boardData = Array(81).fill(0);
+var customPuzzleData = Array(81).fill(0);
 var customLockedCells = Array(81).fill(0);
 
 var cellInputSelection = -1;    /* currently selected cell */
@@ -63,7 +62,7 @@ function deselectCellInput(cell) {
     cell.blur();
     cellInputSelection = -1;
 }
-function lockCell(cell, isCustomLock=false) {
+function lockCell(cell, isCustomLock = false) {
     if (cell == null) return;
     cell.classList.add("cell-input-locked");
     if (isCustomLock) {
@@ -206,7 +205,7 @@ function clearBoard() {
     /* hide cell candidates */
     sudokuBoard.querySelectorAll(".candidate-active").forEach((el) => el.classList.remove("candidate-active"));
 
-    boardData = "";
+    boardData.fill(0);
     saveSessionData();
 }
 function loadPuzzle(puzzleName, useCustomData = false) {
@@ -224,7 +223,7 @@ function loadPuzzle(puzzleName, useCustomData = false) {
         fillBoard();
         lockBoard(true);
     } else {
-        boardData = savedData;
+        boardData = savedData.;
         fillBoard();
         lockBoard();
     }
