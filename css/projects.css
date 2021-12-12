@@ -845,10 +845,14 @@ button.digit-input-locked .left-lock {
     font-family: monospace;
     color: black;
 }
-.cell input.cell-input-locked { /* locked, "clue" cell */
+.cell input.clue-cell {
     background-color: #e8e8e8;
-/*    pointer-events: none;*/
     font-weight: bold;
+}
+.cell input.cell-input-locked { /* locked, "clue" cell */
+/*    background-color: #e8e8e8;*/
+    pointer-events: none;
+/*    font-weight: bold;*/
 }
 
 .cell input[type=number]:focus {
