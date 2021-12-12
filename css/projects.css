@@ -150,7 +150,7 @@ img {
     position: relative;
 }
 
-.copyable-popup {
+.text-popup {
     width: auto;
     background-color: black;
     color: white;
@@ -168,11 +168,11 @@ img {
     transition: opacity 0.2s ease-in-out;
 }
 
-.copyable-popup-active {
+.text-popup-active {
     opacity: 1;
 }
 
-.copyable-popup::after {
+.text-popup::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -648,6 +648,9 @@ section {
     justify-content: space-around;
     align-items: center;
 }
+#custom-save-button {
+    position: relative; /* for text popup */
+}
 
 
 /* Board buttons */
@@ -850,9 +853,7 @@ button.digit-input-locked .left-lock {
     font-weight: bold;
 }
 .cell input.cell-input-locked { /* locked, "clue" cell */
-/*    background-color: #e8e8e8;*/
     pointer-events: none;
-/*    font-weight: bold;*/
 }
 
 .cell input[type=number]:focus {

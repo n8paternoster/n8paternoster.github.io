@@ -143,6 +143,12 @@ carouselList.forEach(function (carousel) {
 
 /* ---- Add click event to .copyable-text elements to copy contents to clipboard ---- */
 const copyableElements = document.querySelectorAll(".copyable-text");
+function displayTextPopup(popup, ms) {
+    popup.classList.add("text-popup-active");
+    setTimeout(() => {
+        popup.classList.remove("text-popup-active");
+    }, ms);
+}
 function copyContentsToClipboard() {
     // Create a range and set it to the contents of this .copyable-text element
     const range = document.createRange();
@@ -160,11 +166,8 @@ function copyContentsToClipboard() {
         selection.removeAllRanges();
 
         // Display the Copied! popup if successful
-        const popup = this.querySelector(".copyable-popup");
-        popup.classList.add("copyable-popup-active");
-        setTimeout(() => {
-            popup.classList.remove("copyable-popup-active");
-        }, 1200);
+        const popup = this.querySelector(".text-popup");
+        displayTextPopup(popup, 1200);
     } catch (e) {
         // Do nothing on failure
     }

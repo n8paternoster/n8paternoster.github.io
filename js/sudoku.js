@@ -230,6 +230,12 @@ function loadPuzzle(puzzleName, useCustomData = false) {
 
     saveSessionData();
 }
+function displayTextPopup(popup, ms) {
+    popup.classList.add("text-popup-active");
+    setTimeout(() => {
+        popup.classList.remove("text-popup-active");
+    }, ms);
+}
 
 function reset() {
     /* Reset all saved values, set board to custom */
@@ -656,6 +662,10 @@ function customSaveHandler(e) {
     userData.cellData = cellData;
     userData.clueData = clueData;
     saveSessionData();
+
+    /* display saved message */
+    let popup = e.target.querySelector(".text-popup");
+    displayTextPopup(popup, 1200);
 }
 
 document.getElementById("radio-container").addEventListener("change", customInputTypeHandler);
