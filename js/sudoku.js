@@ -1,9 +1,14 @@
 ﻿var sudokuBoard = document.getElementById("sudoku-board");
 
 var currentPuzzle = "Easy Example"; /* default puzzle */
+
+class Board {
+
+};
 var boardData = {
     cellData: Array(81).fill(0),
-    clueData: Array(81).fill(0)
+    clueData: Array(81).fill(0),
+    candidates: Array(729).fill(false)
 };
 var userData = {
     cellData: Array(81).fill(0),
@@ -294,11 +299,11 @@ function solveBoard() {
         data = getBoardInput();
 
     /* Solve */
-    var instance = new Module.sudokuBoard();
-    instance.fillData(data);
-    instance.solve();
-    data = instance.getData();
-    instance.delete();
+    var board = new Module.SudokuBoard();
+    board.fillData(data);
+    info = board.solve();
+    data = board.getData();
+    board.delete();
 
     /* Fill board and set data */
     let solutions = data.split('').map(Number);
@@ -644,7 +649,6 @@ function customClearHandler(e) {
 function customLoadHandler(e) {
     loadPuzzle("Custom", true);
 }
-/* TODO add popup confirming save was a success */
 function customSaveHandler(e) {
 
     /* get cell data and clue data */
