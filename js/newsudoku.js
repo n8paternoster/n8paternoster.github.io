@@ -1,6 +1,6 @@
 ﻿var sudokuBoard = document.getElementById("sudoku-board");
 
-const newSavedPuzzles = new map([
+const newSavedPuzzles = new Map([
     ["Custom", "000000000000000000000000000000000000000000000000000000000000000000000000000000000"],
     ["Easy Example", "270306009040015027008090400750000004029000760800000092002030500190650040600204018"],
     ["Medium Example", "002608100000143000030000060097804520100000008085706910020000030000279000004301700"],
@@ -11,106 +11,60 @@ const newSavedPuzzles = new map([
     ["Looooooooooooooooooong Example", "123456789123456789123456789123456789123456789123456789123456789123456789123456789"]
 ]);
 var currentPuzzle = "Easy Example"; /* default puzzle */
-function lockCell(cell) {
-    if (cell == null) return;
-    cell.classList.add("cell-input-locked");
-    cell.disabled = true;
-}
-function unlockCell(cell) {
-    if (cell == null) return;
-    cell.classList.remove("cell-input-locked");
-    cell.disabled = false;
-}
-function drawCellSolution(cell, valStr, isClue = false) {
-    if (cell == null) return;
-    if (valStr >= '1' && valStr <= '9') {
-        // remove candidates from this cell
-        var candidates = cell.nextElementSibling.children;
-        for (let i = 0; i < candidates.length; i++)
-            candidates[i].classList.remove("candidate-active");
-        // set the cell value
-        cell.value = valStr;
-        if (isClue) cell.classList.add("clue-cell");
-        else cell.classList.remove("clue-cell");
-    }
-}
-function drawCellCandidate(cell, valStr, isSet) {
-    if (cell == null) return;
-    if (valStr >= '1' && valStr <= '9') {
-        var candidateEle = cell.nextElementSibling.querySelector(".can" + valStr);
-        if (candidateEle) {
-            if (isSet) candidateEle.classList.add("candidate-active");
-            else candidateEle.classList.remove("candidate-active");
-        }
-    }
-}
-function clearCell(cell) {
-    if (cell == null) return;
-    cell.value = "";
-    cell.classList.remove("clue-cell");
-    cell.classList.remove("cell-input-locked");
-    cell.disabled = false;
-    // remove candidates from this cell
-    var candidates = cell.nextElementSibling.children;
-    for (let i = 0; i < candidates.length; i++)
-        candidates[i].classList.remove("candidate-active");
-}
 
 class Board {
     static N = 9;
     static numCells = Board.N * Board.N;
-    clues = Array(numCells).fill(0);
-    cellSolutions = Array(numCells).fill(0);
-    cellCandidates = Array(numCells).fill().map(() => Array(N).fill(1));
+
+    clues = Array(Board.numCells).fill(0);          // 1-indexed
+    cellSolutions = Array(Board.numCells).fill(0);  // 1-indexed
+    cellCandidates = Array(Board.numCells).fill().map(() => Array(Board.N).fill(0));
+
     constructor(clueStr) {
         this.clues = clueStr.split('').map(Number);
-        this.cellSolutions = clueData.split('').map(Number);
+        this.cellSolutions = clueStr.split('').map(Number);
     }
+
+    /* set data */
     setClues(clueStr) { // also resets cellSolutions and cellCandidates
+        if (clueStr == null || clueStr.length != Board.numCells) return;
         for (var cell = 0; cell < Board.numCells; cell++) {
             var val = clueStr.charAt(cell);
             if (val >= '1' && val <= ' 9') {
                 this.clues[cell] = Number(val);
                 this.cellSolutions[cell] = Number(val);
                 this.cellCandidates[cell].fill(0);  // remove candidates from this cell
-                drawCellSolution(cellEleFromIndex(cell), val, true);
-                lockCell(cellEleFromIndex(cell));
+                Board.drawCellSolution(cellEleFromIndex(cell), val, true);
+                Board.lockCell(cellEleFromIndex(cell));
             } else {
-                unlockCell(cellEleFromIndex(cell));
+                Board.unlockCell(cellEleFromIndex(cell));
             }
         }
-
-        //this.clues = clueStr.split('').map(Number);
-        //this.cellSolutions = clueStr.split('').map(Number);
-        //for (var cell = 0; cell < Board.numCells; cell++) {
-        //    this.cellCandidates[cell].fill(1);
-        //}
     }
     setSolutions(solutionStr) {
+        if (solutionStr == null || solutionStr.length != Board.numCells) return;
         for (var cell = 0; cell < Board.numCells; cell++) {
             var val = solutionStr.charAt(cell);
             if (val >= '1' && val <= '9') {
-                this.cellSolutions[cell] = Number(val+1);
+                this.cellSolutions[cell] = Number(val);
                 this.cellCandidates[cell].fill(0);  // remove candidates from this cell
-                drawCellSolution(cellEleFromIndex(cell), val);
+                Board.drawCellSolution(cellEleFromIndex(cell), val);
             } else {
                 this.cellSolutions[cell] = 0;
                 // set all candidates?
-                clearCell(cellEleFromIndex(cell));
+                Board.clearCell(cellEleFromIndex(cell));
             }
                 
         }
-        //this.cellSolutions = solutionStr.split('').map(Number);
     }
     setCandidates(candidateStr) {
-        if (candidateStr.length != Board.numCells * Board.N) return;
+        if (candidateStr == null || candidateStr.length != Board.numCells * Board.N) return;
         for (var cell = 0; cell < Board.numCells; cell++) {
             for (var can = 0; can < Board.N; can++) {
                 let set = (candidateStr.charAt(cell * Board.N + can) == '1');
                 this.cellCandidates[cell][can] = Number(set);
-                drawCellCandidate(cellEleFromIndex(cell), (can+1).toString(), set);
+                Board.drawCellCandidate(cellEleFromIndex(cell), (can+1).toString(), set);
             }
-            //this.cellCandidates[cell] = candidateStr.substring(cell * N, cell * N + N).split('').map(Number);
         }
     }
     setCellSolution(cellNum, solutionNum) { // cellNum 0-indexed, solutionNum 0-indexed
@@ -118,20 +72,22 @@ class Board {
         if (solutionNum < 0 || solutionNum >= Board.N) return;
         this.cellSolutions[cellNum] = Number(solutionNum+1); // set the cell value
         this.cellCandidates[cellNum].fill(0);               // remove candidates from this cell
-        drawCellSolution(cellEleFromIndex(cellNum), solutionNum.toString());
+        Board.drawCellSolution(cellEleFromIndex(cellNum), (solutionNum+1).toString());
     }
     resetCell(cellNum) {
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         this.cellSolutions[cellNum] = 0;
         this.cellCandidates[cellNum].fill(1);
-        clearCell(cellEleFromIndex(cellNum));
+        Board.clearCell(cellEleFromIndex(cellNum));
     }
     setCellCandidate(cellNum, candidateNum, set) {  // cellNum 0-indexed, candidateNum 0-indexed
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         if (candidateNum < 0 || candidateNum >= Board.N) return;
         this.cellCandidates[cellNum][candidateNum] = Number(set);
-        drawCellCandidate(cellEleFromIndex(cellNum), candidateNum.toString(), set);
+        Board.drawCellCandidate(cellEleFromIndex(cellNum), (candidateNum+1).toString(), set);
     }
+
+    /* get data */
     getCluesStr() {
         return this.clues.join('');
     }
@@ -141,14 +97,104 @@ class Board {
     getCandidatesStr() {
         return this.cellCandidates.map(e => e.join('')).join('');
     }
+
+    /* UI functions */
+    static lockCell(cell) {
+        if (cell == null) return;
+        cell.classList.add("cell-input-locked");
+        cell.disabled = true;
+    }
+    static unlockCell(cell) {
+        if (cell == null) return;
+        cell.classList.remove("cell-input-locked");
+        cell.disabled = false;
+    }
+    static drawCellSolution(cell, valStr, isClue = false) {
+        if (cell == null) return;
+        if (valStr >= '1' && valStr <= '9') {
+            // remove candidates from this cell
+            var candidates = cell.nextElementSibling.children;
+            for (let i = 0; i < candidates.length; i++)
+                candidates[i].classList.remove("candidate-active");
+            // set the cell value
+            cell.value = valStr;
+            if (isClue) cell.classList.add("clue-cell");
+            else cell.classList.remove("clue-cell");
+        }
+    }
+    static drawCellCandidate(cell, valStr, isSet) {
+        if (cell == null) return;
+        if (valStr >= '1' && valStr <= '9') {
+            var candidateEle = cell.nextElementSibling.querySelector(".can" + valStr);
+            if (candidateEle) {
+                if (isSet) candidateEle.classList.add("candidate-active");
+                else candidateEle.classList.remove("candidate-active");
+            }
+        }
+    }
+    static clearCell(cell) {
+        if (cell == null) return;
+        cell.value = "";
+        cell.classList.remove("clue-cell");
+        cell.classList.remove("cell-input-locked");
+        cell.disabled = false;
+        // remove candidates from this cell
+        var candidates = cell.nextElementSibling.children;
+        for (let i = 0; i < candidates.length; i++)
+            candidates[i].classList.remove("candidate-active");
+    }
+    draw() {
+        for (var i = 0; i < Board.numCells; i++) {
+            var cell = cellEleFromIndex(i);
+            if (this.clues[i]) {
+                Board.drawCellSolution(cell, this.clues[i].toString(), true);
+                Board.lockCell(cell);
+            } else if (this.cellSolutions[i]) {
+                Board.drawCellSolution(cell, this.cellSolutions[i].toString());
+                Board.unlockCell(cell);
+            } else {
+                Board.unlockCell(cell);
+                for (var can = 0; can < Board.N; can++) {
+                    Board.drawCellCandidate(cell, can.toString(), this.cellCandidates[i][can]);
+                }
+            }
+        }
+    }
+    clearBoard() {
+        /* empty all cells */
+        var cells = sudokuBoard.querySelectorAll("input");
+        cells.forEach((cell) => Board.clearCell(cell));
+    }
+    loadPuzzle(puzzleName) {
+        /* Loads a puzzle into currentPuzzle and displays it on sudokuBoard */
+
+        /* load puzzle data */
+        var clues = newSavedPuzzles.get(puzzleName);
+        if (clues === undefined) return;
+        currentPuzzle = puzzleName;
+        this.clearBoard();
+        this.clues = clues.split('').map(Number);
+        this.cellSolutions = clues.split('').map(Number);
+        this.cellCandidates = Array(Board.numCells).fill().map(() => Array(Board.N).fill(0));
+        this.draw();
+
+        /* set the puzzle select input */
+        document.getElementById("puzzle-select").value = puzzleName;
+
+        /* show/hide custom editor */
+        var customEditor = document.getElementById("show-custom-editor");
+        if (puzzleName === "Custom") {
+            var editor = document.getElementById("show-custom-editor");
+            customEditor.style.maxHeight = editor.scrollHeight + "px";
+        } else {
+            customEditor.style.maxHeight = 0;
+        }
+
+        saveSessionData();
+    }
 };
 var board = new Board(newSavedPuzzles.get(currentPuzzle));
 
-//var newUserData = {
-//    clues: Array(Board.numCells).fill(0),
-//    cellSolutions: Array(Board.numCells).fill(0),
-//    cellCandidates: Array(Board.numCells).fill().map(() => Array(Board.N).fill(1))
-//};
 var newUserData = {
     clues: "000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     cellSolutions: "000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -157,9 +203,9 @@ var newUserData = {
 
 var cellInputSelection = -1;    /* currently selected cell */
 var digitInputSelection = -1;   /* currently selected digit button */
-var digitInputIsLocked = false; /* (true): currently selected digit is locked */
+//var digitInputIsLocked = false; /* (true): currently selected digit is locked */
 var digitInputIsSolution = true;/* (true): digit input treated as solution, (false): digit input treated as candidate toggle */
-var inputIsClue = document.querySelector("input[name='custom-input']:checked").value === "Clue";  /* for custom boards true indicates input is a clue */
+//var inputIsClue = document.querySelector("input[name='custom-input']:checked").value === "Clue";  /* for custom boards true indicates input is a clue */
 
 /* ----------------- helper functions ----------------- */
 
@@ -197,33 +243,34 @@ function selectDigitButton(button) {
     sudokuBoard.classList.add("sudoku-board-hover");
 
     /* Remove locked class and locked property */
-    button.classList.remove("digit-input-locked");
-    digitInputIsLocked = false;
+    //button.classList.remove("digit-input-locked");
+    //digitInputIsLocked = false;
 
     /* Set the digit selection */
     let digit = parseInt(button.id.charAt(button.id.length - 1), 10);
     digitInputSelection = digit;
 }
-function lockDigitButton(button) {
-    if (button == null) return;
+//function lockDigitButton(button) {
+//    if (button == null) return;
 
-    /* Add locked class and allow hovering on the board */
-    button.classList.add("digit-input-locked");
-    sudokuBoard.classList.add("sudoku-board-hover");
+//    /* Add locked class and allow hovering on the board */
+//    button.classList.add("digit-input-locked");
+//    sudokuBoard.classList.add("sudoku-board-hover");
 
-    /* Remove selected class */
-    button.classList.remove("digit-input-selected");
+//    /* Remove selected class */
+//    button.classList.remove("digit-input-selected");
 
-    /* Set the digit selection */
-    let digit = parseInt(button.id.charAt(button.id.length - 1), 10);
-    digitInputSelection = digit;
-    digitInputIsLocked = true;
-}
+//    /* Set the digit selection */
+//    let digit = parseInt(button.id.charAt(button.id.length - 1), 10);
+//    digitInputSelection = digit;
+//    digitInputIsLocked = true;
+//}
 function deselectDigitButton(button) {
     if (button == null);
 
     /* Remove selected and locked classes */
-    button.classList.remove("digit-input-selected", "digit-input-locked");
+    //button.classList.remove("digit-input-selected", "digit-input-locked");
+    button.classList.remove("digit-input-selected");
 
     // Remove hovering from the board */
     sudokuBoard.classList.remove("sudoku-board-hover");
@@ -233,179 +280,12 @@ function deselectDigitButton(button) {
     digitInputIsLocked = false;
 }
 
-/* cell UI */
-function lockCell(cell) {
-    if (cell == null) return;
-    cell.classList.add("cell-input-locked");
-    cell.disabled = true;
-}
-function unlockCell(cell) {
-    if (cell == null) return;
-    cell.classList.remove("cell-input-locked");
-    cell.disabled = false;
-}
-function drawCellSolution(cell, valStr, isClue = false) {
-    if (cell == null) return;
-    if (valStr >= '1' && valStr <= '9') {
-        // remove candidates from this cell
-        var candidates = cell.nextElementSibling.children;
-        for (let i = 0; i < candidates.length; i++)
-            candidates[i].classList.remove("candidate-active");
-        // set the cell value
-        cell.value = valStr;
-        if (isClue) cell.classList.add("clue-cell");
-        else cell.classList.remove("clue-cell");
-    }
-}
-function drawCellCandidate(cell, valStr, isSet) {
-    if (cell == null) return;
-    if (valStr >= '1' && valStr <= '9') {
-        var candidateEle = cell.nextElementSibling.querySelector(".can" + valStr);
-        if (candidateEle) {
-            if (isSet) candidateEle.classList.add("candidate-active");
-            else candidateEle.classList.remove("candidate-active");
-        }
-    }
-}
-function clearCell(cell) {
-    if (cell == null) return;
-    cell.value = "";
-    cell.classList.remove("clue-cell");
-    cell.classList.remove("cell-input-locked");
-    cell.disabled = false;
-    // remove candidates from this cell
-    var candidates = cell.nextElementSibling.children;
-    for (let i = 0; i < candidates.length; i++)
-        candidates[i].classList.remove("candidate-active");
-}
-
-
-//function fillCellClue(cell, clue) {
-//    if (cell == null) return;
-//    if (clue == '0') {
-//        removeAllCellCandidates(cell);
-//        emptyCell(cell);
-//    } else if (clue >= '1' && clue <= '9') {
-//        removeAllCellCandidates(cell);
-//        cell.value = clue.toString();
-//        cell.classList.add("clue-cell");
-
-//        //let index = parseInt(cell.id, 10);
-//        //boardData.cellData[index] = parseInt(clue, 10);
-//        //boardData.clueData[index] = 1;
-//    }
-//}
-//function fillCellSolution(cell, solution) {
-//    if (cell == null) return;
-//    if (solution == '0') {
-//        removeAllCellCandidates(cell);
-//        emptyCell(cell);
-//    } else if (solution >= '1' && solution <= '9') {
-//        removeAllCellCandidates(cell);
-//        cell.value = solution.toString();
-//        cell.classList.remove("clue-cell");
-//        cell.classList.remove("cell-input-locked");
-//        cell.disabled = false;
-//        let index = parseInt(cell.id, 10);
-//        boardData.cellData[index] = parseInt(solution, 10);
-//        boardData.clueData[index] = 0;
-//    }
-//}
-//function toggleCellCandidate(cell, candidate) {
-//    if (cell == null) return;
-//    if (candidate == '0') {
-//        /* if erase is selected, remove all candidates and solution */
-//        removeAllCellCandidates(cell);
-//        emptyCell(cell);
-//    } else if (cell.value) {
-//        /* if cell is solved return */
-//        return;
-//    } else if (candidate >= '1' && candidate <= '9') {
-//        /* toggle this candidate on/off */
-//        var candidateDiv = cell.nextElementSibling.querySelector(".can" + candidate.toString());
-//        if (candidateDiv) candidateDiv.classList.toggle("candidate-active");
-//    }
-//}
-//function removeAllCellCandidates(cell) {
-//    if (cell == null) return;
-//    var candidates = cell.nextElementSibling.children;
-//    for (let i = 0; i < candidates.length; i++)
-//        candidates[i].classList.remove("candidate-active");
-//}
-//function emptyCell(cell) {
-//    /* does NOT remove cell candidates */
-//    if (cell == null) return;
-//    cell.value = "";
-//    cell.classList.remove("clue-cell");
-//    cell.classList.remove("cell-input-locked");
-//    cell.disabled = false;
-//    let index = parseInt(cell.id, 10);
-//    boardData.cellData[index] = 0;
-//    boardData.clueData[index] = 0;
-//}
-
 /* sudoku board UI */
-function drawBoard(board) {
-    for (var i = 0; i < Board.numCells; i++) {
-        var cell = cellEleFromIndex(i);
-        if (board.clues[i]) {
-            drawCellSolution(cell, board.clues[i].toString(), true);
-            lockCell(cell);
-        } else if (board.cellSolutions[i]) {
-            drawCellSolution(cell, board.cellSolutions[i].toString());
-            unlockCell(cell);
-        } else {
-            unlockCell(cell);
-            for (var can = 0; can < Board.N; can++) {
-                drawCellCandidate(cell, can.toString(), board.cellCandidates[i][can]);
-            }
-        }
-    }
-}
-function clearBoard() {
-    /* empty all cells */
-    var cells = sudokuBoard.querySelectorAll("input");
-    cells.forEach((cell) => clearCell(cell));
-}
 function displayTextPopup(popup, ms) {
     popup.classList.add("text-popup-active");
     setTimeout(() => {
         popup.classList.remove("text-popup-active");
     }, ms);
-}
-
-
-function loadPuzzle(puzzleName) {
-    /* Loads a puzzle into currentPuzzle and displays it on sudokuBoard */
-
-    /* load puzzle data */
-    var clues = newSavedPuzzles.get(puzzleName);
-    if (clues === undefined) return;
-    currentPuzzle = puzzleName;
-    board = new Board(clues);
-
-    /* fill the cells on the board */
-    clearBoard();
-    drawBoard(board);
-
-    //if (puzzleName !== "Custom") useCustomData = false;
-    //let solutions = useCustomData ? userData.cellData.slice() : puzzle.cells.split('').map(Number);
-    //let clues = useCustomData ? userData.clueData.slice() : puzzle.clues.split('').map(Number);
-    //fillBoard(solutions, clues, !useCustomData);
-
-    /* set the puzzle select input */
-    document.getElementById("puzzle-select").value = puzzleName;
-
-    /* show/hide custom editor */
-    var customEditor = document.getElementById("show-custom-editor");
-    if (puzzleName === "Custom") {
-        var editor = document.getElementById("show-custom-editor");
-        customEditor.style.maxHeight = editor.scrollHeight + "px";
-    } else {
-        customEditor.style.maxHeight = 0;
-    }
-
-    saveSessionData();
 }
 
 // not used
@@ -417,9 +297,9 @@ function reset() {
 
     /* clear digit and cell selection */
     if (digitInputSelection != -1)
-        deselectDigitButton(digitButtonFromIndex(digitInputSelection));
+        deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
     if (cellInputSelection != -1)
-        deselectCellInput(cellFromIndex(cellInputSelection));
+        deselectCellInput(cellEleFromIndex(cellInputSelection));
 
     /* change cell input type to solution */
     document.getElementById("digit-input-solution").classList.add("digit-input-toggle-active");
@@ -427,37 +307,51 @@ function reset() {
     digitInputIsSolution = true;
 
     /* load custom puzzle */
-    loadPuzzle("Custom");
+    board.loadPuzzle("Custom");
 
     /* reset custom puzzle data */
     userData.cellData.fill(0);
     userData.clueData.fill(0);
 }
 
+/* ----------------- document handlers ----------------- */
 
-//function getBoardInput() {
-//    /* return a string holding the current board input values */
-//    var array = Array(81).fill(0);
-//    var cells = sudokuBoard.querySelectorAll("input");
-//    cells.forEach(function (cell) {
-//        if (cell.value >= '1' && cell.value <= '9') {
-//            let index = parseInt(cell.id, 10);
-//            array[index] = cell.value;
-//        }
-//    });
-//    return array.join('');
-//}
-function solveBoard() {
-    /* Get solved data */
-    var instance = new Module.SudokuBoard();
-    instance.fillData(board.getSolutionsStr());
-    instance.solve();
-    board.setSolutions(instance.getData());
-    instance.delete();
+document.addEventListener("DOMContentLoaded", function (e) {
+    /* add saved puzzles to puzzle select */
+    var select = document.getElementById("puzzle-select");
+    newSavedPuzzles.forEach(function (_value, key) {
+        var opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = key;
+        select.appendChild(opt);
+    });
 
-    /* Draw data to board */
-    drawBoard(board);
-}
+    /* load the default puzzle */
+    if (!currentPuzzle) currentPuzzle = "Easy Example";
+    board.loadPuzzle(currentPuzzle);
+});
+document.addEventListener("click", function (e) {
+    /* Deselect the selected cell or digit input when click occurs outside selected elements */
+    let clickCancelsCellSelection = !e.composedPath().some((obj) => {
+        return (obj instanceof Element && obj.classList.contains("cell"));
+    });
+
+    //let clickCancelsDigitSelection = !(
+    //    /* don't cancel digit selection if click contains any of: */
+    //    e.target.classList.contains("digit-button") ||
+    //    e.target.id === "digit-input-candidate" ||
+    //    e.target.id === "digit-input-solution"
+    //);
+
+    if (clickCancelsCellSelection && cellInputSelection !== -1) {
+        /* deselect the selected cell */
+        deselectCellInput(cellEleFromIndex(cellInputSelection));
+    }
+    //if (clickCancelsDigitSelection && digitInputSelection !== -1) {
+    //    /* deselect the selected digit input button */
+    //    if (!digitInputIsLocked) deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
+    //}
+});
 
 function saveSessionData() {
     window.sessionStorage.setItem("currentPuzzle", currentPuzzle);
@@ -478,49 +372,10 @@ function loadSessionData() {
     newUserData.cellCandidates = window.sessionStorage.getItem("userCellCandidates")
 }
 
-/* ----------------- document handlers ----------------- */
-
-document.addEventListener("DOMContentLoaded", function (e) {
-    /* add saved puzzles to puzzle select */
-    var select = document.getElementById("puzzle-select");
-    newSavedPuzzles.forEach(function (_value, key) {
-        var opt = document.createElement("option");
-        opt.value = key;
-        opt.textContent = key;
-        select.appendChild(opt);
-    });
-
-    /* load the default puzzle */
-    if (!currentPuzzle) currentPuzzle = "Easy Example";
-    loadPuzzle(currentPuzzle);
-});
-document.addEventListener("click", function (e) {
-    /* Deselect the selected cell or digit input when click occurs outside selected elements */
-    let clickCancelsCellSelection = !e.composedPath().some((obj) => {
-        return (obj instanceof Element && obj.classList.contains("cell"));
-    });
-
-    let clickCancelsDigitSelection = !(
-        /* don't cancel digit selection if click contains any of: */
-        e.target.classList.contains("digit-button") ||
-        e.target.id === "digit-input-candidate" ||
-        e.target.id === "digit-input-solution"
-    );
-
-    if (clickCancelsCellSelection && cellInputSelection !== -1) {
-        /* deselect the selected cell */
-        deselectCellInput(cellFromIndex(cellInputSelection));
-    }
-    if (clickCancelsDigitSelection && digitInputSelection !== -1) {
-        /* deselect the selected digit input button */
-        if (!digitInputIsLocked) deselectDigitButton(digitButtonFromIndex(digitInputSelection));
-    }
-});
-
 /* on page refresh, load the current puzzle */
 if (window.sessionStorage.getItem("currentPuzzle")) {
-    getSessionData();
-    loadPuzzle(currentPuzzle);
+    loadSessionData();
+    board.loadPuzzle(currentPuzzle);
 }
 
 /* ----------------- sudokuBoard handlers ----------------- */
@@ -528,25 +383,29 @@ if (window.sessionStorage.getItem("currentPuzzle")) {
 function sudokuBoardHandleClick(e) {
     if (e.target.tagName === "INPUT") {
         e.stopPropagation();    /* prevent document click handler from deselecting digit button */
-        let cellNum = parseInt(e.target.id, 10);
+        let cell = e.target;
+        let cellNum = parseInt(cell.id, 10);
 
         /* digit button is currently selected */
-        if (digitInputSelection == 0 && !cell.classList.contains("cell-input-locked")) {
-                board.resetCell(cellNum);
-        } else if (digitInputSelection >= 1 && digitInputSelection <= 9) {
-            /* update boardData and draw solution/candidate in the selected cell */
-            if (digitInputIsSolution) {
-                board.setCellSolution(cellNum, digitInputSelection);
+        if (digitInputSelection >= 0 && digitInputSelection <= 9) {
+            /* set the cell value */
+            if (digitInputSelection == 0) {
+                if (!cell.classList.contains("cell-input-locked"))
+                    board.resetCell(cellNum);
             } else {
-                let canIsSet = board.cellCandidates[cellNum][digitInputSelection - 1] == 1;
-                board.setCellCandidate(cellNum, digitInputSelection - 1, !canIsSet);
+                if (digitInputIsSolution) {
+                    board.setCellSolution(cellNum, digitInputSelection-1);
+                } else {
+                    let canIsSet = board.cellCandidates[cellNum][digitInputSelection - 1] == 1;
+                    board.setCellCandidate(cellNum, digitInputSelection - 1, !canIsSet);
+                }
             }
 
-            if (!digitInputIsLocked) {
-                /* deselect the digit input button */
-                deselectDigitButton(digitButtonFromIndex(digitInputSelection));
-                document.documentElement.style.cursor = "default";  /* change cursor immediately */
-            }
+            //if (!digitInputIsLocked) {
+            //    /* deselect the digit input button */
+            //    deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
+            //    document.documentElement.style.cursor = "default";  /* change cursor immediately */
+            //}
             /* deselect the cell */
             deselectCellInput(cell);
         } else {
@@ -570,7 +429,7 @@ function sudokuBoardHandleKey(e) {
             newIndex = e.shiftKey ? newIndex - 1 : (newIndex + 1) % 81;
             if (newIndex < 0) newIndex = 80;
             if (newIndex === index) return; /* no unlocked cells */
-            newCell = cellFromIndex(newIndex);
+            newCell = cellEleFromIndex(newIndex);
         } while (newCell.classList.contains("cell-input-locked"));
         newCell.select();
     } else if (backKeys.includes(e.key)) {
@@ -583,7 +442,7 @@ function sudokuBoardHandleKey(e) {
             newIndex = newIndex - 1;
             if (newIndex < 0) newIndex = 80;
             if (newIndex === index) return; /* no unlocked cells */
-            newCell = cellFromIndex(newIndex);
+            newCell = cellEleFromIndex(newIndex);
         } while (newCell.classList.contains("cell-input-locked"));
         newCell.select();
         e.preventDefault();
@@ -605,29 +464,29 @@ function sudokuBoardHandleKey(e) {
                     allowNav = false;
             if (newIndex < 0 || newIndex > 80 || newIndex === index)
                 return; /* hit bottom/top or no unlocked cells */
-            newCell = cellFromIndex(newIndex);
+            newCell = cellEleFromIndex(newIndex);
         } while (newCell.classList.contains("cell-input-locked") && allowNav);
         if (allowNav) newCell.select();
     } else if (e.key === "Home") {
         /* navigate to the top left cell */
         e.preventDefault();
         let newIndex = 0;
-        let newCell = cellFromIndex(newIndex);
+        let newCell = cellEleFromIndex(newIndex);
         do {/* skip over locked cells */
             newIndex++;
             if (newIndex > 80) return;  /* no unlocked cells */
-            newCell = cellFromIndex(newIndex);
+            newCell = cellEleFromIndex(newIndex);
         } while (newCell.classList.contains("cell-input-locked"));
         newCell.select();
     } else if (e.key === "End") {
         /* navigate to the bottom right cell */
         e.preventDefault();
         let newIndex = 80;
-        let newCell = cellFromIndex(newIndex);
+        let newCell = cellEleFromIndex(newIndex);
         do {/* skip over locked cells */
             newIndex--;
             if (newIndex < 0) return;   /* no unlocked cells */
-            newCell = cellFromIndex(newIndex);
+            newCell = cellEleFromIndex(newIndex);
         } while (newCell.classList.contains("cell-input-locked"));
         newCell.select();
     } else if (e.key === "Escape") {
@@ -652,7 +511,7 @@ function sudokuBoardHandleInput(e) {
                 board.setCellCandidate(cellNum, val, !canIsSet);
             }
         } else {
-            board.clearCell(cellNum);
+            board.resetCell(cellNum);
         }
         /* Tab to the next cell */
         e.preventDefault();
@@ -661,11 +520,11 @@ function sudokuBoardHandleInput(e) {
         do {
             newNum = (newNum + 1) % 81;
             if (newNum === cellNum) return; /* no unlocked cells */
-            nextCell = cellFromIndex(newNum);
+            nextCell = cellEleFromIndex(newNum);
         } while (nextCell.classList.contains("cell-input-locked"));
         nextCell.select();
     } else if (cell.value.length > 1) {
-        board.clearCell(cellNum);
+        board.resetCell(cellNum);
         e.preventDefault();
     }
 }
@@ -684,7 +543,7 @@ function sudokuBoardHandlePaste(e) {
                 board.setCellCandidate(cellNum, val, !canIsSet);
             }
         } else {
-            board.clearCell(cellNum);
+            board.resetCell(cellNum);
         }
         /* Tab to the next cell */
         e.preventDefault();
@@ -694,11 +553,11 @@ function sudokuBoardHandlePaste(e) {
         do {
             newIndex = (newIndex + 1) % 81;
             if (newIndex === index) return; /* no unlocked cells */
-            nextCell = cellFromIndex(newIndex);
+            nextCell = cellEleFromIndex(newIndex);
         } while (nextCell.classList.contains("cell-input-locked"));
         nextCell.select();
     } else if (pastedData.length > 1) {
-        board.clearCell(cellNum);
+        board.resetCell(cellNum);
         e.preventDefault();
     }
 }
@@ -734,29 +593,34 @@ function digitInputHandleClick(e) {
 
         /* if a different digit button is selected/locked, deselect it and select this button; otherwise set the cell's value */
         if (digitInputSelection >= 0 && digitInputSelection <= 9) {
-            deselectDigitButton(digitButtonFromIndex(digitInputSelection));
+            deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
             selectDigitButton(button);
         } else {
-            let cell = cellFromIndex(cellInputSelection);
-            if (digitInputIsSolution) {
-                if (currentPuzzle === "Custom" && inputIsClue)
-                    fillCellClue(cell, digit, false);
-                else fillCellSolution(cell, digit);
-            } else toggleCellCandidate(cell, digit);
+            if (digit == 0) {
+                board.resetCell(cellInputSelection);
+            } else if (digit >= 1 && digit <= 9) {
+                if (digitInputIsSolution) {
+                    board.setCellSolution(cellInputSelection, digit-1);
+                } else {
+                    let canIsSet = (board.cellCandidates[cellInputSelection][digit - 1] == 1);
+                    board.setCellCandidate(cellInputSelection, digit - 1, !canIsSet);
+                }
+            }
         }
         /* deselect the cell*/
-        deselectCellInput(cellFromIndex(cellInputSelection));
+        deselectCellInput(cellEleFromIndex(cellInputSelection));
     }
 
     /* no cell is selected */
     else {
         /* cycle between (deselected -> selected -> locked), only one digit can be selected at a time */
         if (digit === digitInputSelection) {
-            if (digitInputIsLocked) deselectDigitButton(button);/* button is locked */
-            else lockDigitButton(button);                       /* button is selected */
+            deselectDigitButton(button);
+            //if (digitInputIsLocked) deselectDigitButton(button);/* button is locked */
+            //else lockDigitButton(button);                       /* button is selected */
         } else {                                                /* button is deselected */
             if (digitInputSelection !== -1) {                   /* a different button is selected/locked */
-                var otherButton = digitButtonFromIndex(digitInputSelection);
+                var otherButton = digitButtonEleFromIndex(digitInputSelection);
                 deselectDigitButton(otherButton);
             }
             selectDigitButton(button);
@@ -793,30 +657,28 @@ document.getElementById("digit-input-toggle-buttons").addEventListener("click", 
 function puzzleSelectHandler(e) {
     var sel = e.target;
     var puzzle = sel.options[sel.selectedIndex].value;
-    loadPuzzle(puzzle);
+    board.loadPuzzle(puzzle);
 }
 function puzzleHelpHandler(e) {
     /* navigate page to help section */
 }
-function puzzleVerifyHandler(e) {
-
+function puzzleRestartHandler(e) {
+    var puzzle = currentPuzzle;
+    board.loadPuzzle(puzzle);
 }
 
 document.getElementById("puzzle-select").addEventListener("change", puzzleSelectHandler);
-document.getElementById("puzzle-help-button").addEventListener("click", puzzleHelpHandler);
-document.getElementById("puzzle-verify-button").addEventListener("click", puzzleVerifyHandler);
+document.getElementById("help-button").addEventListener("click", puzzleHelpHandler);
+document.getElementById("restart-button").addEventListener("click", puzzleRestartHandler);
 
 /* ---- Custom board editor ---- */
 
-function customInputTypeHandler(e) {
-    inputIsClue = (e.target.value === "Clue");
-}
 function customClearHandler(e) {
     clearBoard();
     saveSessionData();
 }
 function customLoadHandler(e) {
-    loadPuzzle("Custom", true);
+    board.loadPuzzle("Custom");
 }
 function customSaveHandler(e) {
 
@@ -841,17 +703,28 @@ function customSaveHandler(e) {
     displayTextPopup(popup, 1200);
 }
 
-document.getElementById("radio-container").addEventListener("change", customInputTypeHandler);
+//document.getElementById("radio-container").addEventListener("change", customInputTypeHandler);
 document.getElementById("custom-clear-button").addEventListener("click", customClearHandler);
 document.getElementById("custom-load-button").addEventListener("click", customLoadHandler);
 document.getElementById("custom-save-button").addEventListener("click", customSaveHandler);
 
-/* ---- Restart/Solve Buttons ---- */
+/* ---- Step/Solve Buttons ---- */
 
-function puzzleRestartHandler(e) {
-    var puzzle = currentPuzzle;
-    loadPuzzle(puzzle);
+function step() {
+
+}
+function solveBoard() {
+    /* Get solved data */
+    var instance = new Module.SudokuBoard();
+    let data = currentPuzzle === "Custom" ? board.getSolutionsStr() : board.getCluesStr();
+    instance.fillData(data);
+    instance.solve();
+    board.setSolutions(instance.getData());
+    instance.delete();
+
+    /* Draw data to board */
+    board.draw();
 }
 
-document.getElementById("restart-button").addEventListener("click", puzzleRestartHandler);
 document.getElementById("solve-button").addEventListener("click", solveBoard);
+document.getElementById("step-button").addEventListener("click", step);

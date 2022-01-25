@@ -659,7 +659,7 @@ section {
     margin-top: auto;   /* move board buttons to bottom */
     margin-bottom: 0;   /* flush with bottom of sudoku board */
 }
-#solve-button, #restart-button {
+#solve-button, #step-button {
     flex: 1; /* fill all of the available space, share evenly*/
     text-align: center;
     font-size: 1.25em;
@@ -668,10 +668,10 @@ section {
     background-color: #91c48d; /* light green */
     transition: all 0.2s;
 }
-#restart-button {
+#step-button {
     margin-right: 5%;   /* space between buttons */
 }
-#solve-button:hover, #restart-button:hover {
+#solve-button:hover, #step-button:hover {
     cursor: pointer;
     background-color: #45aa3d; /* dark green */
 }
