@@ -86,9 +86,9 @@ class Board {
         this.cellCandidates[cellNum][candidateNum] = Number(set);
         Board.drawCellCandidate(cellEleFromIndex(cellNum), (candidateNum+1).toString(), set);
     }
-    clearBoard() {
-        this.clues.fill(0);
-        this.cellSolutions.fill(0);
+    reset() {
+        this.clues = Array(Board.numCells).fill(0);
+        this.cellSolutions = Array(Board.numCells).fill(0);
         this.cellCandidates = Array(Board.numCells).fill().map(() => Array(Board.N).fill(0));
         /* empty all cells */
         var cells = sudokuBoard.querySelectorAll("input");
@@ -101,7 +101,7 @@ class Board {
         var clues = newSavedPuzzles.get(puzzleName);
         if (clues === undefined) return;
         currentPuzzle = puzzleName;
-        this.clearBoard();
+        this.reset();
         this.clues = clues.split('').map(Number);
         this.cellSolutions = clues.split('').map(Number);
         this.cellCandidates = Array(Board.numCells).fill().map(() => Array(Board.N).fill(0));
@@ -123,7 +123,7 @@ class Board {
     }
     loadUserData() {
         if (currentPuzzle != "Custom") return;  // load puzzle instead?
-        this.clearBoard();
+        this.reset();
         this.setSolutions(userData.cellSolutions.join(''));
         this.setCandidates(userData.cellCandidates.map(cell => cell.join('')).join(''));
     }
@@ -295,30 +295,30 @@ function displayTextPopup(popup, ms) {
 }
 
 // not used
-function reset() {
-    /* Reset all saved values, set board to custom */
+//function reset() {
+//    /* Reset all saved values, set board to custom */
 
-    /* clear board */
-    board.clearBoard();
+//    /* clear board */
+//    board.reset();
 
-    /* clear digit and cell selection */
-    if (digitInputSelection != -1)
-        deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
-    if (cellInputSelection != -1)
-        deselectCellInput(cellEleFromIndex(cellInputSelection));
+//    /* clear digit and cell selection */
+//    if (digitInputSelection != -1)
+//        deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
+//    if (cellInputSelection != -1)
+//        deselectCellInput(cellEleFromIndex(cellInputSelection));
 
-    /* change cell input type to solution */
-    document.getElementById("digit-input-solution").classList.add("digit-input-toggle-active");
-    document.getElementById("digit-input-candidate").classList.remove("digit-input-toggle-active");
-    digitInputIsSolution = true;
+//    /* change cell input type to solution */
+//    document.getElementById("digit-input-solution").classList.add("digit-input-toggle-active");
+//    document.getElementById("digit-input-candidate").classList.remove("digit-input-toggle-active");
+//    digitInputIsSolution = true;
 
-    /* load custom puzzle */
-    board.loadPuzzle("Custom");
+//    /* load custom puzzle */
+//    board.loadPuzzle("Custom");
 
-    /* reset custom puzzle data */
-    userData.cellSolutions.fill(0);
-    userData.cellCandidates.fill().map(() => Array(Board.N).fill(0));
-}
+//    /* reset custom puzzle data */
+//    userData.cellSolutions.fill(0);
+//    userData.cellCandidates.fill().map(() => Array(Board.N).fill(0));
+//}
 
 /* ----------------- document handlers ----------------- */
 
@@ -367,18 +367,20 @@ function saveSessionData() {
     window.sessionStorage.setItem("userCellSolutions", userData.cellSolutions.join(''));
     window.sessionStorage.setItem("userCellCandidates", userData.cellCandidates.map(cell => cell.join('')).join(''));
     console.log(window.sessionStorage.getItem("userCellSolutions"));
+    console.log(window.sessionStorage.getItem("userCellCandidates"));
 }
 function loadSessionData() {
-    //currentPuzzle = window.sessionStorage.getItem("currentPuzzle");
-    //board.setClues(window.sessionStorage.getItem("boardClues"));
-    //board.setSolutions(window.sessionStorage.getItem("boardCellSolutions"));
-    //board.setCandidates(window.sessionStorage.getItem("boardCellCandidates"));
-    //userData.cellSolutions = window.sessionStorage.getItem("userCellSolutions").split('').map(Number);
-    //let userCandidates = window.sessionStorage.getItem("userCellCandidates");
-    //for (let cell = 0; cell < Board.numCells; cell++) {
-    //    userData.cellCandidates[cell] = userCandidates.substr(cell * Board.N, Board.N).split('').map(Number);
-    //}
-    //console.log(userCandidates);
+    currentPuzzle = window.sessionStorage.getItem("currentPuzzle");
+    board.setClues(window.sessionStorage.getItem("boardClues"));
+    board.setSolutions(window.sessionStorage.getItem("boardCellSolutions"));
+    board.setCandidates(window.sessionStorage.getItem("boardCellCandidates"));
+    userData.cellSolutions = window.sessionStorage.getItem("userCellSolutions").split('').map(Number);
+    let userCandidates = window.sessionStorage.getItem("userCellCandidates");
+    userData.cellCandidates = Array(Board.numCells);
+    for (let cell = 0; cell < Board.numCells; cell++) {
+        userData.cellCandidates[cell] = userCandidates.substr(cell * Board.N, Board.N).split('').map(Number);
+    }
+    console.log(userCandidates);
 }
 
 /* on page refresh, load the current puzzle */
@@ -510,6 +512,7 @@ function sudokuBoardHandleInput(e) {
     let cell = e.target;
     let cellNum = parseInt(cell.id, 10);
     if (cell.value.length === 1) {
+        e.preventDefault();
         /* Set this cell */
         if (cell.value >= 1 && cell.value <= 9) {
             var val = Number(cell.value) - 1;
@@ -527,15 +530,16 @@ function sudokuBoardHandleInput(e) {
             board.resetCell(cellNum);
         }
         /* Tab to the next cell */
-        e.preventDefault();
-        let newNum = cellNum;
-        let nextCell = cell;
-        do {
-            newNum = (newNum + 1) % 81;
-            if (newNum === cellNum) return; /* no unlocked cells */
-            nextCell = cellEleFromIndex(newNum);
-        } while (nextCell.classList.contains("cell-input-locked"));
-        nextCell.select();
+        if (digitInputIsSolution) {
+            let newNum = cellNum;
+            let nextCell = cell;
+            do {
+                newNum = (newNum + 1) % 81;
+                if (newNum === cellNum) return; /* no unlocked cells */
+                nextCell = cellEleFromIndex(newNum);
+            } while (nextCell.classList.contains("cell-input-locked"));
+            nextCell.select();
+        }
     } else if (cell.value.length > 1) {
         board.resetCell(cellNum);
         e.preventDefault();
@@ -546,6 +550,7 @@ function sudokuBoardHandlePaste(e) {
     let cell = e.target;
     let cellNum = parseInt(cell.id, 10);
     if (pastedData.length === 1) {
+        e.preventDefault();
         /* Set this cell */
         if (pastedData >= '1' && pastedData <= '9') {
             var val = Number(pastedData) - 1;
@@ -562,16 +567,17 @@ function sudokuBoardHandlePaste(e) {
             board.resetCell(cellNum);
         }
         /* Tab to the next cell */
-        e.preventDefault();
-        let index = parseInt(cell.id, 10);
-        let newIndex = index;
-        let nextCell = cell;
-        do {
-            newIndex = (newIndex + 1) % 81;
-            if (newIndex === index) return; /* no unlocked cells */
-            nextCell = cellEleFromIndex(newIndex);
-        } while (nextCell.classList.contains("cell-input-locked"));
-        nextCell.select();
+        if (digitInputIsSolution) {
+            let index = parseInt(cell.id, 10);
+            let newIndex = index;
+            let nextCell = cell;
+            do {
+                newIndex = (newIndex + 1) % 81;
+                if (newIndex === index) return; /* no unlocked cells */
+                nextCell = cellEleFromIndex(newIndex);
+            } while (nextCell.classList.contains("cell-input-locked"));
+            nextCell.select();
+        }
     } else if (pastedData.length > 1) {
         board.resetCell(cellNum);
         e.preventDefault();
@@ -691,7 +697,7 @@ document.getElementById("restart-button").addEventListener("click", puzzleRestar
 /* ---- Custom board editor ---- */
 
 function customClearHandler(e) {
-    board.clearBoard();
+    board.reset();
     saveSessionData();
 }
 function customLoadHandler(e) { // redo

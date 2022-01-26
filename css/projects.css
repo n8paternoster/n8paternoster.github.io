@@ -847,6 +847,7 @@ button.digit-input-locked .left-lock {
     font-size: 2rem;
     font-family: monospace;
     color: black;
+    caret-color: transparent;
 }
 .cell input.clue-cell {
     background-color: #e8e8e8;
