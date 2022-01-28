@@ -584,8 +584,8 @@ section {
     font-weight: bold;
 }
 
-.right-panel > *, .left-panel > * {
-    margin-bottom: 0.625rem;    /* space between vertical panel items */
+.right-panel > *:not(:last-child), .left-panel > *:not(:last-child), #board-input > *:not(:last-child), #cell-input > *:not(:last-child) {
+    margin-bottom: 0.5rem; /* space between vertical panel items */
 }
 
 /* -------- Sudoku board left panel -------- */
@@ -612,10 +612,10 @@ section {
 }
 #puzzle-box > *, #custom-editor-box > * {
     margin: 0 5%;
-    margin-bottom: 0.625rem;    /* space between vertical puzzle box items */
+    margin-bottom: 0.5rem;    /* space between vertical puzzle box items */
 }
 #puzzle-box > *:first-child, #custom-editor-box > *:first-child {
-    margin-top: 0.625rem;   /* match margin-bottom for even spacing */
+    margin-top: 0.5rem;   /* match margin-bottom for even spacing */
 }
 #puzzle-box label, #custom-editor-box h4 {
     font-size: 1.25em;
@@ -652,41 +652,20 @@ section {
     position: relative; /* for text popup */
 }
 
-
-/* Board buttons */
-#board-buttons {
-    display: flex;
-    margin-top: auto;   /* move board buttons to bottom */
-    margin-bottom: 0;   /* flush with bottom of sudoku board */
+/* Cell input */
+#cell-input {
+    margin-top: auto; /* move board buttons to bottom */
+    margin-bottom: 0; /* flush with bottom of sudoku board */
 }
-#solve-button, #step-button {
-    flex: 1; /* fill all of the available space, share evenly*/
-    text-align: center;
-    font-size: 1.25em;
-    padding: 10px 0;
-    border: 0.12rem solid black;
-    background-color: #91c48d; /* light green */
-    transition: all 0.2s;
-}
-#step-button {
-    margin-right: 5%;   /* space between buttons */
-}
-#solve-button:hover, #step-button:hover {
-    cursor: pointer;
-    background-color: #45aa3d; /* dark green */
-}
-
-/* -------- Sudoku board right panel -------- */
-
-/* Digit input toggle buttons */
+/* Digit type toggle buttons */
 #digit-input-toggle-buttons {
     display: flex;
     justify-content: space-between;
 }
 #digit-input-solution, #digit-input-candidate {
     text-align: center;
-    font-size: 1.25em;
-    padding: 3px 0;
+    font-size: 1em;
+    padding: 2px 0;
     width: 48%;
     border: 0.12rem solid black;
     transition: all 0.2s;
@@ -696,7 +675,7 @@ section {
 }
 #digit-input-solution.digit-input-toggle-active,
 #digit-input-candidate.digit-input-toggle-active {
-    background-color: #c08dc4;   /* light purple */
+    background-color: #c08dc4; /* light purple */
     opacity: 1;
 }
 
@@ -713,44 +692,74 @@ section {
     width: 100%;
     grid-gap: 0.5em;
 }
-
 button.digit-button {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5px 0;
+    padding: 0px 0;
     border: 0.12rem solid black;
-    font-size: 1.5em;
+    font-size: 1.2em;
     font-weight: bold;
     background-color: #dedede; /* light grey */
 }
-
-button.digit-button i {
+/*button.digit-button i {
     margin: auto;
     font-size: 0.65em;
     pointer-events: none;
     visibility: hidden;
-}
+}*/
 button.digit-button i.eraser {
     font-size: 1em;
     visibility: visible;
 }
-
 button.digit-button:hover {
     cursor: pointer;
 }
 
 /* selected cell */
 button.digit-input-selected {
-    background-color: #c08dc4;  /* light purple */ 
+    background-color: #c08dc4; /* light purple */
 }
-
 /* locked cell */
-button.digit-input-locked {
-    background-color: #a659ab;  /* dark purple */
-}
+/*button.digit-input-locked {
+    background-color: #a659ab;*/ /* dark purple */
+/*}
 button.digit-input-locked .left-lock {
     visibility: visible;
+}*/
+
+
+/* -------- Sudoku board right panel -------- */
+
+/* Strategy output */
+#strategy-output {
+    flex-grow: 1;   /* stretch to fill space */
+    display: block;
+    background-color: lightgrey;
+    margin-bottom: auto; /* push board buttons to bottom */
+}
+
+/* Board buttons */
+#board-buttons {
+    display: flex;
+    /*margin-top: auto;*/ /* move board buttons to bottom */
+    margin-bottom: 0; /* flush with bottom of sudoku board */
+}
+#solve-button, #step-button {
+    flex: 1; /* fill all of the available space, share evenly*/
+    text-align: center;
+    font-size: 1.25em;
+    padding: 10px 0;
+    border: 0.12rem solid black;
+    background-color: #91c48d; /* light green */
+    transition: all 0.2s;
+}
+#step-button {
+    margin-right: 5%; /* space between buttons */
+}
+#solve-button:hover, #step-button:hover {
+    cursor: pointer;
+    background-color: #45aa3d; /* dark green */
 }
 
 /* ------- Sudoku board ------- */
@@ -875,10 +884,19 @@ button.digit-input-locked .left-lock {
 
 .candidate {
     display: none;
+    background-color: transparent;
 }
 
 .candidate-active {
     display: block;
+}
+
+.candidate-eliminated {
+    background-color: #ff0000;
+}
+
+.candidate-solution {
+    background-color: #45aa3d;
 }
 
 .box1 { grid-area: box1; }

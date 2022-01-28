@@ -21,7 +21,6 @@ class Board {
     cellCandidates = Array(Board.numCells).fill().map(() => Array(Board.N).fill(1));
 
     constructor(clueStr) {
-        console.log("constructor called");
         this.clues = clueStr.split('').map(Number);
         this.cellSolutions = clueStr.split('').map(Number);
         this.cellCandidates = Array(Board.numCells).fill().map(() => Array(Board.N).fill(0));
@@ -30,8 +29,7 @@ class Board {
                 this.cellCandidates[cell].fill(1);
             }
         }
-        console.log("cell solutions set to: ", this.getSolutionsStr());
-        console.log("cell candidates set to: ", this.getCandidatesStr());
+        this.prevStrategy = null;
     }
 
     /* set data */
@@ -50,7 +48,7 @@ class Board {
             }
         }
     }
-    setData(solutionsStr, candidatesStr = Array(Board.numCells*Board.N+1).join('0')) {
+    setData(solutionsStr, candidatesStr = Array(Board.numCells * Board.N + 1).join('0')) {
         if (solutionsStr == null || solutionsStr.length != Board.numCells) return;
         if (candidatesStr == null || candidatesStr.length != Board.numCells * Board.N) return;
         for (var cell = 0; cell < Board.numCells; cell++) {
@@ -65,7 +63,7 @@ class Board {
             } else {
                 // set the candidates in this cell
                 for (var can = 0; can < Board.N; can++) {
-                    let set = (candidatesStr.charAt(cell * Board.N+can) == '1');
+                    let set = (candidatesStr.charAt(cell * Board.N + can) == '1');
                     this.cellCandidates[cell][can] = Number(set);
                     Board.drawCellCandidate(ele, (can + 1).toString(), set);
                 }
@@ -76,15 +74,15 @@ class Board {
     setCellSolution(cellNum, solutionNum) { // cellNum 0-indexed, solutionNum 0-indexed
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         if (solutionNum < 0 || solutionNum >= Board.N) return;
-        this.cellSolutions[cellNum] = Number(solutionNum+1); // set the cell value
+        this.cellSolutions[cellNum] = Number(solutionNum + 1); // set the cell value
         this.cellCandidates[cellNum].fill(0);               // remove candidates from this cell
-        Board.drawCellSolution(cellEleFromIndex(cellNum), (solutionNum+1).toString());
+        Board.drawCellSolution(cellEleFromIndex(cellNum), (solutionNum + 1).toString());
     }
     setCellCandidate(cellNum, candidateNum, set) {  // cellNum 0-indexed, candidateNum 0-indexed
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         if (candidateNum < 0 || candidateNum >= Board.N) return;
         this.cellCandidates[cellNum][candidateNum] = Number(set);
-        Board.drawCellCandidate(cellEleFromIndex(cellNum), (candidateNum+1).toString(), set);
+        Board.drawCellCandidate(cellEleFromIndex(cellNum), (candidateNum + 1).toString(), set);
     }
     resetCell(cellNum) {
         if (cellNum < 0 || cellNum >= Board.numCells) return;
@@ -99,6 +97,11 @@ class Board {
         /* empty all cells */
         var cells = sudokuBoard.querySelectorAll("input");
         cells.forEach((cell) => Board.clearCell(cell));
+        /* reset step state */
+        if (this.prevStrategy) {
+            this.prevStrategy.delete();
+            this.prevStrategy = null;
+        }
     }
     loadPuzzle(puzzleName) {
         /* Loads a puzzle into currentPuzzle and displays it on sudokuBoard */
@@ -201,15 +204,141 @@ class Board {
         cell.disabled = false;
         // add all candidates to this cell
         var candidates = cell.nextElementSibling.children;
-        for (let i = 0; i < candidates.length; i++)
-            candidates[i].classList.remove("candidate-active");
+        for (let i = 0; i < candidates.length; i++) 
+            candidates[i].classList.remove("candidate-active", "candidate-eliminated", "candidate-solution");
     }
+
+    /* Step function */
+    prevStrategy = null;
+    step() {
+        // Apply changes from previous step
+        if (this.prevStrategy) {
+            let solutions = this.prevStrategy.solutions;
+            for (var i = 0; i < solutions.size(); i++) {
+                let s = solutions.get(i);
+                let cellNum = Number(s.row) * Board.N + Number(s.col);
+                let candidate = Number(s.candidate);
+                let canEle = candidateEleFromIndex(cellNum, candidate);
+                if (canEle) canEle.classList.remove("candidate-solution");
+                if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
+            }
+            let elims = this.prevStrategy.eliminations;
+            for (var i = 0; i < elims.size(); i++) {
+                let e = elims.get(i);
+                let cellNum = Number(e.row) * Board.N + Number(e.col);
+                let candidate = Number(e.candidate);
+                let canEle = candidateEleFromIndex(cellNum, candidate);
+                if (canEle) canEle.classList.remove("candidate-eliminated");
+                if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
+            }
+            this.prevStrategy.delete();
+            this.prevStrategy = null;
+        }
+
+        // Get the strategy info for this step
+        let solver = new Module.SudokuBoard();
+        solver.setSolutions(this.getSolutionsStr());
+        solver.setCandidates(this.getCandidatesStr());
+
+        // Display strategy info
+        let strategy = solver.step();
+        switch (strategy.id) {
+            case Module.StrategyID.NotFound:
+                console.log("Not Found");
+                break;
+            case Module.StrategyID.CandidateRemoval:
+                console.log("Candidate removal");
+                break;
+            case Module.StrategyID.NakedSingle:
+                console.log("Naked Single");
+                break;
+            case Module.StrategyID.HiddenSingle:
+                console.log("Hidden Single");
+                break;
+            case Module.StrategyID.NakedPair:
+                console.log("Naked Pair");
+                break;
+            case Module.StrategyID.NakedTriplet:
+                console.log("Naked Triplet");
+                break;
+            case Module.StrategyID.NakedQuad:
+                console.log("Naked Quad");
+                break;
+            case Module.StrategyID.HiddenPair:
+                console.log("Hidden Single");
+                break;
+            case Module.StrategyID.HiddenTriplet:
+                console.log("Hidden Triplet");
+                break;
+            case Module.StrategyID.HiddenQuad:
+                console.log("Hidden Quad");
+                break;
+            case Module.StrategyID.Pointing:
+                console.log("Pointing Pair/Triplet");
+                break;
+            case Module.StrategyID.BoxLine:
+                console.log("Box/Line");
+                break;
+            case Module.StrategyID.XWing:
+                console.log("X-Wing");
+                break;
+            case Module.StrategyID.Swordfish:
+                console.log("Swordfish");
+                break;
+            case Module.StrategyID.Jellyfish:
+                console.log("Jellyfish");
+                break;
+            case Module.StrategyID.YWing:
+                console.log("Y-Wing");
+                break;
+            case Module.StrategyID.XYZWing:
+                console.log("XYZ-Wing");
+                break;
+            case Module.StrategyID.WXYZWing:
+                console.log("WXYZ-Wing");
+                break;
+            case Module.StrategyID.VWXYZWing:
+                console.log("VWXYZ-Wing");
+                break;
+            case Module.StrategyID.SinglesChain:
+                console.log("Singles Chain");
+                break;
+            case Module.StrategyID.Medusa:
+                console.log("3D Medusa");
+                break;
+            case Module.StrategyID.XCycle:
+                console.log("X-Cycle");
+                break;
+            case Module.StrategyID.AlternatingInferenceChain:
+                console.log("Alternating Inference Chain");
+                break;
+            default:
+                console.log("Invalid strategy/Puzzle solved");
+                break;
+        }
+        let elims = strategy.eliminations;
+        for (var i = 0; i < elims.size(); i++) {
+            let e = elims.get(i);
+            console.log("(", e.row, ", ", e.col, "), candidate ", e.candidate, " eliminated");
+            let cellNum = e.row * Board.N + e.col;
+            let canEle = candidateEleFromIndex(cellNum, Number(e.candidate));
+            if (canEle) canEle.classList.add("candidate-eliminated");
+        }
+        let solutions = strategy.solutions;
+        for (var i = 0; i < solutions.size(); i++) {
+            let s = solutions.get(i);
+            console.log("(", s.row, ", ", s.col, ") set to ", s.candidate);
+            let cellNum = s.row * Board.N + s.col;
+            let canEle = candidateEleFromIndex(cellNum, Number(s.candidate));
+            if (canEle) canEle.classList.add("candidate-solution");
+        }
+
+        // Store this step info
+        this.prevStrategy = strategy;
+        solver.delete();
+    };
 };
 var board = new Board(newSavedPuzzles.get(currentPuzzle));
-
-class Strategy {
-
-}
 
 var userData = {
     cellSolutions: Array(Board.numCells).fill(0),  // 1-indexed
@@ -227,6 +356,12 @@ function cellEleFromIndex(index) {
     if (index < 0 || index >= Board.numCells) return null;
     let id = ((index < 10) ? "0" : "") + index.toString();
     return sudokuBoard.querySelector("[id='" + id + "']");
+}
+function candidateEleFromIndex(cellNum, candidate) {
+    if (candidate < 0 || candidate >= Board.N) return null;
+    let cell = cellEleFromIndex(cellNum);
+    if (cell == null) return null;
+    return cell.nextElementSibling.querySelector(".can" + (candidate + 1).toString());
 }
 function digitButtonEleFromIndex(index) {
     if (index < 0 || index >= Board.N) return null;
@@ -708,35 +843,8 @@ document.getElementById("custom-save-button").addEventListener("click", customSa
 
 /* ---- Step/Solve Buttons ---- */
 
-function step() {
-    var solver = new Module.SudokuBoard();
-    solver.setSolutions(board.getSolutionsStr());
-    var candidates = board.getCandidatesStr();
-    solver.setCandidates(candidates);
-    console.log("Current solutions: ", board.getSolutionsStr());
-    console.log("Current candidates: ", candidates);
-    var strategy = solver.step();
-    switch (strategy.id) {
-        case Module.StrategyID.NotFound:
-            console.log("Not Found");
-            break;
-        case Module.StrategyID.CandidateRemoval:
-            console.log("Candidate removal");
-            break;
-        case Module.StrategyID.NakedSingle:
-            console.log("Naked Single");
-            break;
-        case Module.StrategyID.HiddenSingle:
-            console.log("Hidden Single");
-            break;
-    }
-
-    board.setData(solver.getSolutions(), solver.getCandidates());
-    console.log("New solutions: ", board.getSolutionsStr());
-    console.log("New candidates: ", board.getCandidatesStr());
-
-    solver.delete();
-    strategy.delete();
+function stepHandler(e) {
+    if (board) return board.step();
 }
 function solveBoard() {
     /* Get solved data */
@@ -750,4 +858,4 @@ function solveBoard() {
 }
 
 document.getElementById("solve-button").addEventListener("click", solveBoard);
-document.getElementById("step-button").addEventListener("click", step);
+document.getElementById("step-button").addEventListener("click", stepHandler);

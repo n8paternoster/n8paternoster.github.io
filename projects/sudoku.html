@@ -32,35 +32,45 @@
             <div id="sudoku-board-container">
                 <div id="board-left">
                     <div class="left-panel">
-                        <h3 class="panel-title">Board Input</h3>
-                        <div id="puzzle-box">
-                            <label for="puzzle-select">Puzzles</label>
-                            <select id="puzzle-select"></select>
-                            <div class="puzzle-buttons-row">
-                                <button id="help-button">Help</button>
-                                <button id="restart-button">Restart</button>
-                            </div>
-                        </div>
-                        <div id="show-custom-editor">
-                            <div id="custom-editor-box">
-                                <h4>Custom Board Editor</h4>
-                                <!--<div id="custom-input-container">
-                                    <label for="custom-input">Input:</label>
-                                    <div id="radio-container">
-                                        <label><input type="radio" name="custom-input" value="Solution" checked="checked"/>Solution</label>
-                                        <label><input type="radio" name="custom-input" value="Clue" />Clue</label>
-                                    </div>
-                                </div>-->
+                        <div id="board-input">
+                            <h3 class="panel-title">Board Input</h3>
+                            <div id="puzzle-box">
+                                <label for="puzzle-select">Puzzles</label>
+                                <select id="puzzle-select"></select>
                                 <div class="puzzle-buttons-row">
-                                    <button id="custom-clear-button">Clear</button>
-                                    <button id="custom-save-button"><span class="text-popup">Saved!</span>Save</button>
-                                    <button id="custom-load-button">Load</button>
+                                    <button id="help-button">Help</button>
+                                    <button id="restart-button">Restart</button>
+                                </div>
+                            </div>
+                            <div id="show-custom-editor">
+                                <div id="custom-editor-box">
+                                    <h4>Custom Board Editor</h4>
+                                    <div class="puzzle-buttons-row">
+                                        <button id="custom-clear-button">Clear</button>
+                                        <button id="custom-save-button"><span class="text-popup">Saved!</span>Save</button>
+                                        <button id="custom-load-button">Load</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="board-buttons">
-                            <button id="step-button">Step</button>
-                            <button id="solve-button">Solve</button>
+                        <div id="cell-input">
+                            <h3 class="panel-title">Cell Input</h3>
+                            <div id="digit-input-toggle-buttons">
+                                <button class="digit-input-toggle-active" id="digit-input-solution">Digit</button>
+                                <button id="digit-input-candidate">Candidate</button>
+                            </div>
+                            <div id="digit-input-grid">
+                                <button class="digit-button" id="digitInput1">1</button>
+                                <button class="digit-button" id="digitInput2">2</button>
+                                <button class="digit-button" id="digitInput3">3</button>
+                                <button class="digit-button" id="digitInput4">4</button>
+                                <button class="digit-button" id="digitInput5">5</button>
+                                <button class="digit-button" id="digitInput6">6</button>
+                                <button class="digit-button" id="digitInput7">7</button>
+                                <button class="digit-button" id="digitInput8">8</button>
+                                <button class="digit-button" id="digitInput9">9</button>
+                                <button class="digit-button" id="digitInput0"><i class="fas fa-eraser eraser"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1218,22 +1228,10 @@
                 </div>
                 <div id="board-right">
                     <div class="right-panel">
-                        <h3 class="panel-title">Cell Input</h3>
-                        <div id="digit-input-toggle-buttons">
-                            <button class="digit-input-toggle-active" id="digit-input-solution">Digit</button>
-                            <button id="digit-input-candidate">Candidate</button>
-                        </div>
-                        <div id="digit-input-grid">
-                            <button class="digit-button" id="digitInput1"><i class="fas fa-lock left-lock"></i>1<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput2"><i class="fas fa-lock left-lock"></i>2<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput3"><i class="fas fa-lock left-lock"></i>3<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput4"><i class="fas fa-lock left-lock"></i>4<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput5"><i class="fas fa-lock left-lock"></i>5<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput6"><i class="fas fa-lock left-lock"></i>6<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput7"><i class="fas fa-lock left-lock"></i>7<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput8"><i class="fas fa-lock left-lock"></i>8<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput9"><i class="fas fa-lock left-lock"></i>9<i class="fas fa-lock right-lock"></i></button>
-                            <button class="digit-button" id="digitInput0"><i class="fas fa-lock left-lock"></i><i class="fas fa-eraser eraser"></i><i class="fas fa-lock right-lock"></i></button>
+                        <output id="strategy-output">Test</output>
+                        <div id="board-buttons">
+                            <button id="step-button">Step</button>
+                            <button id="solve-button">Solve</button>
                         </div>
                     </div>
                 </div>
