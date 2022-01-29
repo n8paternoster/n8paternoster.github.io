@@ -915,7 +915,7 @@ button.digit-input-locked .left-lock {
     background-color: #45aa3d;  /* green */
 }
 .candidate-highlighted {
-    background-color: #0072b3;  /* blue */
+    background-color: #6393e8;  /* blue */
 }
 
 .box1 { grid-area: box1; }

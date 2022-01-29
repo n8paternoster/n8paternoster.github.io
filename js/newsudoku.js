@@ -226,6 +226,14 @@ class Board {
 
         // Apply changes from previous step
         if (this.prevStrategy) {
+            for (let i = 0; i < Board.numCells; i++) {
+                for (let j = 0; j < Board.N; j++) {
+                    if (this.cellCandidates[i][j] == 1) {
+                        let canEle = candidateEleFromIndex(i, j);
+                        if (canEle) canEle.classList.remove("candidate-highlighted");
+                    }
+                }
+            }
             let solutions = this.prevStrategy.solutions;
             for (var i = 0; i < solutions.size(); i++) {
                 let s = solutions.get(i);
@@ -272,22 +280,6 @@ class Board {
                 break;
             case Module.StrategyID.NakedPair:
                 title += "Naked Pair(s)\r\n";
-                let pairs = strategy.sets;
-                for (let i = 0; i < pairs.size(); i++) {
-                    let p = pairs.get(i);
-                    let candidates = [];
-                    for (let can = 0; can < p.candidates.length; can++)
-                        if (p.candidates[can] === '1') candidates.push(can);
-                    for (let cell = 0; cell < p.cells.length; cell++)
-                        if (p.cells[cell] === '1') {
-                            candidates.forEach(can => {
-                                if (this.cellCandidates[cell][can] == 1) {
-                                    let ele = candidateEleFromIndex(cell, can);
-                                    if (ele) ele.classList.add("candidate-highlighted");
-                                }
-                            });
-                        }
-                }
                 break;
             case Module.StrategyID.NakedTriplet:
                 title += "Naked Triplet(s)\r\n";
@@ -351,6 +343,36 @@ class Board {
         titleEle.style.fontWeight = 'bold';
         titleEle.textContent = title;
         if (outputEle) outputEle.insertBefore(titleEle, pushEle);
+
+        switch (strategy.id) {
+            case Module.StrategyID.NakedPair:
+            case Module.StrategyID.NakedTriplet:
+            case Module.StrategyID.NakedQuad:
+            case Module.StrategyID.HiddenPair:
+            case Module.StrategyID.HiddenTriplet:
+            case Module.StrategyID.HiddenQuad:
+            case Module.StrategyID.Pointing:
+            case Module.StrategyID.BoxLine:
+            case Module.StrategyID.XWing:
+            case Module.StrategyID.Swordfish:
+            case Module.StrategyID.Jellyfish:
+                let sets = strategy.sets;
+                for (let i = 0; i < sets.size(); i++) {
+                    let p = sets.get(i);
+                    let candidates = [];
+                    for (let can = 0; can < p.candidates.length; can++)
+                        if (p.candidates[can] === '1') candidates.push(can);
+                    for (let cell = 0; cell < p.cells.length; cell++)
+                        if (p.cells[cell] === '1') {
+                            candidates.forEach(can => {
+                                if (this.cellCandidates[Board.numCells - 1 - cell][Board.N - 1 - can] == 1) {
+                                    let ele = candidateEleFromIndex(Board.numCells - 1 - cell, Board.N - 1 - can);
+                                    if (ele) ele.classList.add("candidate-highlighted");
+                                }
+                            });
+                        }
+                }
+        }
 
         let elims = strategy.eliminations;
         for (var i = 0; i < elims.size(); i++) {
