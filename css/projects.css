@@ -905,17 +905,17 @@ button.digit-input-locked .left-lock {
     display: none;
     background-color: transparent;
 }
-
 .candidate-active {
     display: block;
 }
-
 .candidate-eliminated {
-    background-color: #ff0000;
+    background-color: #ff0000;  /* red */
 }
-
 .candidate-solution {
-    background-color: #45aa3d;
+    background-color: #45aa3d;  /* green */
+}
+.candidate-highlighted {
+    background-color: #0072b3;  /* blue */
 }
 
 .box1 { grid-area: box1; }

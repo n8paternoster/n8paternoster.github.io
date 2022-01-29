@@ -272,6 +272,22 @@ class Board {
                 break;
             case Module.StrategyID.NakedPair:
                 title += "Naked Pair(s)\r\n";
+                let pairs = strategy.sets;
+                for (let i = 0; i < pairs.size(); i++) {
+                    let p = pairs.get(i);
+                    let candidates = [];
+                    for (let can = 0; can < p.candidates.length; can++)
+                        if (p.candidates[can] === '1') candidates.push(can);
+                    for (let cell = 0; cell < p.cells.length; cell++)
+                        if (p.cells[cell] === '1') {
+                            candidates.forEach(can => {
+                                if (this.cellCandidates[cell][can] == 1) {
+                                    let ele = candidateEleFromIndex(cell, can);
+                                    if (ele) ele.classList.add("candidate-highlighted");
+                                }
+                            });
+                        }
+                }
                 break;
             case Module.StrategyID.NakedTriplet:
                 title += "Naked Triplet(s)\r\n";
