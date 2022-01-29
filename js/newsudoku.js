@@ -29,7 +29,7 @@ class Board {
                 this.cellCandidates[cell].fill(1);
             }
         }
-        this.prevStrategy = null;
+        this.resetStep();
     }
 
     /* set data */
@@ -98,10 +98,7 @@ class Board {
         var cells = sudokuBoard.querySelectorAll("input");
         cells.forEach((cell) => Board.clearCell(cell));
         /* reset step state */
-        if (this.prevStrategy) {
-            this.prevStrategy.delete();
-            this.prevStrategy = null;
-        }
+        this.resetStep();
     }
     loadPuzzle(puzzleName) {
         /* Loads a puzzle into currentPuzzle and displays it on sudokuBoard */
@@ -210,7 +207,23 @@ class Board {
 
     /* Step function */
     prevStrategy = null;
+    resetStep() {
+        if (this.prevStrategy) {
+            this.prevStrategy.delete();
+            this.prevStrategy = null;
+        }
+        let outputEle = document.getElementById("strategy-output");
+        if (outputEle) {
+            outputEle.textContent = "";
+            let pushEle = document.createElement('span');
+            pushEle.id = "strategy-push";
+            outputEle.appendChild(pushEle);
+        }
+    }
     step() {
+        let outputEle = document.getElementById("strategy-output");
+        let pushEle = document.getElementById("strategy-push");
+
         // Apply changes from previous step
         if (this.prevStrategy) {
             let solutions = this.prevStrategy.solutions;
@@ -233,104 +246,134 @@ class Board {
             }
             this.prevStrategy.delete();
             this.prevStrategy = null;
+            outputEle.insertBefore(document.createElement('br'), pushEle);
         }
 
         // Get the strategy info for this step
         let solver = new Module.SudokuBoard();
         solver.setSolutions(this.getSolutionsStr());
         solver.setCandidates(this.getCandidatesStr());
+        let strategy = solver.step();
 
         // Display strategy info
-        let strategy = solver.step();
+        let title = "";
         switch (strategy.id) {
             case Module.StrategyID.NotFound:
-                console.log("Not Found");
+                title += "Not Found\r\n";
                 break;
             case Module.StrategyID.CandidateRemoval:
-                console.log("Candidate removal");
+                title += "Invalid Candidate(s)\r\n";
                 break;
             case Module.StrategyID.NakedSingle:
-                console.log("Naked Single");
+                title += "Naked Single(s)\r\n";
                 break;
             case Module.StrategyID.HiddenSingle:
-                console.log("Hidden Single");
+                title += "Hidden Single(s)\r\n";
                 break;
             case Module.StrategyID.NakedPair:
-                console.log("Naked Pair");
+                title += "Naked Pair(s)\r\n";
                 break;
             case Module.StrategyID.NakedTriplet:
-                console.log("Naked Triplet");
+                title += "Naked Triplet(s)\r\n";
                 break;
             case Module.StrategyID.NakedQuad:
-                console.log("Naked Quad");
+                title += "Naked Quad(s)\r\n";
                 break;
             case Module.StrategyID.HiddenPair:
-                console.log("Hidden Single");
+                title += "Hidden Single(s)\r\n";
                 break;
             case Module.StrategyID.HiddenTriplet:
-                console.log("Hidden Triplet");
+                title += "Hidden Triplet(s)\r\n";
                 break;
             case Module.StrategyID.HiddenQuad:
-                console.log("Hidden Quad");
+                title += "Hidden Quad(s)\r\n";
                 break;
             case Module.StrategyID.Pointing:
-                console.log("Pointing Pair/Triplet");
+                title += "Pointing Pair(s)/Triplet(s)\r\n";
                 break;
             case Module.StrategyID.BoxLine:
-                console.log("Box/Line");
+                title += "Box/Line\r\n";
                 break;
             case Module.StrategyID.XWing:
-                console.log("X-Wing");
+                title += "X-Wing\r\n";
                 break;
             case Module.StrategyID.Swordfish:
-                console.log("Swordfish");
+                title += "Swordfish\r\n";
                 break;
             case Module.StrategyID.Jellyfish:
-                console.log("Jellyfish");
+                title += "Jellyfish\r\n";
                 break;
             case Module.StrategyID.YWing:
-                console.log("Y-Wing");
+                title += "Y-Wing\r\n";
                 break;
             case Module.StrategyID.XYZWing:
-                console.log("XYZ-Wing");
+                title += "XYZ-Wing\r\n";
                 break;
             case Module.StrategyID.WXYZWing:
-                console.log("WXYZ-Wing");
+                title += "WXYZ-Wing\r\n";
                 break;
             case Module.StrategyID.VWXYZWing:
-                console.log("VWXYZ-Wing");
+                title += "VWXYZ-Wing\r\n";
                 break;
             case Module.StrategyID.SinglesChain:
-                console.log("Singles Chain");
+                title += "Single's Chain\r\n";
                 break;
             case Module.StrategyID.Medusa:
-                console.log("3D Medusa");
+                title += "3D Medusa\r\n";
                 break;
             case Module.StrategyID.XCycle:
-                console.log("X-Cycle");
+                title += "X-Cycle\r\n";
                 break;
             case Module.StrategyID.AlternatingInferenceChain:
-                console.log("Alternating Inference Chain");
+                title += "Alternating Inference Chain\r\n";
                 break;
             default:
-                console.log("Invalid strategy/Puzzle solved");
+                title += "Invalid strategy/Puzzle solved\r\n";
                 break;
         }
+        let titleEle = document.createElement('span');
+        titleEle.style.fontWeight = 'bold';
+        titleEle.textContent = title;
+        if (outputEle) outputEle.insertBefore(titleEle, pushEle);
+
         let elims = strategy.eliminations;
         for (var i = 0; i < elims.size(); i++) {
             let e = elims.get(i);
-            console.log("(", e.row, ", ", e.col, "), candidate ", e.candidate, " eliminated");
-            let cellNum = e.row * Board.N + e.col;
-            let canEle = candidateEleFromIndex(cellNum, Number(e.candidate));
+            let row = Number(e.row), col = Number(e.col), can = Number(e.candidate);
+            let cellNum = row * Board.N + col;
+            let string = (can + 1).toString() + " removed from (" + (row + 1).toString() + ", " + (col + 1).toString() + ")\r\n";
+            if (outputEle) {
+                let ele = document.createElement('span');
+                ele.textContent = string;
+                outputEle.insertBefore(ele, pushEle);
+            }
+            let canEle = candidateEleFromIndex(cellNum, can);
             if (canEle) canEle.classList.add("candidate-eliminated");
         }
         let solutions = strategy.solutions;
         for (var i = 0; i < solutions.size(); i++) {
             let s = solutions.get(i);
-            console.log("(", s.row, ", ", s.col, ") set to ", s.candidate);
-            let cellNum = s.row * Board.N + s.col;
-            let canEle = candidateEleFromIndex(cellNum, Number(s.candidate));
+            let row = Number(s.row), col = Number(s.col), can = Number(s.candidate);
+            let cellNum = row * Board.N + col;
+            let string = "(" + (row + 1).toString() + ", " + (col + 1).toString() + ") set to " + (can + 1).toString() + "\r\n";
+            if (outputEle) {
+                let ele = document.createElement('span');
+                ele.textContent = string;
+                outputEle.insertBefore(ele, pushEle);
+            }
+            let canEle = candidateEleFromIndex(cellNum, can);
             if (canEle) canEle.classList.add("candidate-solution");
+        }
+
+        /* Push the strategy info to the top of the output box */
+        if (outputEle) {
+            pushEle.style.height = 0;
+            titleEle.scrollIntoView();
+            let offset = parseInt(titleEle.offsetTop - outputEle.scrollTop);
+            if (offset > 0) {
+                if (pushEle) pushEle.style.height = offset + 'px';
+                titleEle.scrollIntoView();
+            }
         }
 
         // Store this step info

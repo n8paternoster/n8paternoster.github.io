@@ -735,8 +735,27 @@ button.digit-input-locked .left-lock {
 #strategy-output {
     flex-grow: 1;   /* stretch to fill space */
     display: block;
-    background-color: lightgrey;
-    margin-bottom: auto; /* push board buttons to bottom */
+    position: relative;
+    background-color: #dedede;  /* light grey */
+    border: 0.02rem solid black;
+    margin-bottom: 1em; /* push board buttons to bottom */
+    overflow-y: auto;
+    height: 0;  /* required for vertical scrolling */
+    white-space: pre-line;
+    font-size: 0.85em;
+    padding: 0.2em;
+}
+#strategy-output::-webkit-scrollbar {
+    width: 10px;
+}
+#strategy-output::-webkit-scrollbar-track {
+    background-color: #ededed;
+}
+#strategy-output::-webkit-scrollbar-thumb {
+    background-color: #555;
+}
+#strategy-push {
+    display: block;
 }
 
 /* Board buttons */
