@@ -884,10 +884,16 @@ button.digit-input-locked .left-lock {
 .cell input.cell-input-locked { /* locked, "clue" cell */
     pointer-events: none;
 }
-
 .cell input[type=number]:focus {
-    background-color: #7dc0ed;  /* blue */
+    background-color: #7dc0ed; /* blue */
 }
+.cell input.cell-highlighted-red { background-color: red; }
+.cell input.cell-highlighted-green { background-color: green; }
+.cell input.cell-highlighted-yellow { background-color: yellow; }
+.cell input.cell-highlighted-blue { background-color: blue; }
+.cell input.cell-highlighted-purple { background-color: purple; }
+.cell input.cell-highlighted-orange { background-color: orange; }
+
 
 /* Remove arrows from number input */
 .cell input::-webkit-outer-spin-button,
@@ -908,15 +914,21 @@ button.digit-input-locked .left-lock {
 .candidate-active {
     display: block;
 }
-.candidate-eliminated {
-    background-color: #ff0000;  /* red */
-}
+/*.candidate-eliminated {
+    background-color: #ff0000;*/  /* red */
+/*}
 .candidate-solution {
-    background-color: #45aa3d;  /* green */
-}
-.candidate-highlighted {
-    background-color: #6393e8;  /* blue */
-}
+    background-color: #45aa3d;*/  /* green */
+/*}*/
+/*.candidate-highlighted {
+    background-color: #6393e8;*/  /* blue */
+/*}*/
+.candidate-highlighted-red, .candidate-eliminated { background-color: indianred; }
+.candidate-highlighted-green, .candidate-solution { background-color: lightgreen; }
+.candidate-highlighted-yellow { background-color: lightyellow; }
+.candidate-highlighted-blue { background-color: lightblue; }
+.candidate-highlighted-purple { background-color: mediumpurple; }
+.candidate-highlighted-orange { background-color: lightsalmon; }
 
 .box1 { grid-area: box1; }
 .box2 { grid-area: box2; }

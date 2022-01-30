@@ -15,6 +15,7 @@ var currentPuzzle = "Easy Example"; /* default puzzle */
 class Board {
     static N = 9;
     static numCells = Board.N * Board.N;
+    static colors = Array('red', 'orange', 'yellow', 'green', 'blue', 'purple');
 
     clues = Array(Board.numCells).fill(0);          // 1-indexed
     cellSolutions = Array(Board.numCells).fill(0);  // 1-indexed
@@ -196,13 +197,38 @@ class Board {
     static clearCell(cell) {
         if (cell == null) return;
         cell.value = "";
-        cell.classList.remove("clue-cell");
-        cell.classList.remove("cell-input-locked");
+        cell.classList.remove("clue-cell", "cell-input-locked", "cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
         cell.disabled = false;
-        // add all candidates to this cell
+        // remove all candidates from this cell
         var candidates = cell.nextElementSibling.children;
         for (let i = 0; i < candidates.length; i++) 
-            candidates[i].classList.remove("candidate-active", "candidate-eliminated", "candidate-solution");
+            candidates[i].classList.remove("candidate-active", "candidate-eliminated", "candidate-solution", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple");
+    }
+    static highlightRow(row, color) {
+        if (row < 0 || row >= Board.N || !Board.colors.includes(color)) return;
+        let cells = [];
+        for (let cellNum = row * Board.N; cellNum < (row + 1) * Board.N; cellNum++)
+            cells.push(cellEleFromIndex(cellNum));
+        let className = "cell-highlighted-" + color;
+        cells.forEach(cell => cell.classList.add(className));
+    }
+    static highlightCol(col, color) {
+        if (col < 0 || col >= Board.N || !Board.colors.includes(color)) return;
+        let cells = [];
+        for (let cellNum = col; cellNum < Board.numCells; cellNum += Board.N)
+            cells.push(cellEleFromIndex(cellNum));
+        let className = "cell-highlighted-" + color;
+        cells.forEach(cell => cell.classList.add(className));
+    }
+    static highlightCell(cell, color) {
+        if (cell == null || !Board.colors.includes(color)) return;
+        let className = "cell-highlighted-" + color;
+        cell.classList.add(className);
+    }
+    static highlightCandidate(can, color) {
+        if (can == null || !Board.colors.includes(color)) return;
+        let className = "candidate-highlighted-" + color;
+        can.classList.add(className);
     }
 
     /* Step function */
@@ -220,160 +246,180 @@ class Board {
             outputEle.appendChild(pushEle);
         }
     }
-    step() {
+    printStrategy(strategy) {
         let outputEle = document.getElementById("strategy-output");
         let pushEle = document.getElementById("strategy-push");
 
-        // Apply changes from previous step
-        if (this.prevStrategy) {
-            for (let i = 0; i < Board.numCells; i++) {
-                for (let j = 0; j < Board.N; j++) {
-                    if (this.cellCandidates[i][j] == 1) {
-                        let canEle = candidateEleFromIndex(i, j);
-                        if (canEle) canEle.classList.remove("candidate-highlighted");
-                    }
-                }
-            }
-            let solutions = this.prevStrategy.solutions;
-            for (var i = 0; i < solutions.size(); i++) {
-                let s = solutions.get(i);
-                let cellNum = Number(s.row) * Board.N + Number(s.col);
-                let candidate = Number(s.candidate);
-                let canEle = candidateEleFromIndex(cellNum, candidate);
-                if (canEle) canEle.classList.remove("candidate-solution");
-                if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
-            }
-            let elims = this.prevStrategy.eliminations;
-            for (var i = 0; i < elims.size(); i++) {
-                let e = elims.get(i);
-                let cellNum = Number(e.row) * Board.N + Number(e.col);
-                let candidate = Number(e.candidate);
-                let canEle = candidateEleFromIndex(cellNum, candidate);
-                if (canEle) canEle.classList.remove("candidate-eliminated");
-                if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
-            }
-            this.prevStrategy.delete();
-            this.prevStrategy = null;
-            outputEle.insertBefore(document.createElement('br'), pushEle);
-        }
-
-        // Get the strategy info for this step
-        let solver = new Module.SudokuBoard();
-        solver.setSolutions(this.getSolutionsStr());
-        solver.setCandidates(this.getCandidatesStr());
-        let strategy = solver.step();
-
-        // Display strategy info
-        let title = "";
+        // Highlight strategy specific details on board
         switch (strategy.id) {
-            case Module.StrategyID.NotFound:
-                title += "Not Found\r\n";
-                break;
+            case Module.StrategyID.None:
             case Module.StrategyID.CandidateRemoval:
-                title += "Invalid Candidate(s)\r\n";
-                break;
             case Module.StrategyID.NakedSingle:
-                title += "Naked Single(s)\r\n";
-                break;
             case Module.StrategyID.HiddenSingle:
-                title += "Hidden Single(s)\r\n";
-                break;
-            case Module.StrategyID.NakedPair:
-                title += "Naked Pair(s)\r\n";
-                break;
-            case Module.StrategyID.NakedTriplet:
-                title += "Naked Triplet(s)\r\n";
-                break;
-            case Module.StrategyID.NakedQuad:
-                title += "Naked Quad(s)\r\n";
-                break;
-            case Module.StrategyID.HiddenPair:
-                title += "Hidden Single(s)\r\n";
-                break;
-            case Module.StrategyID.HiddenTriplet:
-                title += "Hidden Triplet(s)\r\n";
-                break;
-            case Module.StrategyID.HiddenQuad:
-                title += "Hidden Quad(s)\r\n";
-                break;
-            case Module.StrategyID.Pointing:
-                title += "Pointing Pair(s)/Triplet(s)\r\n";
-                break;
-            case Module.StrategyID.BoxLine:
-                title += "Box/Line\r\n";
+                // No specific details
                 break;
             case Module.StrategyID.XWing:
-                title += "X-Wing\r\n";
-                break;
             case Module.StrategyID.Swordfish:
-                title += "Swordfish\r\n";
-                break;
             case Module.StrategyID.Jellyfish:
-                title += "Jellyfish\r\n";
+                // Fish, highlight rows/cols the fish is aligned on
+                for (let i = 0; i < strategy.sets.size(); i++) {
+                    let fish = strategy.sets.get(i);
+                    switch (fish.elimUnitType) {
+                        case Module.StrategyUnit.Row:
+                            for (let c = 0; c < fish.cols.length; c++)
+                                if (fish.cols[c] == '1') Board.highlightCol(c, 'blue');
+                            break;
+                        case Module.StrategyUnit.Col:
+                            for (let r = 0; r < fish.rows.length; r++)
+                                if (fish.rows[r] == '1') Board.highlightRow(r, 'blue');
+                            break;
+                    }
+                }
+                // fallthrough
+            case Module.StrategyID.NakedPair:
+            case Module.StrategyID.NakedTriplet:
+            case Module.StrategyID.NakedQuad:
+            case Module.StrategyID.HiddenPair:
+            case Module.StrategyID.HiddenTriplet:
+            case Module.StrategyID.HiddenQuad:
+            case Module.StrategyID.Pointing:
+            case Module.StrategyID.BoxLine:
+                // Sets, highlight candidates in each set
+                for (let i = 0; i < strategy.sets.size(); i++) {
+                    let set = strategy.sets.get(i);
+                    let candidates = [];
+                    for (let can = 0; can < set.candidates.length; can++)
+                        if (set.candidates[can] === '1') candidates.push(can);
+                    for (let cell = 0; cell < set.cells.length; cell++)
+                        if (set.cells[cell] === '1') {
+                            candidates.forEach(can => {
+                                if (this.cellCandidates[cell][can] == 1) {
+                                    Board.highlightCandidate(candidateEleFromIndex(cell, can), 'blue');
+                                }
+                            });
+                        }
+                }
                 break;
             case Module.StrategyID.YWing:
-                title += "Y-Wing\r\n";
-                break;
             case Module.StrategyID.XYZWing:
-                title += "XYZ-Wing\r\n";
-                break;
             case Module.StrategyID.WXYZWing:
-                title += "WXYZ-Wing\r\n";
-                break;
             case Module.StrategyID.VWXYZWing:
-                title += "VWXYZ-Wing\r\n";
+                // Bent sets, highlight the cells and elim candidates in the bent set
+                for (let i = 0; i < strategy.bentSets.size(); i++) {
+                    let bentSet = strategy.bentSets.get(i);
+                    let elimCandidates = [];
+                    for (let can = 0; can < bentSet.elimCandidates.length; can++)
+                        if (bentSet.elimCandidates[can] == '1') elimCandidates.push(can);
+                    switch (bentSet.rule) {
+                        // Rule 1: 1 non-restricted candidate, highlight hinge cells and the cells containing the non-restricted candidate separately
+                        case Module.BentsetRule.NonRestCan:
+                            // hinge cells
+                            for (let c = 0; c < bentSet.hingeCells.length; c++)
+                                if (bentSet.hingeCells[c] == '1')
+                                    Board.highlightCell(cellEleFromIndex(c), 'orange');
+                            // cells containing the non-restr can
+                            for (let c = 0; c < bentSet.nonRestCanCells.length; c++)
+                                if (bentSet.nonRestCanCells[c] == '1') {
+                                    Board.highlightCell(cellEleFromIndex(c), 'blue');
+                                    elimCandidates.forEach(can => {
+                                        if (this.cellCandidates[c][can] == 1)
+                                            Board.highlightCandidate(candidateEleFromIndex(c, can), 'blue');
+                                    });
+                                }
+                            break;
+                        // Rule 2: 0 non-restricted candidates, highlight all cells
+                        case Module.BentsetRule.Locked:
+                            for (let c = 0; c < bentSet.cells.length; c++)
+                                if (bentSet.cells[c] == '1') {
+                                    Board.highlightCell(cellEleFromIndex(c), 'blue')
+                                    elimCandidates.forEach(can => {
+                                        if (this.cellCandidates[c][can] == 1)
+                                            Board.highlightCandidate(candidateEleFromIndex(c, can), 'blue');
+                                    });
+                                }
+                            break;
+                    }
+                }
                 break;
             case Module.StrategyID.SinglesChain:
-                title += "Single's Chain\r\n";
-                break;
             case Module.StrategyID.Medusa:
-                title += "3D Medusa\r\n";
+                // Coloring, highlight candidates and connections in the graph, highlight conflict cells/candidates
+
+                // Map the graph's colors to display colors
+                let coloring = strategy.coloring;
+                let mapColors = ['blue', 'yellow'];
+                let map = new Map();
+                for (let i = 0; i < coloring.vertices.size(); i++) {
+                    let v = coloring.vertices.get(i);
+                    if (!map.has(v.color) && mapColors.length)
+                        map.set(v.color, mapColors.pop());
+                }
+                // Color vertices
+                for (let i = 0; i < coloring.vertices.size(); i++) {
+                    let v = coloring.vertices.get(i);
+                    let canEle = candidateEleFromIndex(v.row * Board.N + v.col, v.candidate);
+                    if (coloring.rule == Module.ColoringRule.Color) {
+                        if (v.color == coloring.solutionColor)
+                            Board.highlightCandidate(canEle, 'green');
+                        else if (v.color == coloring.conflictColor)
+                            Board.highlightCandidate(canEle, 'red');
+                    } else {
+                        let color = map.get(v.color);
+                        if (color) Board.highlightCandidate(canEle, color);
+                    }
+                }
+                // Color conflict cells/candidates
+                if (coloring.rule == Module.ColoringRule.Color) {
+                    let conflictCans = [];
+                    for (let can = 0; can < coloring.conflictCandidates.length; can++)
+                        if (coloring.conflictCandidates[can] == '1') conflictCans.push(can);
+                    for (let cell = 0; cell < coloring.conflictCells.length; cell++) {
+                        if (coloring.conflictCells[cell] == '1') {
+                            conflictCans.forEach(can => {
+                                if (this.cellCandidates[cell][can] == 1)
+                                    Board.highlightCandidate(candidateEleFromIndex(cell, can), 'orange');
+                            });
+                        }
+                    }
+                }
+
                 break;
-            case Module.StrategyID.XCycle:
-                title += "X-Cycle\r\n";
-                break;
-            case Module.StrategyID.AlternatingInferenceChain:
-                title += "Alternating Inference Chain\r\n";
-                break;
-            default:
-                title += "Invalid strategy/Puzzle solved\r\n";
-                break;
+        }
+
+        // Print title
+        let title = "";
+        switch (strategy.id) {
+            case Module.StrategyID.None: title += "Ran out of strategies\r\n"; break;
+            case Module.StrategyID.CandidateRemoval: title += "Invalid Candidate(s)\r\n"; break;
+            case Module.StrategyID.NakedSingle: title += "Naked Single(s)\r\n"; break;
+            case Module.StrategyID.HiddenSingle: title += "Hidden Single(s)\r\n"; break;
+            case Module.StrategyID.NakedPair: title += "Naked Pair(s)\r\n"; break;
+            case Module.StrategyID.NakedTriplet: title += "Naked Triplet(s)\r\n"; break;
+            case Module.StrategyID.NakedQuad: title += "Naked Quad(s)\r\n"; break;
+            case Module.StrategyID.HiddenPair: title += "Hidden Pair(s)\r\n"; break;
+            case Module.StrategyID.HiddenTriplet: title += "Hidden Triplet(s)\r\n"; break;
+            case Module.StrategyID.HiddenQuad: title += "Hidden Quad(s)\r\n"; break;
+            case Module.StrategyID.Pointing: title += "Pointing Pair(s)/Triplet(s)\r\n"; break;
+            case Module.StrategyID.BoxLine: title += "Box/Line\r\n"; break;
+            case Module.StrategyID.XWing: title += "X-Wing\r\n"; break;
+            case Module.StrategyID.Swordfish: title += "Swordfish\r\n"; break;
+            case Module.StrategyID.Jellyfish: title += "Jellyfish\r\n"; break;
+            case Module.StrategyID.YWing: title += "Y-Wing\r\n"; break;
+            case Module.StrategyID.XYZWing: title += "XYZ-Wing\r\n"; break;
+            case Module.StrategyID.WXYZWing: title += "WXYZ-Wing\r\n"; break;
+            case Module.StrategyID.VWXYZWing: title += "VWXYZ-Wing\r\n"; break;
+            case Module.StrategyID.SinglesChain: title += "Single's Chain\r\n"; break;
+            case Module.StrategyID.Medusa: title += "3D Medusa\r\n"; break;
+            case Module.StrategyID.XCycle: title += "X-Cycle\r\n"; break;
+            case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chain\r\n"; break;
+            default: title += "Invalid strategy/Puzzle solved\r\n"; break;
         }
         let titleEle = document.createElement('span');
         titleEle.style.fontWeight = 'bold';
         titleEle.textContent = title;
         if (outputEle) outputEle.insertBefore(titleEle, pushEle);
 
-        switch (strategy.id) {
-            case Module.StrategyID.NakedPair:
-            case Module.StrategyID.NakedTriplet:
-            case Module.StrategyID.NakedQuad:
-            case Module.StrategyID.HiddenPair:
-            case Module.StrategyID.HiddenTriplet:
-            case Module.StrategyID.HiddenQuad:
-            case Module.StrategyID.Pointing:
-            case Module.StrategyID.BoxLine:
-            case Module.StrategyID.XWing:
-            case Module.StrategyID.Swordfish:
-            case Module.StrategyID.Jellyfish:
-                let sets = strategy.sets;
-                for (let i = 0; i < sets.size(); i++) {
-                    let p = sets.get(i);
-                    let candidates = [];
-                    for (let can = 0; can < p.candidates.length; can++)
-                        if (p.candidates[can] === '1') candidates.push(can);
-                    for (let cell = 0; cell < p.cells.length; cell++)
-                        if (p.cells[cell] === '1') {
-                            candidates.forEach(can => {
-                                if (this.cellCandidates[Board.numCells - 1 - cell][Board.N - 1 - can] == 1) {
-                                    let ele = candidateEleFromIndex(Board.numCells - 1 - cell, Board.N - 1 - can);
-                                    if (ele) ele.classList.add("candidate-highlighted");
-                                }
-                            });
-                        }
-                }
-        }
-
+        // Print details to output box
         let elims = strategy.eliminations;
         for (var i = 0; i < elims.size(); i++) {
             let e = elims.get(i);
@@ -403,7 +449,10 @@ class Board {
             if (canEle) canEle.classList.add("candidate-solution");
         }
 
-        /* Push the strategy info to the top of the output box */
+        // Space between steps
+        if (outputEle) outputEle.insertBefore(document.createElement('br'), pushEle);
+
+        // Push the details to the top of the output box
         if (outputEle) {
             pushEle.style.height = 0;
             titleEle.scrollIntoView();
@@ -413,8 +462,60 @@ class Board {
                 titleEle.scrollIntoView();
             }
         }
+    }
+    step() {
 
-        // Store this step info
+        if (this.prevStrategy) {    // Apply changes from previous step
+            // Remove highlighting from board
+            for (let cell = 0; cell < Board.numCells; cell++) {
+                let cellEle = cellEleFromIndex(cell);
+                if (cellEle) cellEle.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
+                for (let can = 0; can < Board.N; can++) {
+                    if (this.cellCandidates[cell][can] == 1) {
+                        let canEle = candidateEleFromIndex(cell, can);
+                        if (canEle) canEle.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple");
+                    }
+                }
+            }
+            // Apply solutions/eliminations
+            let solutions = this.prevStrategy.solutions;
+            for (let i = 0; i < solutions.size(); i++) {
+                let s = solutions.get(i);
+                let cellNum = Number(s.row) * Board.N + Number(s.col);
+                let candidate = Number(s.candidate);
+                if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
+            }
+            let elims = this.prevStrategy.eliminations;
+            for (let i = 0; i < elims.size(); i++) {
+                let e = elims.get(i);
+                let cellNum = Number(e.row) * Board.N + Number(e.col);
+                let candidate = Number(e.candidate);
+                if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
+            }
+            // Reset the prev step
+            this.prevStrategy.delete();
+            this.prevStrategy = null;
+        } else {    // This is the first step, fill any 0-candidate cells with all candidates
+            let cansAdded = false;
+            for (let cell = 0; cell < Board.numCells; cell++) {
+                if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
+                for (let can = 0; can < Board.N; can++)
+                    this.setCellCandidate(cell, can, true);
+                cansAdded = true;
+            }
+            if (cansAdded) return;
+        }
+
+        // Get the strategy info for this step
+        let solver = new Module.SudokuBoard();
+        solver.setSolutions(this.getSolutionsStr());
+        solver.setCandidates(this.getCandidatesStr());
+        let strategy = solver.step();
+
+        // Display strategy info
+        this.printStrategy(strategy);
+        
+        // Store the strategy info from this step
         this.prevStrategy = strategy;
         solver.delete();
     };
@@ -502,7 +603,7 @@ function displayTextPopup(popup, ms) {
     }, ms);
 }
 
-// not used
+
 //function reset() {
 //    /* Reset all saved values, set board to custom */
 //    /* clear board */
