@@ -890,7 +890,7 @@ button.digit-input-locked .left-lock {
 .cell input.cell-highlighted-red { background-color: red; }
 .cell input.cell-highlighted-green { background-color: green; }
 .cell input.cell-highlighted-yellow { background-color: yellow; }
-.cell input.cell-highlighted-blue { background-color: blue; }
+.cell input.cell-highlighted-blue { background-color: #4abce1; }
 .cell input.cell-highlighted-purple { background-color: purple; }
 .cell input.cell-highlighted-orange { background-color: orange; }
 
