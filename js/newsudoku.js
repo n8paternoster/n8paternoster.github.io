@@ -432,46 +432,68 @@ class Board {
                 break;
             case Module.StrategyID.SinglesChain:
             case Module.StrategyID.Medusa:
-                // Coloring, highlight candidates and connections in the graph, highlight conflict cells/candidates
-
-                // Map the graph's colors to display colors
-                let coloring = strategy.coloring;
-                let mapColors = ['blue', 'yellow'];
-                let map = new Map();
-                for (let i = 0; i < coloring.vertices.size(); i++) {
-                    let v = coloring.vertices.get(i);
-                    if (!map.has(v.color) && mapColors.length)
-                        map.set(v.color, mapColors.pop());
-                }
-                // Color vertices
-                for (let i = 0; i < coloring.vertices.size(); i++) {
-                    let v = coloring.vertices.get(i);
-                    let canEle = candidateEleFromIndex(v.row * Board.N + v.col, v.candidate);
-                    if (coloring.rule == Module.ColoringRule.Color) {
-                        if (v.color == coloring.solutionColor)
-                            Board.highlightCandidate(canEle, 'green');
-                        else if (v.color == coloring.conflictColor)
-                            Board.highlightCandidate(canEle, 'red');
-                    } else {
-                        let color = map.get(v.color);
-                        if (color) Board.highlightCandidate(canEle, color);
+                // Coloring, highlight candidates and connections in the graph, highlight conflict cells/candidates                   
+                {   // Map the graph's colors to display colors
+                    let coloring = strategy.coloring;
+                    let mapColors = ['blue', 'yellow'];
+                    let map = new Map();
+                    for (let i = 0; i < coloring.vertices.size(); i++) {
+                        let v = coloring.vertices.get(i);
+                        if (!map.has(v.color) && mapColors.length)
+                            map.set(v.color, mapColors.pop());
                     }
-                }
-                // Color conflict cells/candidates
-                if (coloring.rule == Module.ColoringRule.Color) {
-                    let conflictCans = [];
-                    for (let can = 0; can < coloring.conflictCandidates.length; can++)
-                        if (coloring.conflictCandidates[can] == '1') conflictCans.push(can);
-                    for (let cell = 0; cell < coloring.conflictCells.length; cell++) {
-                        if (coloring.conflictCells[cell] == '1') {
-                            conflictCans.forEach(can => {
-                                if (this.cellCandidates[cell][can] == 1)
-                                    Board.highlightCandidate(candidateEleFromIndex(cell, can), 'orange');
-                            });
+                    // Color vertices
+                    for (let i = 0; i < coloring.vertices.size(); i++) {
+                        let v = coloring.vertices.get(i);
+                        let canEle = candidateEleFromIndex(v.row * Board.N + v.col, v.candidate);
+                        if (coloring.rule == Module.ColoringRule.Color) {
+                            if (v.color == coloring.solutionColor)
+                                Board.highlightCandidate(canEle, 'green');
+                            else if (v.color == coloring.conflictColor)
+                                Board.highlightCandidate(canEle, 'red');
+                        } else {
+                            let color = map.get(v.color);
+                            if (color) Board.highlightCandidate(canEle, color);
+                        }
+                    }
+                    // Color conflict cells/candidates
+                    if (coloring.rule == Module.ColoringRule.Color) {
+                        let conflictCans = [];
+                        for (let can = 0; can < coloring.conflictCandidates.length; can++)
+                            if (coloring.conflictCandidates[can] == '1') conflictCans.push(can);
+                        for (let cell = 0; cell < coloring.conflictCells.length; cell++) {
+                            if (coloring.conflictCells[cell] == '1') {
+                                conflictCans.forEach(can => {
+                                    if (this.cellCandidates[cell][can] == 1)
+                                        Board.highlightCandidate(candidateEleFromIndex(cell, can), 'orange');
+                                });
+                            }
                         }
                     }
                 }
-
+                break;
+            case Module.StrategyID.XCycle:
+            case Module.StrategyID.AlternatingInferenceChain:
+                // Cycles, highlight candidates and connections in the graph
+                {
+                    let cycle = strategy.cycle;
+                    let cycleIsDisc = (cycle.rule === Module.CycleRule.WeakDiscontinuity || cycle.rule === Module.CycleRule.StrongDiscontinuity);
+                    let disc = cycle.discontinuity;
+                    let cycleColors = ['blue', 'yellow'];
+                    let colorOne = true;    // alternate colors
+                    for (let i = 0; i < cycle.links.size(); i++) {
+                        let link = cycle.links.get(i);
+                        let canEle = candidateEleFromIndex(link.fromRow * Board.N + link.fromCol, link.fromCan);
+                        if (cycleIsDisc && link.fromRow === disc.row && link.fromCol === disc.col && link.fromCan === disc.candidate) {
+                            let color = (cycle.rule === Module.CycleRule.WeakDiscontinuity) ? 'red' : 'green';
+                            Board.highlightCandidate(canEle, color);
+                        } else {
+                            let color = colorOne ? cycleColors[0] : cycleColors[1];
+                            Board.highlightCandidate(canEle, color);
+                            colorOne = !colorOne;
+                        }
+                    }
+                }
                 break;
         }
 
