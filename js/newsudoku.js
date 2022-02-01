@@ -676,6 +676,75 @@ function displayTextPopup(popup, ms) {
 
 /* ----------------- document handlers ----------------- */
 
+function connectNodes(aRow, aCol, aCan, bRow, bCol, bCan, ctx) {
+    let canvasRect = sudokuBoard.getBoundingClientRect();
+
+    //// draw circle around a
+    //let aEle = candidateEleFromIndex(aCell, aCan);
+    //let aRect = aEle.getBoundingClientRect();
+    //let x1c = aRect.left - canvasRect.left + aRect.width / 2;
+    //let y1c = aRect.top - canvasRect.top + aRect.height / 2;
+    //let r1 = aRect.height / 2;
+    //ctx.beginPath();
+    //ctx.arc(x1c, y1c, r1, 0, Math.PI * 2);
+    //ctx.stroke();
+
+    //// draw circle around b
+    //let bEle = candidateEleFromIndex(bCell, bCan);
+    //let bRect = bEle.getBoundingClientRect();
+    //let x2c = bRect.left - canvasRect.left + bRect.width / 2;
+    //let y2c = bRect.top - canvasRect.top + bRect.height / 2;
+    //let r2 = bRect.height / 2;
+    //ctx.beginPath();
+    //ctx.arc(x2c, y2c, r2, 0, Math.PI * 2);
+    //ctx.stroke();
+
+    let aRIGHT = (aCol <= bCol) ? 1 : -1;
+    let aDOWN = (aRow <= bRow) ? 1 : -1;
+    let bRIGHT = (bCol <= aCol) ? 1 : -1;
+    let bDOWN = (bRow <= aRow) ? 1 : -1;
+
+    if (aCol == bCol && aRow == bRow) {
+        aRIGHT = (aCan % 3 < bCan % 3) ? 1 : -1;
+        aDOWN = (aCan > bCan) ? 1 : -1;
+        bRIGHT = (bCan % 3 < aCan % 3) ? 1 : -1;
+        bDOWN = (bCan > aCan) ? 1 : -1;
+    }
+    
+    let aEle = candidateEleFromIndex(aRow*Board.N+aCol, aCan);
+    let aRect = aEle.getBoundingClientRect();
+    let x1c = aRect.left - canvasRect.left + aRect.width / 2;
+    let y1c = aRect.top - canvasRect.top + aRect.height / 2;
+    let r1 = aRect.height / 2;
+    let x1 = x1c + aRIGHT*(r1 * Math.cos(Math.PI / 4));
+    let y1 = y1c + aDOWN*(r1 * Math.sin(Math.PI / 4));
+    
+
+    let bEle = candidateEleFromIndex(bRow*Board.N+bCol, bCan);
+    let bRect = bEle.getBoundingClientRect();
+    let x2c = bRect.left - canvasRect.left + bRect.width / 2;
+    let y2c = bRect.top - canvasRect.top + bRect.height / 2;
+    let r2 = bRect.height / 2;
+    let x2 = x2c + bRIGHT*(r2 * Math.cos(Math.PI / 4));
+    let y2 = y2c + bDOWN*(r2 * Math.sin(Math.PI / 4));
+
+    let cx12 = ((x1 + x2) / 2);
+    let cy12 = ((y1 + y2) / 2);
+    
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.quadraticCurveTo(cx12, cy12, x2, y2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(x1c, y1c, r1, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(x2c, y2c, r2, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
 document.addEventListener("DOMContentLoaded", function (e) {
     /* add saved puzzles to puzzle select */
     var select = document.getElementById("puzzle-select");
@@ -703,28 +772,48 @@ document.addEventListener("DOMContentLoaded", function (e) {
         if (canvas.getContext) {
             let ctx = canvas.getContext('2d');
             ctx.scale(scale, scale);
-            ctx.beginPath();
+            
 
-            let can1 = candidateEleFromIndex(57, 4);
-            let can1Rect = can1.getBoundingClientRect();
-            let startX = can1Rect.left - canvasRect.left + can1Rect.width / 2;
-            let startY = can1Rect.top - canvasRect.top + can1Rect.height / 2;
-            let radius = can1Rect.height / 2;
-            console.log(startX, startY);
-            ctx.arc(startX, startY, radius, 0, Math.PI * 2);
-            ctx.moveTo(startX - (radius * Math.cos(Math.PI / 4)), startY - (radius * Math.sin(Math.PI / 4)));
+            //ctx.beginPath();
+            //let can1 = candidateEleFromIndex(57, 4);
+            //let can1Rect = can1.getBoundingClientRect();
+            //let x1c = can1Rect.left - canvasRect.left + can1Rect.width / 2;
+            //let y1c = can1Rect.top - canvasRect.top + can1Rect.height / 2;
+            //let r1 = can1Rect.height / 2;
+            //ctx.arc(x1c, y1c, r1, 0, Math.PI * 2);
+            //ctx.stroke();
 
-            let can2 = candidateEleFromIndex(54, 5);
-            let can2Rect = can2.getBoundingClientRect();
-            let x = can2Rect.left - canvasRect.left + can2Rect.width / 2;
-            let y = can2Rect.top - canvasRect.top + can2Rect.height / 2;
-            radius = can2Rect.height / 2;
-            ctx.lineTo(x + (radius * Math.cos(Math.PI / 4)), y - (radius * Math.sin(Math.PI / 4)));
-            ctx.arc(x, y, radius, 0, Math.PI*2);
+            
+
+            //ctx.beginPath();
+            //let can2 = candidateEleFromIndex(57, 5);
+            //let can2Rect = can2.getBoundingClientRect();
+            //let x2c = can2Rect.left - canvasRect.left + can2Rect.width / 2;
+            //let y2c = can2Rect.top - canvasRect.top + can2Rect.height / 2;
+            //let r2 = can2Rect.height / 2;
+            //ctx.arc(x2c, y2c, r2, 0, Math.PI * 2);
+            //ctx.stroke();
+
+            connectNodes(6, 3, 8, 6, 3, 5, ctx);
+
+            //ctx.beginPath();
+            //let x1 = x1c - (r1 * Math.cos(Math.PI / 4));
+            //let y1 = y1c - (r1 * Math.sin(Math.PI / 4));
+            //ctx.moveTo(x1, y1);
+
+            //let x2 = x2c + (r2 * Math.cos(Math.PI / 4));
+            //let y2 = y2c - (r2 * Math.sin(Math.PI / 4));
+
+            //let cx12 = (x1 + x2) / 2;
+            //let cy12 = 0.95*((y1 + y2) / 2);
+            //ctx.quadraticCurveTo(cx12, cy12, x2, y2);
+
+            //ctx.stroke();
+            
 
             
             
-            ctx.stroke();
+            
         }
     }
 });
