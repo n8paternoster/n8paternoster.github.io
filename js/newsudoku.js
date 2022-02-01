@@ -689,6 +689,44 @@ document.addEventListener("DOMContentLoaded", function (e) {
     /* load the default puzzle */
     if (!currentPuzzle) currentPuzzle = "Easy Example";
     board.loadPuzzle(currentPuzzle);
+
+    /* set the board canvas element size */
+    let canvas = document.getElementById("sudoku-board-canvas");
+    if (canvas) {
+        let canvasRect = sudokuBoard.getBoundingClientRect();
+        canvas.style.width = canvasRect.width + "px";
+        canvas.style.height = canvasRect.height + "px";
+        var scale = window.devicePixelRatio;
+        canvas.width = Math.floor(canvasRect.width*scale);
+        canvas.height = Math.floor(canvasRect.height * scale);
+
+        if (canvas.getContext) {
+            let ctx = canvas.getContext('2d');
+            ctx.scale(scale, scale);
+            ctx.beginPath();
+
+            let can1 = candidateEleFromIndex(57, 4);
+            let can1Rect = can1.getBoundingClientRect();
+            let startX = can1Rect.left - canvasRect.left + can1Rect.width / 2;
+            let startY = can1Rect.top - canvasRect.top + can1Rect.height / 2;
+            let radius = can1Rect.height / 2;
+            console.log(startX, startY);
+            ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+            ctx.moveTo(startX - (radius * Math.cos(Math.PI / 4)), startY - (radius * Math.sin(Math.PI / 4)));
+
+            let can2 = candidateEleFromIndex(54, 5);
+            let can2Rect = can2.getBoundingClientRect();
+            let x = can2Rect.left - canvasRect.left + can2Rect.width / 2;
+            let y = can2Rect.top - canvasRect.top + can2Rect.height / 2;
+            radius = can2Rect.height / 2;
+            ctx.lineTo(x + (radius * Math.cos(Math.PI / 4)), y - (radius * Math.sin(Math.PI / 4)));
+            ctx.arc(x, y, radius, 0, Math.PI*2);
+
+            
+            
+            ctx.stroke();
+        }
+    }
 });
 document.addEventListener("click", function (e) {
     /* Deselect the selected cell or digit input when click occurs outside selected elements */

@@ -554,6 +554,17 @@ section {
     justify-content: center;
 }
 
+#sudoku-board {
+    position: relative;
+}
+
+#sudoku-board-canvas {
+    position: absolute;
+/*    background-color: red;*/
+    z-index: 1;
+    pointer-events: none;
+}
+
 #board-left, #board-right {
     flex: 1;
     margin: 0 auto;
@@ -834,16 +845,16 @@ button.digit-input-locked .left-lock {
     user-select: none; /* Standard syntax */
 }
 
-.box-grid:nth-child(3n) {   /* boxes in the right column */
+#sudoku-board :nth-of-type(3n).box-grid {   /* boxes in the right column */
     border-right: 0.3rem solid black;
 }
-.box-grid:nth-last-child(-n+3) {    /* boxes in the bottom row*/
+#sudoku-board :nth-last-of-type(-n+3).box-grid {/* boxes in the bottom row*/
     border-bottom: 0.3rem solid black;
 }
-.cell:not(:nth-child(3n)) { /* every cell except those in the right column */
+.cell:not(:nth-of-type(3n)) { /* every cell except those in the right column */
     border-right: 0.1rem solid black;
 }
-.cell:not(:nth-last-child(-n+3)) {  /* every cell except those in the bottom row */
+.cell:not(:nth-last-of-type(-n+3)) {  /* every cell except those in the bottom row */
     border-bottom: 0.1rem solid black;
 }
 
