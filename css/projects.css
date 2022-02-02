@@ -659,6 +659,9 @@ section {
     justify-content: space-around;
     align-items: center;
 }
+#custom-input {
+    display: inline-block;
+}
 #custom-save-button {
     position: relative; /* for text popup */
 }
@@ -921,6 +924,7 @@ button.digit-input-locked .left-lock {
 .candidate {
     display: none;
     background-color: transparent;
+    z-index: 2; /* above canvas */
 }
 .candidate-active {
     display: block;
@@ -943,10 +947,13 @@ button.digit-input-locked .left-lock {
 
 .candidate-highlighted-red, .candidate-eliminated { background-color: #FA7269; }
 .candidate-highlighted-green, .candidate-solution { background-color: #8CFB5D; }
-.candidate-highlighted-yellow { background-color: #efff5e; }
+.candidate-highlighted-yellow { background-color: #ffe85f;}
 .candidate-highlighted-blue { background-color: #6BF6FF;background-color: #72D4FF; }
 .candidate-highlighted-purple { background-color: #8F60E6; }
-.candidate-highlighted-orange { background-color: #E3BA54; }
+.candidate-highlighted-orange {
+    background-color: #E3BA54;
+    background-color: #f58739
+}
 
 .box1 { grid-area: box1; }
 .box2 { grid-area: box2; }

@@ -36,6 +36,7 @@ class Board {
     /* set data */
     setClues(clueStr) { // also resets cellSolutions and cellCandidates
         if (clueStr == null || clueStr.length != Board.numCells) return;
+        Board.clearCanvas();
         for (var cell = 0; cell < Board.numCells; cell++) {
             var val = clueStr.charAt(cell);
             if (val >= '1' && val <= ' 9') {
@@ -52,6 +53,7 @@ class Board {
     setData(solutionsStr, candidatesStr = Array(Board.numCells * Board.N + 1).join('0')) {
         if (solutionsStr == null || solutionsStr.length != Board.numCells) return;
         if (candidatesStr == null || candidatesStr.length != Board.numCells * Board.N) return;
+        Board.clearCanvas();
         for (var cell = 0; cell < Board.numCells; cell++) {
             if (this.clues[cell]) continue;
             var ele = cellEleFromIndex(cell);
@@ -100,6 +102,8 @@ class Board {
         cells.forEach((cell) => Board.clearCell(cell));
         /* reset step state */
         this.resetStep();
+        /* clear canvas */
+        Board.clearCanvas();
     }
     loadPuzzle(puzzleName) {
         /* Loads a puzzle into currentPuzzle and displays it on sudokuBoard */
@@ -230,6 +234,84 @@ class Board {
         let className = "candidate-highlighted-" + color;
         can.classList.add(className);
     }
+    static drawLink(aRow, aCol, aCan, bRow, bCol, bCan, isStrongLink, ctx) {
+        let aEle = candidateEleFromIndex(aRow * Board.N + aCol, aCan);
+        let bEle = candidateEleFromIndex(bRow * Board.N + bCol, bCan);
+        if (sudokuBoard == null || aEle == null || bEle == null) return;
+        let canvasRect = sudokuBoard.getBoundingClientRect();
+
+        // get which corners of each vertex the link should be drawn from
+        let aRIGHT = (aCol < bCol) ? 1 : -1;
+        let aDOWN = (aRow < bRow) ? 1 : -1;
+        let bRIGHT = (bCol < aCol) ? 1 : -1;
+        let bDOWN = (bRow < aRow) ? 1 : -1;
+        if (aCol == bCol && aRow == bRow) {
+            aRIGHT = (aCan % 3 < bCan % 3) ? 1 : -1;
+            aDOWN = (aCan < bCan) ? 1 : -1;
+            bRIGHT = (bCan % 3 < aCan % 3) ? 1 : -1;
+            bDOWN = (bCan < aCan) ? 1 : -1;
+        }
+
+        // coordinates for a
+        let aRect = aEle.getBoundingClientRect();
+        let x1c = aRect.left - canvasRect.left + aRect.width / 2;
+        let y1c = aRect.top - canvasRect.top + aRect.height / 2;
+        let r1 = aRect.height / 2;
+        let x1 = x1c + aRIGHT * (r1 * Math.cos(Math.PI / 4));
+        let y1 = y1c + aDOWN * (r1 * Math.sin(Math.PI / 4));
+
+        // coordinates for b
+        let bRect = bEle.getBoundingClientRect();
+        let x2c = bRect.left - canvasRect.left + bRect.width / 2;
+        let y2c = bRect.top - canvasRect.top + bRect.height / 2;
+        let r2 = bRect.height / 2;
+        let x2 = x2c + bRIGHT * (r2 * Math.cos(Math.PI / 4));
+        let y2 = y2c + bDOWN * (r2 * Math.sin(Math.PI / 4));
+
+        // control point
+        let scaleX = (aRIGHT == bRIGHT) ? 1 + 0.05 * aRIGHT : 1;
+        let scaleY = (aDOWN == bDOWN) ? 1 + 0.05 * aDOWN : 1;
+        let c1x = scaleX * ((x1 + x2) / 2);
+        let c1y = scaleY * ((y1 + y2) / 2);
+
+        if (isStrongLink) ctx.setLineDash([0]);
+        else ctx.setLineDash([5, 2]);
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(c1x, c1y, x2, y2);
+        ctx.stroke();
+    }
+    static drawVertex(row, col, can, color, ctx) {
+        let ele = candidateEleFromIndex(row * Board.N + col, can);
+        if (sudokuBoard == null || ele == null || !Board.colors.includes(color)) return;
+
+        let canvasRect = sudokuBoard.getBoundingClientRect();
+        let rect = ele.getBoundingClientRect();
+        let x = rect.left - canvasRect.left + rect.width / 2;
+        let y = rect.top - canvasRect.top + rect.height / 2;
+        let r = rect.height / 2;
+
+        let className = "candidate-highlighted-" + color;
+        ele.classList.add(className);
+        let vtxColor = window.getComputedStyle(ele).backgroundColor;
+        ele.classList.remove(className);
+        ctx.fillStyle = vtxColor;
+        ctx.lineWidth = 2;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+    static clearCanvas() {
+        let canvas = document.getElementById("sudoku-board-canvas");
+        let ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+    }
 
     /* Step function */
     prevStrategy = null;
@@ -245,6 +327,7 @@ class Board {
             pushEle.id = "strategy-push";
             outputEle.appendChild(pushEle);
         }
+        Board.clearCanvas();
     }
     printStrategy(strategy) {
         // Print strategy info to the output box
@@ -289,29 +372,23 @@ class Board {
         for (var i = 0; i < elims.size(); i++) {
             let e = elims.get(i);
             let row = Number(e.row), col = Number(e.col), can = Number(e.candidate);
-            let cellNum = row * Board.N + col;
             let string = (can + 1).toString() + " removed from (" + (row + 1).toString() + ", " + (col + 1).toString() + ")\r\n";
             if (outputEle) {
                 let ele = document.createElement('span');
                 ele.textContent = string;
                 outputEle.insertBefore(ele, pushEle);
             }
-            let canEle = candidateEleFromIndex(cellNum, can);
-            if (canEle) canEle.classList.add("candidate-eliminated");
         }
         let solutions = strategy.solutions;
         for (var i = 0; i < solutions.size(); i++) {
             let s = solutions.get(i);
             let row = Number(s.row), col = Number(s.col), can = Number(s.candidate);
-            let cellNum = row * Board.N + col;
             let string = "(" + (row + 1).toString() + ", " + (col + 1).toString() + ") set to " + (can + 1).toString() + "\r\n";
             if (outputEle) {
                 let ele = document.createElement('span');
                 ele.textContent = string;
                 outputEle.insertBefore(ele, pushEle);
             }
-            let canEle = candidateEleFromIndex(cellNum, can);
-            if (canEle) canEle.classList.add("candidate-solution");
         }
 
         // Space between steps
@@ -433,9 +510,12 @@ class Board {
             case Module.StrategyID.SinglesChain:
             case Module.StrategyID.Medusa:
                 // Coloring, highlight candidates and connections in the graph, highlight conflict cells/candidates                   
-                {   // Map the graph's colors to display colors
+                {   
+                    let canvas = document.getElementById("sudoku-board-canvas");
+                    let ctx = canvas.getContext('2d');
                     let coloring = strategy.coloring;
-                    let mapColors = ['blue', 'yellow'];
+                    // Map the graph's colors to display colors
+                    let mapColors = ['blue', 'green'];
                     let map = new Map();
                     for (let i = 0; i < coloring.vertices.size(); i++) {
                         let v = coloring.vertices.get(i);
@@ -445,56 +525,60 @@ class Board {
                     // Color vertices
                     for (let i = 0; i < coloring.vertices.size(); i++) {
                         let v = coloring.vertices.get(i);
-                        let canEle = candidateEleFromIndex(v.row * Board.N + v.col, v.candidate);
-                        if (coloring.rule == Module.ColoringRule.Color) {
-                            if (v.color == coloring.solutionColor)
-                                Board.highlightCandidate(canEle, 'green');
-                            else if (v.color == coloring.conflictColor)
-                                Board.highlightCandidate(canEle, 'red');
-                        } else {
-                            let color = map.get(v.color);
-                            if (color) Board.highlightCandidate(canEle, color);
-                        }
+                        let color = map.get(v.color);
+                        if (coloring.rule == Module.ColoringRule.Color)
+                            color = (v.color == coloring.solutionColor) ? 'green' : 'red';
+                        Board.drawVertex(v.row, v.col, v.candidate, color, ctx);
+                    }
+                    // Draw links
+                    for (let i = 0; i < coloring.links.size(); i++) {
+                        let l = coloring.links.get(i);
+                        let strong = l.link === Module.Link.Strong;
+                        Board.drawLink(l.fromRow, l.fromCol, l.fromCan, l.toRow, l.toCol, l.toCan, strong, ctx);
                     }
                     // Color conflict cells/candidates
                     if (coloring.rule == Module.ColoringRule.Color) {
+                        let conflictColor = 'yellow';
                         let conflictCans = [];
                         for (let can = 0; can < coloring.conflictCandidates.length; can++)
-                            if (coloring.conflictCandidates[can] == '1') conflictCans.push(can);
+                            if (coloring.conflictCandidates[can] == '1')
+                                conflictCans.push(can);
                         for (let cell = 0; cell < coloring.conflictCells.length; cell++) {
                             if (coloring.conflictCells[cell] == '1') {
                                 conflictCans.forEach(can => {
                                     if (this.cellCandidates[cell][can] == 1)
-                                        Board.highlightCandidate(candidateEleFromIndex(cell, can), 'orange');
+                                        Board.drawVertex(cell / Board.N, cell % Board.N, can, conflictColor, ctx);
                                 });
                             }
                         }
                     }
+                    if (coloring.rule === Module.ColoringRule.Candidate) break;
+                    else return;
                 }
-                break;
             case Module.StrategyID.XCycle:
             case Module.StrategyID.AlternatingInferenceChain:
                 // Cycles, highlight candidates and connections in the graph
                 {
+                    let canvas = document.getElementById("sudoku-board-canvas");
+                    let ctx = canvas.getContext('2d');
                     let cycle = strategy.cycle;
                     let cycleIsDisc = (cycle.rule === Module.CycleRule.WeakDiscontinuity || cycle.rule === Module.CycleRule.StrongDiscontinuity);
                     let disc = cycle.discontinuity;
-                    let cycleColors = ['blue', 'yellow'];
+                    let cycleColors = ['blue', 'purple'];
                     let colorOne = true;    // alternate colors
                     for (let i = 0; i < cycle.links.size(); i++) {
-                        let link = cycle.links.get(i);
-                        let canEle = candidateEleFromIndex(link.fromRow * Board.N + link.fromCol, link.fromCan);
-                        if (cycleIsDisc && link.fromRow === disc.row && link.fromCol === disc.col && link.fromCan === disc.candidate) {
-                            let color = (cycle.rule === Module.CycleRule.WeakDiscontinuity) ? 'red' : 'green';
-                            Board.highlightCandidate(canEle, color);
-                        } else {
-                            let color = colorOne ? cycleColors[0] : cycleColors[1];
-                            Board.highlightCandidate(canEle, color);
-                            colorOne = !colorOne;
-                        }
+                        let l = cycle.links.get(i);
+                        let strong = l.link === Module.Link.Strong;
+                        let color = colorOne ? cycleColors[0] : cycleColors[1];
+                        if (cycleIsDisc && l.fromRow === disc.row && l.fromCol === disc.col && l.fromCan === disc.candidate) {
+                            color = (cycle.rule === Module.CycleRule.WeakDiscontinuity) ? 'red' : 'green';
+                        } else colorOne = !colorOne;
+                        Board.drawVertex(l.fromRow, l.fromCol, l.fromCan, color, ctx);
+                        Board.drawLink(l.fromRow, l.fromCol, l.fromCan, l.toRow, l.toCol, l.toCan, strong, ctx);
                     }
+                    if (cycle.rule === Module.CycleRule.Continuous) break;
+                    else return;
                 }
-                break;
         }
 
         // Highlight solution/elimination candidates
@@ -516,6 +600,7 @@ class Board {
     step() {
         if (this.prevStrategy) {    // Apply changes from previous step
             // Remove highlighting from board
+            Board.clearCanvas();
             for (let cell = 0; cell < Board.numCells; cell++) {
                 let cellEle = cellEleFromIndex(cell);
                 if (cellEle) cellEle.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
@@ -676,75 +761,6 @@ function displayTextPopup(popup, ms) {
 
 /* ----------------- document handlers ----------------- */
 
-function connectNodes(aRow, aCol, aCan, bRow, bCol, bCan, ctx) {
-    let canvasRect = sudokuBoard.getBoundingClientRect();
-
-    //// draw circle around a
-    //let aEle = candidateEleFromIndex(aCell, aCan);
-    //let aRect = aEle.getBoundingClientRect();
-    //let x1c = aRect.left - canvasRect.left + aRect.width / 2;
-    //let y1c = aRect.top - canvasRect.top + aRect.height / 2;
-    //let r1 = aRect.height / 2;
-    //ctx.beginPath();
-    //ctx.arc(x1c, y1c, r1, 0, Math.PI * 2);
-    //ctx.stroke();
-
-    //// draw circle around b
-    //let bEle = candidateEleFromIndex(bCell, bCan);
-    //let bRect = bEle.getBoundingClientRect();
-    //let x2c = bRect.left - canvasRect.left + bRect.width / 2;
-    //let y2c = bRect.top - canvasRect.top + bRect.height / 2;
-    //let r2 = bRect.height / 2;
-    //ctx.beginPath();
-    //ctx.arc(x2c, y2c, r2, 0, Math.PI * 2);
-    //ctx.stroke();
-
-    let aRIGHT = (aCol <= bCol) ? 1 : -1;
-    let aDOWN = (aRow <= bRow) ? 1 : -1;
-    let bRIGHT = (bCol <= aCol) ? 1 : -1;
-    let bDOWN = (bRow <= aRow) ? 1 : -1;
-
-    if (aCol == bCol && aRow == bRow) {
-        aRIGHT = (aCan % 3 < bCan % 3) ? 1 : -1;
-        aDOWN = (aCan > bCan) ? 1 : -1;
-        bRIGHT = (bCan % 3 < aCan % 3) ? 1 : -1;
-        bDOWN = (bCan > aCan) ? 1 : -1;
-    }
-    
-    let aEle = candidateEleFromIndex(aRow*Board.N+aCol, aCan);
-    let aRect = aEle.getBoundingClientRect();
-    let x1c = aRect.left - canvasRect.left + aRect.width / 2;
-    let y1c = aRect.top - canvasRect.top + aRect.height / 2;
-    let r1 = aRect.height / 2;
-    let x1 = x1c + aRIGHT*(r1 * Math.cos(Math.PI / 4));
-    let y1 = y1c + aDOWN*(r1 * Math.sin(Math.PI / 4));
-    
-
-    let bEle = candidateEleFromIndex(bRow*Board.N+bCol, bCan);
-    let bRect = bEle.getBoundingClientRect();
-    let x2c = bRect.left - canvasRect.left + bRect.width / 2;
-    let y2c = bRect.top - canvasRect.top + bRect.height / 2;
-    let r2 = bRect.height / 2;
-    let x2 = x2c + bRIGHT*(r2 * Math.cos(Math.PI / 4));
-    let y2 = y2c + bDOWN*(r2 * Math.sin(Math.PI / 4));
-
-    let cx12 = ((x1 + x2) / 2);
-    let cy12 = ((y1 + y2) / 2);
-    
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.quadraticCurveTo(cx12, cy12, x2, y2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(x1c, y1c, r1, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(x2c, y2c, r2, 0, Math.PI * 2);
-    ctx.stroke();
-}
-
 document.addEventListener("DOMContentLoaded", function (e) {
     /* add saved puzzles to puzzle select */
     var select = document.getElementById("puzzle-select");
@@ -772,48 +788,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         if (canvas.getContext) {
             let ctx = canvas.getContext('2d');
             ctx.scale(scale, scale);
-            
-
-            //ctx.beginPath();
-            //let can1 = candidateEleFromIndex(57, 4);
-            //let can1Rect = can1.getBoundingClientRect();
-            //let x1c = can1Rect.left - canvasRect.left + can1Rect.width / 2;
-            //let y1c = can1Rect.top - canvasRect.top + can1Rect.height / 2;
-            //let r1 = can1Rect.height / 2;
-            //ctx.arc(x1c, y1c, r1, 0, Math.PI * 2);
-            //ctx.stroke();
-
-            
-
-            //ctx.beginPath();
-            //let can2 = candidateEleFromIndex(57, 5);
-            //let can2Rect = can2.getBoundingClientRect();
-            //let x2c = can2Rect.left - canvasRect.left + can2Rect.width / 2;
-            //let y2c = can2Rect.top - canvasRect.top + can2Rect.height / 2;
-            //let r2 = can2Rect.height / 2;
-            //ctx.arc(x2c, y2c, r2, 0, Math.PI * 2);
-            //ctx.stroke();
-
-            connectNodes(6, 3, 8, 6, 3, 5, ctx);
-
-            //ctx.beginPath();
-            //let x1 = x1c - (r1 * Math.cos(Math.PI / 4));
-            //let y1 = y1c - (r1 * Math.sin(Math.PI / 4));
-            //ctx.moveTo(x1, y1);
-
-            //let x2 = x2c + (r2 * Math.cos(Math.PI / 4));
-            //let y2 = y2c - (r2 * Math.sin(Math.PI / 4));
-
-            //let cx12 = (x1 + x2) / 2;
-            //let cy12 = 0.95*((y1 + y2) / 2);
-            //ctx.quadraticCurveTo(cx12, cy12, x2, y2);
-
-            //ctx.stroke();
-            
-
-            
-            
-            
         }
     }
 });
@@ -1212,7 +1186,6 @@ function solveBoard() {
     solver.setSolutions(data);
     solver.solve();
     board.setData(solver.getSolutions());
-
     solver.delete();
 }
 
