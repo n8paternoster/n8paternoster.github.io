@@ -53,24 +53,26 @@ class Board {
     setData(solutionsStr, candidatesStr = Array(Board.numCells * Board.N + 1).join('0')) {
         if (solutionsStr == null || solutionsStr.length != Board.numCells) return;
         if (candidatesStr == null || candidatesStr.length != Board.numCells * Board.N) return;
-        Board.clearCanvas();
+        this.resetStep();    // invalidate step data
         for (var cell = 0; cell < Board.numCells; cell++) {
-            if (this.clues[cell]) continue;
             var ele = cellEleFromIndex(cell);
-            var solution = solutionsStr.charAt(cell);
+            Board.clearCell(ele);
+            var solution = this.clues[cell] ? this.clues[cell] : solutionsStr.charAt(cell);
             if (solution >= '1' && solution <= '9') {
                 // set the solution in this cell
                 this.cellSolutions[cell] = Number(solution);
                 this.cellCandidates[cell].fill(0);  // remove candidates from this cell
                 Board.drawCellSolution(ele, solution);
             } else {
+                // set the cell to 0
+                this.cellSolutions[cell] = 0;   // set the cell solution to 0
                 // set the candidates in this cell
                 for (var can = 0; can < Board.N; can++) {
                     let set = (candidatesStr.charAt(cell * Board.N + can) == '1');
                     this.cellCandidates[cell][can] = Number(set);
                     Board.drawCellCandidate(ele, (can + 1).toString(), set);
                 }
-                this.cellSolutions[cell] = 0;   // set the cell solution to 0
+                
             }
         }
     }
@@ -1150,6 +1152,23 @@ document.getElementById("restart-button").addEventListener("click", puzzleRestar
 
 /* ---- Custom board editor ---- */
 
+function customInputHandler(e) {
+    let ele = document.getElementById("custom-input");
+    if (!ele) return;
+    let input = ele.value;
+    if (input.length != Board.numCells) {
+        // display error
+        return;
+    }
+    let solutionStr = input.replace(/[^1-9]/g, '0');
+    if (solutionStr.split('').every(c => c === '0')) {
+        // display error
+        return;
+    }
+    board.setData(solutionStr);
+    ele.value = "";
+    saveSessionData();
+}
 function customClearHandler(e) {
     board.reset();
     saveSessionData();
@@ -1170,6 +1189,7 @@ function customSaveHandler(e) {
     displayTextPopup(popup, 1200);
 }
 
+document.getElementById("custom-input-submit").addEventListener("click", customInputHandler);
 document.getElementById("custom-clear-button").addEventListener("click", customClearHandler);
 document.getElementById("custom-load-button").addEventListener("click", customLoadHandler);
 document.getElementById("custom-save-button").addEventListener("click", customSaveHandler);

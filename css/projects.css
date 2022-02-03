@@ -612,7 +612,7 @@ section {
 #puzzle-box button, #custom-editor-box button {
     text-align: center;
     font-size: 1em;
-    padding: 3px 0;
+    padding: 0.1em 0.5em;
     border: 0.12rem solid black;
     background-color: #91c48d; /* light green */
     transition: all 0.2s;
@@ -654,13 +654,22 @@ section {
     overflow: hidden;
     transition: max-height ease-in-out 0.2s;
 }
-#custom-input-container {
+.custom-input-container {
     display: flex;
-    justify-content: space-around;
-    align-items: center;
+    flex-direction: row;
+    max-width: 100%;
 }
-#custom-input {
-    display: inline-block;
+.custom-input-container #custom-input, .custom-input-container #custom-input-submit {
+    border: 0.12rem solid black;
+}
+.custom-input-container #custom-input-submit {
+    border-left: none;
+}
+.custom-input-container #custom-input:focus {
+    outline: none;
+}
+.custom-input-container #custom-input {
+    overflow: hidden;
 }
 #custom-save-button {
     position: relative; /* for text popup */
