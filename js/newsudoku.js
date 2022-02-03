@@ -252,6 +252,24 @@ class Board {
             aDOWN = (aCan < bCan) ? 1 : -1;
             bRIGHT = (bCan % 3 < aCan % 3) ? 1 : -1;
             bDOWN = (bCan < aCan) ? 1 : -1;
+        } else if (aCol == bCol) {
+            let aCanCol = aCan % 3, bCanCol = bCan % 3;
+            if (aCanCol == 0 && bCanCol == 0) {
+                aRIGHT = 1;
+                bRIGHT = 1;
+            } else if (aCanCol == 2 && bCanCol == 2) {
+                aRIGHT = -1;
+                bRIGHT = -1;
+            }
+        } else if (aRow == bRow) {
+            let aCanRow = Math.floor(aCan / 3), bCanRow = Math.floor(bCan / 3);
+            if (aCanRow == 0 && bCanRow == 0) {
+                aDOWN = 1;
+                bDOWN = 1;
+            } else if (aCanRow == 2 && bCanRow == 2) {
+                aDOWN = -1;
+                bDOWN = -1;
+            }
         }
 
         // coordinates for a
@@ -279,7 +297,7 @@ class Board {
         if (isStrongLink) ctx.setLineDash([0]);
         else ctx.setLineDash([5, 2]);
         ctx.strokeStyle = "blue";
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.quadraticCurveTo(c1x, c1y, x2, y2);
@@ -416,24 +434,6 @@ class Board {
             case Module.StrategyID.HiddenSingle:
                 // No specific details
                 break;
-            case Module.StrategyID.XWing:
-            case Module.StrategyID.Swordfish:
-            case Module.StrategyID.Jellyfish:
-                // Fish, highlight rows/cols the fish is aligned on
-                for (let i = 0; i < strategy.sets.size(); i++) {
-                    let fish = strategy.sets.get(i);
-                    switch (fish.elimUnitType) {
-                        case Module.StrategyUnit.Row:
-                            for (let c = 0; c < fish.cols.length; c++)
-                                if (fish.cols[c] == '1') Board.highlightCol(c, 'blue');
-                            break;
-                        case Module.StrategyUnit.Col:
-                            for (let r = 0; r < fish.rows.length; r++)
-                                if (fish.rows[r] == '1') Board.highlightRow(r, 'blue');
-                            break;
-                    }
-                }
-                // fallthrough
             case Module.StrategyID.NakedPair:
             case Module.StrategyID.NakedTriplet:
             case Module.StrategyID.NakedQuad:
@@ -458,6 +458,35 @@ class Board {
                         }
                 }
                 break;
+            case Module.StrategyID.XWing:
+            case Module.StrategyID.Swordfish:
+            case Module.StrategyID.Jellyfish:
+                // Fish, highlight candidates and rows or cols the fish is aligned on
+                for (let i = 0; i < strategy.sets.size(); i++) {
+                    let fish = strategy.sets.get(i);
+                    switch (fish.elimUnitType) {
+                        case Module.StrategyUnit.Row:
+                            for (let c = 0; c < fish.cols.length; c++)
+                                if (fish.cols[c] == '1') Board.highlightCol(c, 'blue');
+                            break;
+                        case Module.StrategyUnit.Col:
+                            for (let r = 0; r < fish.rows.length; r++)
+                                if (fish.rows[r] == '1') Board.highlightRow(r, 'blue');
+                            break;
+                    }
+                    let candidates = [];
+                    for (let can = 0; can < fish.candidates.length; can++)
+                        if (fish.candidates[can] === '1') candidates.push(can);
+                    for (let cell = 0; cell < fish.cells.length; cell++)
+                        if (fish.cells[cell] === '1') {
+                            candidates.forEach(can => {
+                                if (this.cellCandidates[cell][can] == 1) {
+                                    Board.highlightCandidate(candidateEleFromIndex(cell, can), 'yellow');
+                                }
+                            });
+                        }
+                }
+                break;
             case Module.StrategyID.YWing:
             case Module.StrategyID.XYZWing:
             case Module.StrategyID.WXYZWing:
@@ -474,7 +503,7 @@ class Board {
                             Board.highlightCell(cellEleFromIndex(cell), color);
                             elimCandidates.forEach(can => {
                                 if (this.cellCandidates[cell][can] == 1)
-                                    Board.highlightCandidate(candidateEleFromIndex(cell, can), 'blue');
+                                    Board.highlightCandidate(candidateEleFromIndex(cell, can), 'yellow');
                             });
                         }
                     }
@@ -549,7 +578,7 @@ class Board {
                             if (coloring.conflictCells[cell] == '1') {
                                 conflictCans.forEach(can => {
                                     if (this.cellCandidates[cell][can] == 1)
-                                        Board.drawVertex(cell / Board.N, cell % Board.N, can, conflictColor, ctx);
+                                        Board.drawVertex(Math.floor(cell / Board.N), cell % Board.N, can, conflictColor, ctx);
                                 });
                             }
                         }
@@ -1200,13 +1229,23 @@ function stepHandler(e) {
     if (board) return board.step();
 }
 function solveBoard() {
-    /* Get solved data */
-    var solver = new Module.SudokuBoard();
-    let data = currentPuzzle === "Custom" ? board.getSolutionsStr() : board.getCluesStr();
-    solver.setSolutions(data);
-    solver.solve();
-    board.setData(solver.getSolutions());
-    solver.delete();
+    ///* Get solved data */
+    //var solver = new Module.SudokuBoard();
+    //let data = currentPuzzle === "Custom" ? board.getSolutionsStr() : board.getCluesStr();
+    //solver.setSolutions(data);
+    //solver.solve();
+    //board.setData(solver.getSolutions());
+    //solver.delete();
+
+    const maxSteps = 100;
+    let counter = 0;
+    let intr = setInterval(function () {
+        counter++;
+        board.step();
+        if (counter > maxSteps) clearInterval(intr);
+        if (board.prevStrategy && board.prevStrategy.id === Module.StrategyID.None) clearInterval(intr);
+    }, 200);
+    
 }
 
 document.getElementById("solve-button").addEventListener("click", solveBoard);
