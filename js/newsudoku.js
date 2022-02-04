@@ -30,7 +30,7 @@ class Board {
                 this.cellCandidates[cell].fill(1);
             }
         }
-        this.resetStep();
+        this.newResetStep();
     }
 
     /* set data */
@@ -53,7 +53,7 @@ class Board {
     setData(solutionsStr, candidatesStr = Array(Board.numCells * Board.N + 1).join('0')) {
         if (solutionsStr == null || solutionsStr.length != Board.numCells) return;
         if (candidatesStr == null || candidatesStr.length != Board.numCells * Board.N) return;
-        this.resetStep();    // invalidate step data
+        this.newResetStep();    // invalidate step data
         for (var cell = 0; cell < Board.numCells; cell++) {
             var ele = cellEleFromIndex(cell);
             Board.clearCell(ele);
@@ -103,7 +103,7 @@ class Board {
         var cells = sudokuBoard.querySelectorAll("input");
         cells.forEach((cell) => Board.clearCell(cell));
         /* reset step state */
-        this.resetStep();
+        this.newResetStep();
         /* clear canvas */
         Board.clearCanvas();
     }
@@ -334,21 +334,36 @@ class Board {
     }
 
     /* Step function */
+    solvePath = [];
     prevStrategy = null;
-    resetStep() {
-        if (this.prevStrategy) {
-            this.prevStrategy.delete();
-            this.prevStrategy = null;
+    newResetStep() {
+        while (this.solvePath.length) {
+            let strategy = this.solvePath.pop();
+            strategy.delete();
         }
         let outputEle = document.getElementById("strategy-output");
         if (outputEle) {
             outputEle.textContent = "";
-            let pushEle = document.createElement('span');
+            let pushEle = document.createElement("span");
             pushEle.id = "strategy-push";
             outputEle.appendChild(pushEle);
         }
         Board.clearCanvas();
     }
+    //resetStep() {
+    //    if (this.prevStrategy) {
+    //        this.prevStrategy.delete();
+    //        this.prevStrategy = null;
+    //    }
+    //    let outputEle = document.getElementById("strategy-output");
+    //    if (outputEle) {
+    //        outputEle.textContent = "";
+    //        let pushEle = document.createElement('span');
+    //        pushEle.id = "strategy-push";
+    //        outputEle.appendChild(pushEle);
+    //    }
+    //    Board.clearCanvas();
+    //}
     printStrategy(strategy) {
         // Print strategy info to the output box
         let outputEle = document.getElementById("strategy-output");
@@ -357,6 +372,8 @@ class Board {
         // Print title
         let title = "";
         switch (strategy.id) {
+            case Module.StrategyID.Solved: title += "Solution found\r\n"; break;
+            case Module.StrategyID.Error: title += "Errors on board\r\n"; break;
             case Module.StrategyID.None: title += "Ran out of strategies\r\n"; break;
             case Module.StrategyID.CandidateRemoval: title += "Invalid Candidate(s)\r\n"; break;
             case Module.StrategyID.NakedSingle: title += "Naked Single(s)\r\n"; break;
@@ -428,6 +445,13 @@ class Board {
     highlightStrategy(strategy) {
         // Highlight strategy specific details on board
         switch (strategy.id) {
+            case Module.StrategyID.Error:
+                // Highlight error cells
+                for (let i = 0; i < strategy.singles.size(); i++) {
+                    let error = strategy.singles.get(i);
+                    Board.highlightCell(cellEleFromIndex(error.cell), 'red');
+                }
+                return;
             case Module.StrategyID.None:
             case Module.StrategyID.CandidateRemoval:
             case Module.StrategyID.NakedSingle:
@@ -628,8 +652,39 @@ class Board {
             if (canEle) canEle.classList.add("candidate-solution");
         }
     }
-    step() {
-        if (this.prevStrategy) {    // Apply changes from previous step
+    newStep() {
+        let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+        // Handle the previous step
+        let prevStep = this.solvePath[this.solvePath.length - 1];
+        if (this.solvePath.length === 0) {
+            // This is the first step, fill any 0-candidate cells with all candidates
+            let cansAdded = false;
+            for (let cell = 0; cell < Board.numCells; cell++) {
+                if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
+                for (let can = 0; can < Board.N; can++)
+                    this.setCellCandidate(cell, can, true);
+                cansAdded = true;
+            }
+            if (cansAdded) return;
+        } else if (endStrategies.includes(prevStep.id)) {
+            // Check for any changes on the board
+            this.solvePath.pop();
+        } else {
+            // Apply changes from previous step
+            let solutions = prevStep.solutions;
+            for (let i = 0; i < solutions.size(); i++) {
+                let s = solutions.get(i);
+                let cellNum = Number(s.row) * Board.N + Number(s.col);
+                let candidate = Number(s.candidate);
+                if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
+            }
+            let elims = prevStep.eliminations;
+            for (let i = 0; i < elims.size(); i++) {
+                let e = elims.get(i);
+                let cellNum = Number(e.row) * Board.N + Number(e.col);
+                let candidate = Number(e.candidate);
+                if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
+            }
             // Remove highlighting from board
             Board.clearCanvas();
             for (let cell = 0; cell < Board.numCells; cell++) {
@@ -642,33 +697,6 @@ class Board {
                     }
                 }
             }
-            // Apply solutions/eliminations
-            let solutions = this.prevStrategy.solutions;
-            for (let i = 0; i < solutions.size(); i++) {
-                let s = solutions.get(i);
-                let cellNum = Number(s.row) * Board.N + Number(s.col);
-                let candidate = Number(s.candidate);
-                if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
-            }
-            let elims = this.prevStrategy.eliminations;
-            for (let i = 0; i < elims.size(); i++) {
-                let e = elims.get(i);
-                let cellNum = Number(e.row) * Board.N + Number(e.col);
-                let candidate = Number(e.candidate);
-                if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
-            }
-            // Reset the prev step
-            this.prevStrategy.delete();
-            this.prevStrategy = null;
-        } else {    // This is the first step, fill any 0-candidate cells with all candidates
-            let cansAdded = false;
-            for (let cell = 0; cell < Board.numCells; cell++) {
-                if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
-                for (let can = 0; can < Board.N; can++)
-                    this.setCellCandidate(cell, can, true);
-                cansAdded = true;
-            }
-            if (cansAdded) return;
         }
 
         // Get the strategy info for this step
@@ -676,15 +704,80 @@ class Board {
         solver.setSolutions(this.getSolutionsStr());
         solver.setCandidates(this.getCandidatesStr());
         let strategy = solver.step();
+        solver.delete();
 
         // Display strategy info
-        this.highlightStrategy(strategy);   // on board
-        this.printStrategy(strategy);       // in output box
+        let display = true;
+        if (prevStep && endStrategies.includes(prevStep.id)) {
+            if (prevStep.id === strategy.id) display = false;
+        }
+        if (display) {
+            this.highlightStrategy(strategy);   // on board
+            this.printStrategy(strategy);       // in output box
+        }
+
+        this.solvePath.push(strategy);
+    }
+    //step() {
+    //    if (this.prevStrategy) {    // Apply changes from previous step
+    //        if (this.prevStrategy.id === Module.StrategyID.Solved) return;
+    //        if (this.prevStrategy.id === Module.StrategyID.Error) return;
+
+    //        // Remove highlighting from board
+    //        Board.clearCanvas();
+    //        for (let cell = 0; cell < Board.numCells; cell++) {
+    //            let cellEle = cellEleFromIndex(cell);
+    //            if (cellEle) cellEle.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
+    //            for (let can = 0; can < Board.N; can++) {
+    //                if (this.cellCandidates[cell][can] == 1) {
+    //                    let canEle = candidateEleFromIndex(cell, can);
+    //                    if (canEle) canEle.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple");
+    //                }
+    //            }
+    //        }
+    //        // Apply solutions/eliminations
+    //        let solutions = this.prevStrategy.solutions;
+    //        for (let i = 0; i < solutions.size(); i++) {
+    //            let s = solutions.get(i);
+    //            let cellNum = Number(s.row) * Board.N + Number(s.col);
+    //            let candidate = Number(s.candidate);
+    //            if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
+    //        }
+    //        let elims = this.prevStrategy.eliminations;
+    //        for (let i = 0; i < elims.size(); i++) {
+    //            let e = elims.get(i);
+    //            let cellNum = Number(e.row) * Board.N + Number(e.col);
+    //            let candidate = Number(e.candidate);
+    //            if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
+    //        }
+    //        // Reset the prev step
+    //        this.prevStrategy.delete();
+    //        this.prevStrategy = null;
+    //    } else {    // This is the first step, fill any 0-candidate cells with all candidates
+    //        let cansAdded = false;
+    //        for (let cell = 0; cell < Board.numCells; cell++) {
+    //            if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
+    //            for (let can = 0; can < Board.N; can++)
+    //                this.setCellCandidate(cell, can, true);
+    //            cansAdded = true;
+    //        }
+    //        if (cansAdded) return;
+    //    }
+
+    //    // Get the strategy info for this step
+    //    let solver = new Module.SudokuBoard();
+    //    solver.setSolutions(this.getSolutionsStr());
+    //    solver.setCandidates(this.getCandidatesStr());
+    //    let strategy = solver.step();
+
+    //    // Display strategy info
+    //    this.highlightStrategy(strategy);   // on board
+    //    this.printStrategy(strategy);       // in output box
         
-        // Store the strategy info from this step
-        this.prevStrategy = strategy;
-        solver.delete();
-    };
+    //    // Store the strategy info from this step
+    //    this.prevStrategy = strategy;
+    //    solver.delete();
+    //}
 };
 var board = new Board(newSavedPuzzles.get(currentPuzzle));
 
@@ -712,7 +805,7 @@ function candidateEleFromIndex(cellNum, candidate) {
     return cell.nextElementSibling.querySelector(".can" + (candidate + 1).toString());
 }
 function digitButtonEleFromIndex(index) {
-    if (index < 0 || index >= Board.N) return null;
+    if (index < 0 || index > Board.N) return null;
     let id = "digitInput" + index.toString();
     return document.getElementById(id);
 }
@@ -738,19 +831,14 @@ function selectDigitButton(button) {
     button.classList.add("digit-input-selected");
     sudokuBoard.classList.add("sudoku-board-hover");
 
-    /* Remove locked class and locked property */
-    //button.classList.remove("digit-input-locked");
-    //digitInputIsLocked = false;
-
     /* Set the digit selection */
     let digit = parseInt(button.id.charAt(button.id.length - 1), 10);
     digitInputSelection = digit;
 }
 function deselectDigitButton(button) {
-    if (button == null);
+    if (button == null) return;
 
     /* Remove selected and locked classes */
-    //button.classList.remove("digit-input-selected", "digit-input-locked");
     button.classList.remove("digit-input-selected");
 
     // Remove hovering from the board */
@@ -768,27 +856,6 @@ function displayTextPopup(popup, ms) {
         popup.classList.remove("text-popup-active");
     }, ms);
 }
-
-
-//function reset() {
-//    /* Reset all saved values, set board to custom */
-//    /* clear board */
-//    board.reset();
-//    /* clear digit and cell selection */
-//    if (digitInputSelection != -1)
-//        deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
-//    if (cellInputSelection != -1)
-//        deselectCellInput(cellEleFromIndex(cellInputSelection));
-//    /* change cell input type to solution */
-//    document.getElementById("digit-input-solution").classList.add("digit-input-toggle-active");
-//    document.getElementById("digit-input-candidate").classList.remove("digit-input-toggle-active");
-//    digitInputIsSolution = true;
-//    /* load custom puzzle */
-//    board.loadPuzzle("Custom");
-//    /* reset custom puzzle data */
-//    userData.cellSolutions.fill(0);
-//    userData.cellCandidates.fill().map(() => Array(Board.N).fill(0));
-//}
 
 /* ----------------- document handlers ----------------- */
 
@@ -1126,13 +1193,13 @@ function digitInputHandleClick(e) {
     /* no cell is selected */
     else {
         if (digit === digitInputSelection) {    /* deselect this button */
-            deselectDigitButton(button);
+            deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
         } else {                                /* select this button */
             if (digitInputSelection !== -1) {   /* a different button is selected */
                 var otherButton = digitButtonEleFromIndex(digitInputSelection);
                 deselectDigitButton(otherButton);
             }
-            selectDigitButton(button);
+            selectDigitButton(digitButtonEleFromIndex(digit));
         }
     }
 }
@@ -1226,7 +1293,7 @@ document.getElementById("custom-save-button").addEventListener("click", customSa
 /* ---- Step/Solve Buttons ---- */
 
 function stepHandler(e) {
-    if (board) return board.step();
+    if (board) return board.newStep();
 }
 function solveBoard() {
     ///* Get solved data */
@@ -1239,11 +1306,17 @@ function solveBoard() {
 
     const maxSteps = 100;
     let counter = 0;
+    let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
     let intr = setInterval(function () {
         counter++;
-        board.step();
+        board.newStep();
         if (counter > maxSteps) clearInterval(intr);
-        if (board.prevStrategy && board.prevStrategy.id === Module.StrategyID.None) clearInterval(intr);
+        if (board.solvePath.length) {
+            let prevStep = board.solvePath[board.solvePath.length - 1];
+            if (endStrategies.includes(prevStep.id)) clearInterval(intr);
+        }
+        //if (board.prevStrategy && endStrategies.includes(board.prevStrategy.id))
+            //clearInterval(intr);
     }, 200);
     
 }
