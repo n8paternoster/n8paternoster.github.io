@@ -252,7 +252,7 @@ class Board {
             aDOWN = (aCan < bCan) ? 1 : -1;
             bRIGHT = (bCan % 3 < aCan % 3) ? 1 : -1;
             bDOWN = (bCan < aCan) ? 1 : -1;
-        } else if (aCol == bCol) {
+        } else if (aCol == bCol) {  // try to avoid overlap with grid lines
             let aCanCol = aCan % 3, bCanCol = bCan % 3;
             if (aCanCol == 0 && bCanCol == 0) {
                 aRIGHT = 1;
@@ -261,7 +261,7 @@ class Board {
                 aRIGHT = -1;
                 bRIGHT = -1;
             }
-        } else if (aRow == bRow) {
+        } else if (aRow == bRow) {  // try to avoid overlap with grid lines
             let aCanRow = Math.floor(aCan / 3), bCanRow = Math.floor(bCan / 3);
             if (aCanRow == 0 && bCanRow == 0) {
                 aDOWN = 1;
@@ -291,8 +291,8 @@ class Board {
         // control point
         let scaleX = (aRIGHT == bRIGHT) ? 1 + 0.05 * aRIGHT : 1;
         let scaleY = (aDOWN == bDOWN) ? 1 + 0.05 * aDOWN : 1;
-        let c1x = scaleX * ((x1 + x2) / 2);
-        let c1y = scaleY * ((y1 + y2) / 2);
+        let cx = scaleX * ((x1 + x2) / 2);
+        let cy = scaleY * ((y1 + y2) / 2);
 
         if (isStrongLink) ctx.setLineDash([0]);
         else ctx.setLineDash([5, 2]);
@@ -300,7 +300,7 @@ class Board {
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
-        ctx.quadraticCurveTo(c1x, c1y, x2, y2);
+        ctx.quadraticCurveTo(cx, cy, x2, y2);
         ctx.stroke();
     }
     static drawVertex(row, col, can, color, ctx) {
@@ -403,6 +403,78 @@ class Board {
         titleEle.style.fontWeight = 'bold';
         titleEle.textContent = title;
         if (outputEle) outputEle.insertBefore(titleEle, pushEle);
+
+        // Print strategy specific details
+        switch (strategy.id) {
+            case Module.StrategyID.Solved:
+            case Module.StrategyID.Error:
+            case Module.StrategyID.None:
+                // No specific details
+                break;
+            case Module.StrategyID.NakedSingle:
+                for (let i = 0; i < strategy.singles.size(); i++) {
+                    let s = strategy.singles.get(i);
+                    let string = (s.candidate + 1).toString() + " is the only candidate left in (" + (Math.floor(s.cell/Board.N) + 1).toString() + ", " + (s.cell%Board.N + 1).toString() + ")\r\n";
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                }
+                break;
+            case Module.StrategyID.HiddenSingle:
+                for (let i = 0; i < strategy.singles.size(); i++) {
+                    let s = strategy.singles.get(i);
+                    let string = (s.candidate + 1).toString() + " in (" + (Math.floor(s.cell / Board.N) + 1).toString() + ", " + (s.cell % Board.N + 1).toString() + ") is unique to";
+                    let comma = "";
+                    if (s.uniqueRow >= 0 && s.uniqueRow < Board.N) {
+                        string += " row " + (s.uniqueRow + 1).toString();
+                        comma = ",";
+                    }
+                    if (s.uniqueCol >= 0 && s.uniqueCol < Board.N) {
+                        string += comma + " col " + (s.uniqueCol + 1).toString();
+                        comma = ",";
+                    }
+                    if (s.uniqueBox >= 0 && s.uniqueBox < Board.N) {
+                        string += comma + " box " + (s.uniqueBox + 1).toString();
+                    }
+                    string += "\r\n";
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                }
+                break;
+            case Module.StrategyID.NakedPair:
+            case Module.StrategyID.NakedTriplet:
+            case Module.StrategyID.NakedQuad:
+                for (let i = 0; i < strategy.sets.size(); i++) {
+                    let set = strategy.sets.get(i);
+                    //let string = "In ";
+                    //if (set.rows.includes('1')) {
+                    //    string += "row " + (set.rows.indexOf('1')+1).toString();
+                    //} else if (set.cols.includes('1')) {
+                    //    string += "col " + (set.cols.indexOf('1') + 1).toString();
+                    //} else if (set.boxes.includes('1')) {
+                    //    string += "box " + (set.boxes.indexOf('1') + 1).toString();
+                    //} else continue;
+                    let string = "Cells";
+                    for (let c = 0; c < set.cells.length; c++)
+                        if (set.cells[c] === '1') string += " (" + (Math.floor(c / Board.N) + 1).toString() + ", " + (c % Board.N + 1).toString() + ")";
+                    string += " remove\r\n";
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                    for (let i = 0; i < set.eliminations.size(); i++) {
+                        let e = set.eliminations.get(i);
+                        let str = "\t" + (e.candidate + 1).toString() + " from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
+                        ele.style.display = "inline-block";
+                        ele.style.textIndent = "10px";
+                        outputEle.insertBefore(ele, pushEle);
+                    }
+                    
+                }
+                break;
+        }
 
         // Print details to output box
         let elims = strategy.eliminations;
