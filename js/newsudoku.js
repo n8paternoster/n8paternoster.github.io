@@ -8,7 +8,6 @@ const newSavedPuzzles = new Map([
     ["Pointing Pairs", "500200040000603000030009007003007000007008000600000020080000003000400600000100500"],
     ["Minimum Clue Easy", "000870200640200000050000000807000300000051000000000000300700000000000051000000040"],
     ["Minimum Clue Hard", "002090300805000000100000000090060040000000058000000001070000200300500000000100000"],
-    ["Looooooooooooooooooong Example", "123456789123456789123456789123456789123456789123456789123456789123456789123456789"]
 ]);
 var currentPuzzle = "Easy Example"; /* default puzzle */
 
@@ -30,7 +29,7 @@ class Board {
                 this.cellCandidates[cell].fill(1);
             }
         }
-        this.newResetStep();
+        this.resetStep();
     }
 
     /* set data */
@@ -53,7 +52,7 @@ class Board {
     setData(solutionsStr, candidatesStr = Array(Board.numCells * Board.N + 1).join('0')) {
         if (solutionsStr == null || solutionsStr.length != Board.numCells) return;
         if (candidatesStr == null || candidatesStr.length != Board.numCells * Board.N) return;
-        this.newResetStep();    // invalidate step data
+        this.resetStep();    // invalidate step data
         for (var cell = 0; cell < Board.numCells; cell++) {
             var ele = cellEleFromIndex(cell);
             Board.clearCell(ele);
@@ -103,7 +102,7 @@ class Board {
         var cells = sudokuBoard.querySelectorAll("input");
         cells.forEach((cell) => Board.clearCell(cell));
         /* reset step state */
-        this.newResetStep();
+        this.resetStep();
         /* clear canvas */
         Board.clearCanvas();
     }
@@ -336,7 +335,7 @@ class Board {
     /* Step function */
     solvePath = [];
     prevStrategy = null;
-    newResetStep() {
+    resetStep() {
         while (this.solvePath.length) {
             let strategy = this.solvePath.pop();
             strategy.delete();
@@ -350,20 +349,6 @@ class Board {
         }
         Board.clearCanvas();
     }
-    //resetStep() {
-    //    if (this.prevStrategy) {
-    //        this.prevStrategy.delete();
-    //        this.prevStrategy = null;
-    //    }
-    //    let outputEle = document.getElementById("strategy-output");
-    //    if (outputEle) {
-    //        outputEle.textContent = "";
-    //        let pushEle = document.createElement('span');
-    //        pushEle.id = "strategy-push";
-    //        outputEle.appendChild(pushEle);
-    //    }
-    //    Board.clearCanvas();
-    //}
     printStrategy(strategy) {
         // Print strategy info to the output box
         let outputEle = document.getElementById("strategy-output");
@@ -411,7 +396,21 @@ class Board {
             case Module.StrategyID.None:
                 // No specific details
                 break;
+            case Module.StrategyID.CandidateRemoval:
+                // "X removed from Y"
+                for (var i = 0; i < strategy.eliminations.size(); i++) {
+                    let e = strategy.eliminations.get(i);
+                    let row = Number(e.row), col = Number(e.col), can = Number(e.candidate);
+                    let string = (can + 1).toString() + " removed from (" + (row + 1).toString() + ", " + (col + 1).toString() + ")\r\n";
+                    if (outputEle) {
+                        let ele = document.createElement('span');
+                        ele.textContent = string;
+                        outputEle.insertBefore(ele, pushEle);
+                    }
+                }
+                break;
             case Module.StrategyID.NakedSingle:
+                // "X is the only candidate left in Y"
                 for (let i = 0; i < strategy.singles.size(); i++) {
                     let s = strategy.singles.get(i);
                     let string = (s.candidate + 1).toString() + " is the only candidate left in (" + (Math.floor(s.cell/Board.N) + 1).toString() + ", " + (s.cell%Board.N + 1).toString() + ")\r\n";
@@ -421,6 +420,7 @@ class Board {
                 }
                 break;
             case Module.StrategyID.HiddenSingle:
+                // "X in Y is unique to row/col/box Z"
                 for (let i = 0; i < strategy.singles.size(); i++) {
                     let s = strategy.singles.get(i);
                     let string = (s.candidate + 1).toString() + " in (" + (Math.floor(s.cell / Board.N) + 1).toString() + ", " + (s.cell % Board.N + 1).toString() + ") is unique to";
@@ -433,9 +433,8 @@ class Board {
                         string += comma + " col " + (s.uniqueCol + 1).toString();
                         comma = ",";
                     }
-                    if (s.uniqueBox >= 0 && s.uniqueBox < Board.N) {
+                    if (s.uniqueBox >= 0 && s.uniqueBox < Board.N)s
                         string += comma + " box " + (s.uniqueBox + 1).toString();
-                    }
                     string += "\r\n";
                     let ele = document.createElement('span');
                     ele.textContent = string;
@@ -445,60 +444,194 @@ class Board {
             case Module.StrategyID.NakedPair:
             case Module.StrategyID.NakedTriplet:
             case Module.StrategyID.NakedQuad:
+            case Module.StrategyID.HiddenPair:
+            case Module.StrategyID.HiddenTriplet:
+            case Module.StrategyID.HiddenQuad:
+                // Naked: "In row/col/box X, cells Y only contain candidates Z:"
+                let naked = (strategy.id === Module.StrategyID.NakedPair || strategy.id === Module.StrategyID.NakedTriplet || strategy.id === Module.StrategyID.NakedQuad);
+                // Hidden: "In row/col/box X, candidates Y can only be found in cells Z:"
+                let hidden = (strategy.id === Module.StrategyID.HiddenPair || strategy.id === Module.StrategyID.HiddenTriplet || strategy.id === Module.StrategyID.HiddenQuad);
                 for (let i = 0; i < strategy.sets.size(); i++) {
                     let set = strategy.sets.get(i);
-                    //let string = "In ";
-                    //if (set.rows.includes('1')) {
-                    //    string += "row " + (set.rows.indexOf('1')+1).toString();
-                    //} else if (set.cols.includes('1')) {
-                    //    string += "col " + (set.cols.indexOf('1') + 1).toString();
-                    //} else if (set.boxes.includes('1')) {
-                    //    string += "box " + (set.boxes.indexOf('1') + 1).toString();
-                    //} else continue;
-                    let string = "Cells";
+                    let unit = "", cans = "", cells = "";
+                    if (set.rows.includes('1')) {
+                        unit += "row " + (set.rows.indexOf('1') + 1).toString();
+                    } else if (set.cols.includes('1')) {
+                        unit += "col " + (set.cols.indexOf('1') + 1).toString();
+                    } else if (set.boxes.includes('1')) {
+                        unit += "box " + (set.boxes.indexOf('1') + 1).toString();
+                    } else continue;
                     for (let c = 0; c < set.cells.length; c++)
-                        if (set.cells[c] === '1') string += " (" + (Math.floor(c / Board.N) + 1).toString() + ", " + (c % Board.N + 1).toString() + ")";
-                    string += " remove\r\n";
+                        if (set.cells[c] === '1') cells += " (" + (Math.floor(c / Board.N) + 1).toString() + ", " + (c % Board.N + 1).toString() + "),";
+                    cells = cells.slice(0, -1);   // remove the final comma
+                    for (let c = 0; c < set.candidates.length; c++)
+                        if (set.candidates[c] == '1') cans += " " + (c + 1).toString() + ",";
+                    cans = cans.slice(0, -1);  // remove the final comma
+                    let string = "";
+                    if (naked) string = "In " + unit + ", cells" + cells + " only contain candidates" + cans + ":\r\n";
+                    else if (hidden) string = "In " + unit + ", candidates" + cans + " can only be found in cells" + cells + ":\r\n";
                     let ele = document.createElement('span');
                     ele.textContent = string;
                     outputEle.insertBefore(ele, pushEle);
+                    // "X removed from Y"
+                    let map = new Map();
                     for (let i = 0; i < set.eliminations.size(); i++) {
                         let e = set.eliminations.get(i);
-                        let str = "\t" + (e.candidate + 1).toString() + " from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let cell = e.row * Board.N + e.col;
+                        if (!map.has(cell)) map.set(cell, []);
+                        map.get(cell).push(e.candidate);
+                    }
+                    map.forEach(function (candidates, cell) {
+                        let str = "\t";
+                        for (let i = 0; i < candidates.length; i++)
+                            str += (candidates[i] + 1).toString() + (i + 1 < candidates.length ? ", " : " ");
+                        str += "removed from (" + (Math.floor(cell / Board.N) + 1).toString() + ", " + (cell % Board.N + 1).toString() + ")\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
-                        ele.style.display = "inline-block";
-                        ele.style.textIndent = "10px";
+                        outputEle.insertBefore(ele, pushEle);
+                    });
+                }
+                break;
+            case Module.StrategyID.Pointing:
+            case Module.StrategyID.BoxLine:
+                // Pointing: "In box X, Y can only be found in row/col Z:"
+                // Box/Line: "In row/col X, Y can only be found in box Z:"
+                for (let i = 0; i < strategy.sets.size(); i++) {
+                    let set = strategy.sets.get(i);
+                    let unit = "", can = "", box = "";
+                    if (set.rows.includes('1')) {
+                        unit += "row " + (set.rows.indexOf('1') + 1).toString();
+                    } else if (set.cols.includes('1')) {
+                        unit += "col " + (set.cols.indexOf('1') + 1).toString();
+                    } else continue;
+                    if (set.boxes.includes('1')) {
+                        box += (set.boxes.indexOf('1') + 1).toString();
+                    } else continue;
+                    if (set.candidates.includes('1')) {
+                        can += (set.candidates.indexOf('1') + 1).toString();
+                    } else continue;
+                    let string = "";
+                    if (strategy.id === Module.StrategyID.Pointing)
+                        string = "In box " + box + ", " + can + " can only be found in " + unit + ":\r\n";
+                    else if (strategy.id === Module.StrategyID.BoxLine)
+                        string = "In " + unit + ", " + can + " can only be found in box " + box + ":\r\n";
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                    // "X removed from Y"
+                    for (let j = 0; j < set.eliminations.size(); j++) {
+                        let e = set.eliminations.get(j);
+                        let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
                         outputEle.insertBefore(ele, pushEle);
                     }
-                    
+                }
+                break;
+            case Module.StrategyID.XWing:
+            case Module.StrategyID.Swordfish:
+            case Module.StrategyID.Jellyfish:
+                // "On rows/cols X, candidate Y can only be found on cols/rows Z:"
+                for (let i = 0; i < strategy.sets.size(); i++) {
+                    let set = strategy.sets.get(i);
+                    let can = "", units = "", elimUnits = "";
+                    if (set.candidates.includes('1')) {
+                        can += (set.candidates.indexOf('1') + 1).toString();
+                    } else continue;
+                    if (set.elimUnitType === Module.StrategyUnit.Row) {
+                        units += "cols";
+                        for (let c = 0; c < set.cols.length; c++)
+                            if (set.cols[c] == '1') units += " " + (c + 1).toString() + ",";
+                        elimUnits += "rows";
+                        for (let r = 0; r < set.rows.length; r++)
+                            if (set.rows[r] == '1') elimUnits += " " + (r + 1).toString() + ",";
+                    } else if (set.elimUnitType === Module.StrategyUnit.Col) {
+                        units += "rows";
+                        for (let r = 0; r < set.rows.length; r++)
+                            if (set.rows[r] == '1') units += " " + (r + 1).toString() + ",";
+                        elimUnits += "cols";
+                        for (let c = 0; c < set.cols.length; c++)
+                            if (set.cols[c] == '1') elimUnits += " " + (c + 1).toString() + ",";
+                    } else continue;
+                    units = units.slice(0, -1);         // remove final comma
+                    elimUnits = elimUnits.slice(0, -1); // remove final comma
+                    let string = "On " + units + ", candidate " + can + " can only be found on " + elimUnits + ":\r\n";
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                    // "X removed from Y"
+                    for (let j = 0; j < set.eliminations.size(); j++) {
+                        let e = set.eliminations.get(j);
+                        let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
+                        outputEle.insertBefore(ele, pushEle);
+                    }
+                }
+                break;
+            case Module.StrategyID.YWing:
+            case Module.StrategyID.XYZWing:
+            case Module.StrategyID.WXYZWing:
+            case Module.StrategyID.VWXYZWing:
+                // "Cells X contain the candidates Y, and only Z is not restricted to one unit"
+                // "Cells X contain the candidates Y, and all the candidates are restricted to one unit"
+                for (let i = 0; i < strategy.bentSets.size(); i++) {
+                    let wing = strategy.bentSets.get(i);
+                    let cells = "", cans = "";
+                    for (let c = 0; c < wing.cells.length; c++)
+                        if (wing.cells[c] === '1') cells += " (" + (Math.floor(c / Board.N) + 1).toString() + ", " + (c % Board.N + 1).toString() + "),";
+                    cells = cells.slice(0, -1);   // remove the final comma
+                    for (let c = 0; c < wing.candidates.length; c++)
+                        if (wing.candidates[c] == '1') cans += " " + (c + 1).toString() + ",";
+                    cans = cans.slice(0, -1);  // remove the final comma
+                    let string = "";
+                    if (wing.rule === Module.BentsetRule.NonRestCan) {
+                        let elimCan = "";
+                        if (wing.elimCandidates.includes('1')) {
+                            elimCan += (wing.elimCandidates.indexOf('1') + 1).toString();
+                        } else continue;
+                        string = "Cells" + cells + " contain" + cans + ", and only " + elimCan + " is not restricted to one unit:\r\n";
+                    } else if (wing.rule === Module.BentsetRule.Locked) {
+                        string = "Cells" + cells + " contain" + cans + ", and every candidate is restricted to one unit:\r\n";
+                    } else continue;
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                    // "X removed from Y"
+                    for (let j = 0; j < wing.eliminations.size(); j++) {
+                        let e = wing.eliminations.get(j);
+                        let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
+                        outputEle.insertBefore(ele, pushEle);
+                    }
                 }
                 break;
         }
 
         // Print details to output box
-        let elims = strategy.eliminations;
-        for (var i = 0; i < elims.size(); i++) {
-            let e = elims.get(i);
-            let row = Number(e.row), col = Number(e.col), can = Number(e.candidate);
-            let string = (can + 1).toString() + " removed from (" + (row + 1).toString() + ", " + (col + 1).toString() + ")\r\n";
-            if (outputEle) {
-                let ele = document.createElement('span');
-                ele.textContent = string;
-                outputEle.insertBefore(ele, pushEle);
-            }
-        }
-        let solutions = strategy.solutions;
-        for (var i = 0; i < solutions.size(); i++) {
-            let s = solutions.get(i);
-            let row = Number(s.row), col = Number(s.col), can = Number(s.candidate);
-            let string = "(" + (row + 1).toString() + ", " + (col + 1).toString() + ") set to " + (can + 1).toString() + "\r\n";
-            if (outputEle) {
-                let ele = document.createElement('span');
-                ele.textContent = string;
-                outputEle.insertBefore(ele, pushEle);
-            }
-        }
+        //let elims = strategy.eliminations;
+        //for (var i = 0; i < elims.size(); i++) {
+        //    let e = elims.get(i);
+        //    let row = Number(e.row), col = Number(e.col), can = Number(e.candidate);
+        //    let string = (can + 1).toString() + " removed from (" + (row + 1).toString() + ", " + (col + 1).toString() + ")\r\n";
+        //    if (outputEle) {
+        //        let ele = document.createElement('span');
+        //        ele.textContent = string;
+        //        outputEle.insertBefore(ele, pushEle);
+        //    }
+        //}
+        //let solutions = strategy.solutions;
+        //for (var i = 0; i < solutions.size(); i++) {
+        //    let s = solutions.get(i);
+        //    let row = Number(s.row), col = Number(s.col), can = Number(s.candidate);
+        //    let string = "(" + (row + 1).toString() + ", " + (col + 1).toString() + ") set to " + (can + 1).toString() + "\r\n";
+        //    if (outputEle) {
+        //        let ele = document.createElement('span');
+        //        ele.textContent = string;
+        //        outputEle.insertBefore(ele, pushEle);
+        //    }
+        //}
 
         // Space between steps
         if (outputEle) outputEle.insertBefore(document.createElement('br'), pushEle);
@@ -724,7 +857,7 @@ class Board {
             if (canEle) canEle.classList.add("candidate-solution");
         }
     }
-    newStep() {
+    step() {
         let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
         // Handle the previous step
         let prevStep = this.solvePath[this.solvePath.length - 1];
@@ -790,66 +923,6 @@ class Board {
 
         this.solvePath.push(strategy);
     }
-    //step() {
-    //    if (this.prevStrategy) {    // Apply changes from previous step
-    //        if (this.prevStrategy.id === Module.StrategyID.Solved) return;
-    //        if (this.prevStrategy.id === Module.StrategyID.Error) return;
-
-    //        // Remove highlighting from board
-    //        Board.clearCanvas();
-    //        for (let cell = 0; cell < Board.numCells; cell++) {
-    //            let cellEle = cellEleFromIndex(cell);
-    //            if (cellEle) cellEle.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
-    //            for (let can = 0; can < Board.N; can++) {
-    //                if (this.cellCandidates[cell][can] == 1) {
-    //                    let canEle = candidateEleFromIndex(cell, can);
-    //                    if (canEle) canEle.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple");
-    //                }
-    //            }
-    //        }
-    //        // Apply solutions/eliminations
-    //        let solutions = this.prevStrategy.solutions;
-    //        for (let i = 0; i < solutions.size(); i++) {
-    //            let s = solutions.get(i);
-    //            let cellNum = Number(s.row) * Board.N + Number(s.col);
-    //            let candidate = Number(s.candidate);
-    //            if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
-    //        }
-    //        let elims = this.prevStrategy.eliminations;
-    //        for (let i = 0; i < elims.size(); i++) {
-    //            let e = elims.get(i);
-    //            let cellNum = Number(e.row) * Board.N + Number(e.col);
-    //            let candidate = Number(e.candidate);
-    //            if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
-    //        }
-    //        // Reset the prev step
-    //        this.prevStrategy.delete();
-    //        this.prevStrategy = null;
-    //    } else {    // This is the first step, fill any 0-candidate cells with all candidates
-    //        let cansAdded = false;
-    //        for (let cell = 0; cell < Board.numCells; cell++) {
-    //            if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
-    //            for (let can = 0; can < Board.N; can++)
-    //                this.setCellCandidate(cell, can, true);
-    //            cansAdded = true;
-    //        }
-    //        if (cansAdded) return;
-    //    }
-
-    //    // Get the strategy info for this step
-    //    let solver = new Module.SudokuBoard();
-    //    solver.setSolutions(this.getSolutionsStr());
-    //    solver.setCandidates(this.getCandidatesStr());
-    //    let strategy = solver.step();
-
-    //    // Display strategy info
-    //    this.highlightStrategy(strategy);   // on board
-    //    this.printStrategy(strategy);       // in output box
-        
-    //    // Store the strategy info from this step
-    //    this.prevStrategy = strategy;
-    //    solver.delete();
-    //}
 };
 var board = new Board(newSavedPuzzles.get(currentPuzzle));
 
@@ -1365,7 +1438,7 @@ document.getElementById("custom-save-button").addEventListener("click", customSa
 /* ---- Step/Solve Buttons ---- */
 
 function stepHandler(e) {
-    if (board) return board.newStep();
+    if (board) return board.step();
 }
 function solveBoard() {
     ///* Get solved data */
@@ -1381,7 +1454,7 @@ function solveBoard() {
     let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
     let intr = setInterval(function () {
         counter++;
-        board.newStep();
+        board.step();
         if (counter > maxSteps) clearInterval(intr);
         if (board.solvePath.length) {
             let prevStep = board.solvePath[board.solvePath.length - 1];

@@ -763,6 +763,7 @@ button.digit-input-locked .left-lock {
     border: 0.02rem solid black;
     margin-bottom: 1em; /* push board buttons to bottom */
     overflow-y: auto;
+    overflow-x: hidden;
     height: 0;  /* required for vertical scrolling */
     white-space: pre-line;
     font-size: 0.85em;
@@ -776,6 +777,10 @@ button.digit-input-locked .left-lock {
 }
 #strategy-output::-webkit-scrollbar-thumb {
     background-color: #555;
+}
+#strategy-output span {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
 #strategy-push {
     display: block;
