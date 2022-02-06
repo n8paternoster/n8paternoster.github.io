@@ -400,8 +400,7 @@ class Board {
                 // "X removed from Y"
                 for (var i = 0; i < strategy.eliminations.size(); i++) {
                     let e = strategy.eliminations.get(i);
-                    let row = Number(e.row), col = Number(e.col), can = Number(e.candidate);
-                    let string = (can + 1).toString() + " removed from (" + (row + 1).toString() + ", " + (col + 1).toString() + ")\r\n";
+                    let string = (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
                     if (outputEle) {
                         let ele = document.createElement('span');
                         ele.textContent = string;
@@ -423,19 +422,17 @@ class Board {
                 // "X in Y is unique to row/col/box Z"
                 for (let i = 0; i < strategy.singles.size(); i++) {
                     let s = strategy.singles.get(i);
-                    let string = (s.candidate + 1).toString() + " in (" + (Math.floor(s.cell / Board.N) + 1).toString() + ", " + (s.cell % Board.N + 1).toString() + ") is unique to";
-                    let comma = "";
-                    if (s.uniqueRow >= 0 && s.uniqueRow < Board.N) {
-                        string += " row " + (s.uniqueRow + 1).toString();
-                        comma = ",";
-                    }
-                    if (s.uniqueCol >= 0 && s.uniqueCol < Board.N) {
-                        string += comma + " col " + (s.uniqueCol + 1).toString();
-                        comma = ",";
-                    }
-                    if (s.uniqueBox >= 0 && s.uniqueBox < Board.N)s
-                        string += comma + " box " + (s.uniqueBox + 1).toString();
-                    string += "\r\n";
+                    let can = "", cell = "", unit = "";
+                    can = (s.candidate + 1).toString();
+                    cell = "(" + (Math.floor(s.cell / Board.N) + 1).toString() + ", " + (s.cell % Board.N + 1).toString() + ")";
+                    if (s.uniqueRow >= 0 && s.uniqueRow < Board.N)
+                        unit += " row " + (s.uniqueRow + 1).toString() + ",";
+                    if (s.uniqueCol >= 0 && s.uniqueCol < Board.N)
+                        unit += " col " + (s.uniqueCol + 1).toString() + ",";
+                    if (s.uniqueBox >= 0 && s.uniqueBox < Board.N)
+                        unit += " box " + (s.uniqueBox + 1).toString() + ",";
+                    unit = unit.slice(0, -1);  // remove final comma
+                    let string = can + " in " + cell + " is unique to" + unit + "\r\n";
                     let ele = document.createElement('span');
                     ele.textContent = string;
                     outputEle.insertBefore(ele, pushEle);
@@ -494,8 +491,8 @@ class Board {
                 break;
             case Module.StrategyID.Pointing:
             case Module.StrategyID.BoxLine:
-                // Pointing: "In box X, Y can only be found in row/col Z:"
-                // Box/Line: "In row/col X, Y can only be found in box Z:"
+                // Pointing: "In box X, candidate Y can only be found in row/col Z:"
+                // Box/Line: "In row/col X, candidate Y can only be found in box Z:"
                 for (let i = 0; i < strategy.sets.size(); i++) {
                     let set = strategy.sets.get(i);
                     let unit = "", can = "", box = "";
@@ -512,9 +509,9 @@ class Board {
                     } else continue;
                     let string = "";
                     if (strategy.id === Module.StrategyID.Pointing)
-                        string = "In box " + box + ", " + can + " can only be found in " + unit + ":\r\n";
+                        string = "In box " + box + ", candidate " + can + " can only be found in " + unit + ":\r\n";
                     else if (strategy.id === Module.StrategyID.BoxLine)
-                        string = "In " + unit + ", " + can + " can only be found in box " + box + ":\r\n";
+                        string = "In " + unit + ", candidate " + can + " can only be found in box " + box + ":\r\n";
                     let ele = document.createElement('span');
                     ele.textContent = string;
                     outputEle.insertBefore(ele, pushEle);
@@ -607,31 +604,93 @@ class Board {
                     }
                 }
                 break;
+            case Module.StrategyID.SinglesChain:
+            case Module.StrategyID.Medusa:
+                {
+                    let string = "";
+                    if (strategy.coloring.rule === Module.ColoringRule.Color) {
+                        let can = "", unit = "", elimColor = "red";
+                        if (strategy.coloring.conflictUnitType === Module.StrategyUnit.Cell)
+                            can += "candidates";
+                        else if (strategy.coloring.conflictCandidates.includes('1'))
+                            can += (strategy.coloring.conflictCandidates.indexOf('1') + 1).toString() + "'s";
+                        let conflictUnit = strategy.coloring.conflictUnit;
+                        switch (strategy.coloring.conflictUnitType) {
+                            case Module.StrategyUnit.Row:
+                                unit += "row " + (conflictUnit + 1).toString();
+                                break;
+                            case Module.StrategyUnit.Col:
+                                unit += "col " + (conflictUnit + 1).toString();
+                                break;
+                            case Module.StrategyUnit.Box:
+                                unit += "box " + (conflictUnit + 1).toString();
+                                break;
+                            case Module.StrategyUnit.Cell:
+                                unit += "cell (" + (Math.floor(conflictUnit / Board.N) + 1).toString() + ", " + (conflictUnit % Board.N + 1).toString();
+                                break;
+                        }
+                        string = "All of the " + can + " in " + unit + " can see a " + elimColor + " candidate; all " + elimColor + " candidates can be removed and all green candidates are solutions:\r\n";
+                    } else if (strategy.coloring.rule === Module.ColoringRule.Candidate) {
+                        string = "Either the blue candidates are the solutions or the green candidates are the solutions; some candidates can see both colors and can be removed:\r\n";
+                    }
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                    // "X removed from Y"
+                    for (let i = 0; i < strategy.eliminations.size(); i++) {
+                        let e = strategy.eliminations.get(i);
+                        let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
+                        outputEle.insertBefore(ele, pushEle);
+                    }
+                    // "X set to Y"
+                    for (let i = 0; i < strategy.solutions.size(); i++) {
+                        let s = strategy.solutions.get(i);
+                        let str = "\t(" + (s.row + 1).toString() + ", " + (s.col + 1).toString() + ") set to " + (s.candidate + 1).toString() + "\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
+                        outputEle.insertBefore(ele, pushEle);
+                    }
+                }
+                break;
+            case Module.StrategyID.XCycle:
+            case Module.StrategyID.AlternatingInferenceChain:
+                {
+                    let string = "";
+                    if (strategy.cycle.rule === Module.CycleRule.Continuous) {
+                        string += "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:\r\t";
+                    } else {
+                        let cell = strategy.cycle.discontinuity;
+                        let disc = "(" + (Math.floor(cell.row / Board.N) + 1).toString() + ", " + (cell.col % Board.N + 1).toString() + ")";
+                        let can = (cell.candidate + 1).toString();
+                        if (strategy.cycle.rule === Module.CycleRule.WeakDiscontinuity)
+                            string += "When " + disc + " is set to " + can + " the chain implies that it can't be " + can + ":\r\n";
+                        else if (strategy.cycle.rule === Module.CycleRule.StrongDiscontinuity)
+                            string += "When " + can + " is removed from " + disc + " the chain implies that it must be " + can + ":\r\n";
+                    }
+                    let ele = document.createElement('span');
+                    ele.textContent = string;
+                    outputEle.insertBefore(ele, pushEle);
+                    // "X removed from Y"
+                    for (let i = 0; i < strategy.eliminations.size(); i++) {
+                        let e = strategy.eliminations.get(i);
+                        let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
+                        outputEle.insertBefore(ele, pushEle);
+                    }
+                    // "X set to Y"
+                    for (let i = 0; i < strategy.solutions.size(); i++) {
+                        let s = strategy.solutions.get(i);
+                        let str = "\t(" + (s.row + 1).toString() + ", " + (s.col + 1).toString() + ") set to " + (s.candidate + 1).toString() + "\r\n";
+                        let ele = document.createElement('span');
+                        ele.textContent = str;
+                        outputEle.insertBefore(ele, pushEle);
+                    }
+                }
+                break;
         }
-
-        // Print details to output box
-        //let elims = strategy.eliminations;
-        //for (var i = 0; i < elims.size(); i++) {
-        //    let e = elims.get(i);
-        //    let row = Number(e.row), col = Number(e.col), can = Number(e.candidate);
-        //    let string = (can + 1).toString() + " removed from (" + (row + 1).toString() + ", " + (col + 1).toString() + ")\r\n";
-        //    if (outputEle) {
-        //        let ele = document.createElement('span');
-        //        ele.textContent = string;
-        //        outputEle.insertBefore(ele, pushEle);
-        //    }
-        //}
-        //let solutions = strategy.solutions;
-        //for (var i = 0; i < solutions.size(); i++) {
-        //    let s = solutions.get(i);
-        //    let row = Number(s.row), col = Number(s.col), can = Number(s.candidate);
-        //    let string = "(" + (row + 1).toString() + ", " + (col + 1).toString() + ") set to " + (can + 1).toString() + "\r\n";
-        //    if (outputEle) {
-        //        let ele = document.createElement('span');
-        //        ele.textContent = string;
-        //        outputEle.insertBefore(ele, pushEle);
-        //    }
-        //}
 
         // Space between steps
         if (outputEle) outputEle.insertBefore(document.createElement('br'), pushEle);
