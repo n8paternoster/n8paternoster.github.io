@@ -671,7 +671,7 @@ section {
 .custom-input-container #custom-input {
     overflow: hidden;
 }
-#custom-save-button {
+#custom-save-button, #custom-input-submit {
     position: relative; /* for text popup */
 }
 

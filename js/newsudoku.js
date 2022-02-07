@@ -334,7 +334,6 @@ class Board {
 
     /* Step function */
     solvePath = [];
-    prevStrategy = null;
     resetStep() {
         while (this.solvePath.length) {
             let strategy = this.solvePath.pop();
@@ -1455,14 +1454,21 @@ document.getElementById("restart-button").addEventListener("click", puzzleRestar
 function customInputHandler(e) {
     let ele = document.getElementById("custom-input");
     if (!ele) return;
+    // TODO : remove error message clipping
     let input = ele.value;
     if (input.length != Board.numCells) {
-        // display error
+        /* display error message */
+        let popup = e.target.querySelector(".text-popup");
+        popup.textContent = "Input must contain 81 characters";
+        displayTextPopup(popup, 1000);
         return;
     }
     let solutionStr = input.replace(/[^1-9]/g, '0');
     if (solutionStr.split('').every(c => c === '0')) {
-        // display error
+        /* display error message */
+        let popup = e.target.querySelector(".text-popup");
+        popup.textContent = "Input must contain at least 1 number";
+        displayTextPopup(popup, 1000);
         return;
     }
     board.setData(solutionStr);
@@ -1478,14 +1484,14 @@ function customLoadHandler(e) {
     saveSessionData();
 }
 function customSaveHandler(e) {
-
+    // TODO : change to deep copy to keep custom data on board through page refresh?
     userData.cellSolutions = board.cellSolutions.slice();                   // shallow copy
     userData.cellCandidates = board.cellCandidates.map(arr => arr.slice()); // shallow copy
-
     saveSessionData();
 
     /* display saved message */
     let popup = e.target.querySelector(".text-popup");
+    popup.textContent = "Saved!";
     displayTextPopup(popup, 1200);
 }
 
@@ -1508,6 +1514,8 @@ function solveBoard() {
     //board.setData(solver.getSolutions());
     //solver.delete();
 
+    // TODO : add isSolved binding to Module.SudokuBoard, add ret value to solve fnc
+
     const maxSteps = 100;
     let counter = 0;
     let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
@@ -1519,9 +1527,33 @@ function solveBoard() {
             let prevStep = board.solvePath[board.solvePath.length - 1];
             if (endStrategies.includes(prevStep.id)) clearInterval(intr);
         }
-        //if (board.prevStrategy && endStrategies.includes(board.prevStrategy.id))
-            //clearInterval(intr);
     }, 200);
+
+    // If the puzzle was not solved and does not contain an error, use brute force to solve
+    let prevStep = board.solvePath[board.solvePath.length - 1];
+    if ((board.solvePath.length === 0 || prevStep === Module.StrategyID.None) && prevStep !== Module.StrategyID.Error) {
+        let outputEle = document.getElementById("strategy-output");
+        let pushEle = document.getElementById("strategy-push");
+        let ele = document.createElement('span');
+        ele.textContent = "Using brute force to find a unique solution\r\n";
+        outputEle.insertBefore(ele, pushEle);
+        let solver = new Module.SudokuBoard();
+        solver.setSolutions(board.getSolutionsStr());
+        solver.setCandidates(board.getCandidatesStr());
+        solver.solve();
+        // check for solve validity
+        let solutions = solver.getSolutions();
+        solver.delete();
+        for (let cell = 0; cell < solutions.length; cell++) {
+            if (board.clues[cell]) continue;
+            Board.clearCell(ele);
+            var solution = Number(solutions.charAt(cell)) - 1;
+            board.setCellSolution(cell, solution);
+        }
+        ele = document.createElement('span');
+        ele.textContent = "Solution found\r\n";
+        outputEle.insertBefore(ele, pushEle);
+    }
     
 }
 
