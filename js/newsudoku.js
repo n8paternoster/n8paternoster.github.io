@@ -331,12 +331,60 @@ class Board {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.restore();
     }
+    static writeToOutput(string, bold) {
+        let outputEle = document.getElementById("strategy-output");
+        let pushEle = document.getElementById("strategy-push");
+        if (!outputEle || !pushEle || string.length === 0) return;
+        let ele = document.createElement('span');
+        if (bold) ele.style.fontWeight = 'bold';
+        string += "\r\n";
+        ele.textContent = string;
+        outputEle.insertBefore(ele, pushEle);
+        outputEle.insertBefore(document.createElement('br'), pushEle);
+    }
 
     /* Step function */
     solvePath = [];
     resetStep() {
         while (this.solvePath.length) {
             let strategy = this.solvePath.pop();
+            strategy.singles.delete();  // vector of value objects
+            for (let i = 0; i < strategy.sets.size; i++) {
+                let set = strategy.sets.get(i);
+                set.size.delete();
+                set.cells.delete();
+                set.candidates.delete();
+                set.rows.delete();
+                set.cols.delete();
+                set.boxes.delete();
+                set.eliminations.delete();
+                set.elimUnitType.delete();
+                set.delete();
+            }
+            strategy.sets.delete();     // vector of objects
+            for (let i = 0; i < strategy.bentSets.size; i++) {
+                let bentSet = strategy.bentSets.get(i);
+                bentSet.size.delete();
+                bentSet.cells.delete();
+                bentSet.hingeCells.delete();
+                bentSet.nonRestCanCells.delete();
+                bentSet.candidates.delete();
+                bentSet.elimCandidates.delete();
+                bentSet.eliminations.delete();
+                bentSet.rule.delete();
+                bentSet.delete();
+            }
+            strategy.bentSets.delete(); // vector of objects
+
+            strategy.coloring.vertices.delete();
+            strategy.coloring.links.delete();
+            strategy.coloring.delete(); // object
+
+            strategy.cycle.links.delete();
+            strategy.cycle.delete();    // object
+
+            strategy.eliminations.delete(); // vector of value objects
+            strategy.solutions.delete();    // vector of value objects
             strategy.delete();
         }
         let outputEle = document.getElementById("strategy-output");
@@ -351,6 +399,7 @@ class Board {
     printStrategy(strategy) {
         // Print strategy info to the output box
         let outputEle = document.getElementById("strategy-output");
+        if (!outputEle) return;
         let pushEle = document.getElementById("strategy-push");
 
         // Print title
@@ -386,7 +435,7 @@ class Board {
         let titleEle = document.createElement('span');
         titleEle.style.fontWeight = 'bold';
         titleEle.textContent = title;
-        if (outputEle) outputEle.insertBefore(titleEle, pushEle);
+        outputEle.insertBefore(titleEle, pushEle);
 
         // Print strategy specific details
         switch (strategy.id) {
@@ -692,17 +741,15 @@ class Board {
         }
 
         // Space between steps
-        if (outputEle) outputEle.insertBefore(document.createElement('br'), pushEle);
+        outputEle.insertBefore(document.createElement('br'), pushEle);
 
         // Push the details to the top of the output box
-        if (outputEle) {
-            pushEle.style.height = 0;
+        pushEle.style.height = 0;
+        titleEle.scrollIntoView();
+        let offset = parseInt(titleEle.offsetTop - outputEle.scrollTop);
+        if (offset > 0) {
+            if (pushEle) pushEle.style.height = offset + 'px';
             titleEle.scrollIntoView();
-            let offset = parseInt(titleEle.offsetTop - outputEle.scrollTop);
-            if (offset > 0) {
-                if (pushEle) pushEle.style.height = offset + 'px';
-                titleEle.scrollIntoView();
-            }
         }
     }
     highlightStrategy(strategy) {
@@ -980,6 +1027,7 @@ class Board {
         }
 
         this.solvePath.push(strategy);
+        return strategy;
     }
 };
 var board = new Board(newSavedPuzzles.get(currentPuzzle));
@@ -1506,55 +1554,57 @@ function stepHandler(e) {
     if (board) return board.step();
 }
 function solveBoard() {
-    ///* Get solved data */
-    //var solver = new Module.SudokuBoard();
-    //let data = currentPuzzle === "Custom" ? board.getSolutionsStr() : board.getCluesStr();
-    //solver.setSolutions(data);
-    //solver.solve();
-    //board.setData(solver.getSolutions());
-    //solver.delete();
-
     // TODO : add isSolved binding to Module.SudokuBoard, add ret value to solve fnc
 
-    const maxSteps = 100;
-    let counter = 0;
-    let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
-    let intr = setInterval(function () {
-        counter++;
-        board.step();
-        if (counter > maxSteps) clearInterval(intr);
-        if (board.solvePath.length) {
-            let prevStep = board.solvePath[board.solvePath.length - 1];
-            if (endStrategies.includes(prevStep.id)) clearInterval(intr);
-        }
-    }, 200);
-
-    // If the puzzle was not solved and does not contain an error, use brute force to solve
-    let prevStep = board.solvePath[board.solvePath.length - 1];
-    if ((board.solvePath.length === 0 || prevStep === Module.StrategyID.None) && prevStep !== Module.StrategyID.Error) {
-        let outputEle = document.getElementById("strategy-output");
-        let pushEle = document.getElementById("strategy-push");
-        let ele = document.createElement('span');
-        ele.textContent = "Using brute force to find a unique solution\r\n";
-        outputEle.insertBefore(ele, pushEle);
+    function stepThroughStrategies(ms) {
+        return new Promise((resolve, reject) => {
+            let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+            const maxSteps = 100;
+            let counter = 0;
+            setTimeout(function stepStrategy() {
+                let lastStep = board.step();
+                console.log(counter);
+                if (counter++ > maxSteps || (lastStep && endStrategies.includes(lastStep.id))) {
+                    if (lastStep === undefined)
+                        reject("Error loading solver");
+                    else
+                        resolve(lastStep);
+                } else setTimeout(stepStrategy, ms);
+            }, ms);
+        });
+    }
+    function bruteForce() {
         let solver = new Module.SudokuBoard();
         solver.setSolutions(board.getSolutionsStr());
         solver.setCandidates(board.getCandidatesStr());
         solver.solve();
-        // check for solve validity
+        // TODO : check for solve validity
         let solutions = solver.getSolutions();
         solver.delete();
         for (let cell = 0; cell < solutions.length; cell++) {
             if (board.clues[cell]) continue;
-            Board.clearCell(ele);
+            Board.clearCell(cellEleFromIndex(cell));
             var solution = Number(solutions.charAt(cell)) - 1;
             board.setCellSolution(cell, solution);
         }
-        ele = document.createElement('span');
-        ele.textContent = "Solution found\r\n";
-        outputEle.insertBefore(ele, pushEle);
+        solutions.delete();
+        return true;
     }
-    
+
+    stepThroughStrategies(100)
+    .then(lastStep => {
+        if (lastStep.id === Module.StrategyID.None) {
+            Board.writeToOutput("Using brute force to find a unique solution...");
+            if (bruteForce()) {
+                Board.writeToOutput("Solution found", true);
+            } else {
+                Board.writeToOutput("Puzzle contains more than one solution", true);
+            }
+        }
+    })
+    .catch(e => {
+        Board.writeToOutput(e);
+    });
 }
 
 document.getElementById("solve-button").addEventListener("click", solveBoard);
