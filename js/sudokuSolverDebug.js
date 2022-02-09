@@ -2168,7 +2168,7 @@ function createExportWrapper(name, fixedasm) {
 }
 
 var wasmBinaryFile;
-  wasmBinaryFile = 'a.out.wasm';
+  wasmBinaryFile = 'sudokuSolverDebug.wasm';
   if (!isDataURI(wasmBinaryFile)) {
     wasmBinaryFile = locateFile(wasmBinaryFile);
   }
@@ -2337,7 +2337,7 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  23400: function($0, $1) {if (typeof emscriptenMemoryProfiler !== 'undefined') emscriptenMemoryProfiler.onSbrkGrow($0, $1)}
+  22136: function($0, $1) {if (typeof emscriptenMemoryProfiler !== 'undefined') emscriptenMemoryProfiler.onSbrkGrow($0, $1)}
 };
 
 
@@ -7772,7 +7772,7 @@ var dynCall_iiiiijj = Module["dynCall_iiiiijj"] = createExportWrapper("dynCall_i
 /** @type {function(...*):?} */
 var dynCall_iiiiiijj = Module["dynCall_iiiiiijj"] = createExportWrapper("dynCall_iiiiiijj");
 
-var ___heap_base = Module['___heap_base'] = 5272288;
+var ___heap_base = Module['___heap_base'] = 5271024;
 
 
 

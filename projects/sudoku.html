@@ -13,7 +13,7 @@
     <!--<script src="/js/sudoku.js" defer></script>  -->  
     <script src="/js/newsudoku.js" defer></script>    
     <!--<script src="/js/sudokuSolver.js" defer></script>-->
-    <script src="/js/a.out.js" defer></script>
+    <script src="/js/sudokuSolverDebug.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -1235,7 +1235,10 @@
                 </div>
                 <div id="board-right">
                     <div class="right-panel">
-                        <output id="strategy-output" for="step-button"><span id="strategy-push"></span></output>
+                        <output id="strategy-output" for="step-button">
+                            <!--<span id="strategy-loader"></span>-->
+                            <span id="strategy-push"></span>
+                        </output>
                         <div id="board-buttons">
                             <button id="step-button">Step</button>
                             <button id="solve-button">Solve</button>

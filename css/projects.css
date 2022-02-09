@@ -784,6 +784,30 @@ button.digit-input-locked .left-lock {
 }
 #strategy-push {
     display: block;
+    position: relative;
+    text-align: center;
+}
+#strategy-loader {
+    display: none;
+    margin: 0 auto;
+    border: 4px solid #959595;
+    border-radius: 50%;
+    border-top: 4px solid blue;
+    width: 20px;
+    height: 20px;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+}
+.loading {
+    display: inline-block;
+}
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Board buttons */
@@ -921,7 +945,6 @@ button.digit-input-locked .left-lock {
 .cell input.cell-highlighted-blue { background-color: #4abce1; }
 .cell input.cell-highlighted-purple { background-color: purple; }
 .cell input.cell-highlighted-orange { background-color: orange; }
-
 
 /* Remove arrows from number input */
 .cell input::-webkit-outer-spin-button,
