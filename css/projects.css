@@ -798,7 +798,7 @@ button.digit-input-locked .left-lock {
     -webkit-animation: spin 1s linear infinite;
     animation: spin 1s linear infinite;
 }
-.loading {
+#strategy-loader.loading {
     display: inline-block;
 }
 @-webkit-keyframes spin {

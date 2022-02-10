@@ -386,7 +386,8 @@ class Board {
             pushEle.appendChild(loadEle);
             outputEle.appendChild(pushEle);
         }
-        Board.clearCanvas();
+        // remove highlighting from the board
+        this.removeHighlighting();
     }
     printStrategy(strategy) {
         // Print strategy info to the output box
@@ -1035,6 +1036,23 @@ class Board {
         }
         sols.delete();
     }
+    removeHighlighting() {
+        Board.clearCanvas();
+        Array.from(sudokuBoard.querySelectorAll(".cell > input")).forEach(ele => ele.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple")
+        );
+        Array.from(sudokuBoard.querySelectorAll('.candidate')).forEach(ele => ele.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple")
+        );
+        //for (let cell = 0; cell < Board.numCells; cell++) {
+        //    let cellEle = cellEleFromIndex(cell);
+        //    if (cellEle) cellEle.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
+        //    for (let can = 0; can < Board.N; can++) {
+        //        if (this.cellCandidates[cell][can] == 1) {
+        //            let canEle = candidateEleFromIndex(cell, can);
+        //            if (canEle) canEle.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple");
+        //        }
+        //    }
+        //}
+    }
     step() {
         let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
         // Handle the previous step
@@ -1071,17 +1089,7 @@ class Board {
             }
             elims.delete();
             // Remove highlighting from board
-            Board.clearCanvas();
-            for (let cell = 0; cell < Board.numCells; cell++) {
-                let cellEle = cellEleFromIndex(cell);
-                if (cellEle) cellEle.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
-                for (let can = 0; can < Board.N; can++) {
-                    if (this.cellCandidates[cell][can] == 1) {
-                        let canEle = candidateEleFromIndex(cell, can);
-                        if (canEle) canEle.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple");
-                    }
-                }
-            }
+            this.removeHighlighting();
         }
 
         // Get the strategy info for this step
@@ -1630,27 +1638,72 @@ document.getElementById("custom-save-button").addEventListener("click", customSa
 function stepHandler(e) {
     if (board) board.step();
 }
+
+function newSolve() {
+    let tryStrategies = async function () {
+        let steps = [];
+        let solver = new Module.sudokuBoard();
+        if (!solver) return null;
+        let solutions = board.getSolutionsStr();
+        let candidates = board.getCandidatesStr();
+        let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+        let counter = 0;
+        const maxSteps = 100;
+        let strategy = null;
+        do {
+            solver.setSolutions(solutions);
+            solver.setCandidates(candidates);
+            strategy = solver.step();
+            solutions = solver.getSolutions();
+            candidates = solver.getCandidates();
+            steps.push(strategy);
+        } while (strategy && !endStrategies.includes(strategy) && counter++ < maxSteps);
+    };
+    
+
+    if (!strategy || strategy.id === Module.StrategyID.Error) return null;
+
+}
+
 function solveBoard() {
 
     async function showSpinner() {
         let loader = document.getElementById("strategy-loader");
-        if (loader) loader.classList.add("loading");
+        if (loader) {
+            loader.classList.add("loading");
+            //let push = loader.parentElement;
+            //push.style.height = push.parentElement.clientHeight + 'px';
+            //loader.scrollIntoView();
+        }
     }
     async function hideSpinner() {
         let loader = document.getElementById("strategy-loader");
         if (loader) loader.classList.remove("loading");
     }
 
-    function stepSolver() {
+    function takeStep() {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
                 let lastStep = board.step();
-                if (!lastStep) reject("Error loading solver");
+                if (!lastStep) reject("Error");
                 else if (endStrategies.includes(lastStep)) reject("Finished");
-                else resolve()
+                else resolve(lastStep);
             }, 200);
         });
+    }
+
+    async function stepStrategies(count = 100) {
+        if (count > 0) {
+            await showSpinner();
+            let step = await takeStep().catch(done => done);
+            await hideSpinner();
+            if (step === "Error") throw "Error loading solver";
+            else if (step === "Finished") return step;
+            else return await stepStrategies(count - 1);
+        } else {
+            throw "Solver timed out";
+        }
     }
 
     function stepThroughStrategies(ms) {
@@ -1672,6 +1725,7 @@ function solveBoard() {
             }, ms);
         });
     }
+
     function bruteForce() {
         let solver = new Module.SudokuBoard();
         if (!solver) throw "Error loading solver";
@@ -1690,7 +1744,7 @@ function solveBoard() {
         return found;
     }
 
-    stepThroughStrategies(100)
+    stepStrategies()
     .then(lastStep => {
         if (lastStep === Module.StrategyID.Error) return;
         if (!board.isSolved()) {
