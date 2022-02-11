@@ -1657,9 +1657,10 @@ async function hideLoader() {
     if (loader) loader.classList.remove("loading");
 }
 
-function tryAgain() {
+async function tryAgain() {
     if (board.isSolved()) return;
     let steps = [];
+    const ms = 100;
     let solver = new Module.SudokuBoard();
     if (!solver) return null;
 
@@ -1681,7 +1682,6 @@ function tryAgain() {
         resolve();
     });
     let applyStrategies = new Promise((resolve, reject) => {
-        //hideLoader();
         let s = 0;
         let prev = null;
         let intr = setInterval(() => {
@@ -1705,36 +1705,34 @@ function tryAgain() {
             }
             prev = strategy;
             s++;
-        }, 500);
+        }, ms);
     });
-    //let verifySolution = new Promise((resolve, reject) => {
-    //    if (/*valid && */!board.isSolved()) {
-    //        Board.writeToOutput("Using brute force to find a unique solution...");
-    //        solver.setSolutions(board.getSolutionsStr());
-    //        let found = solver.solve();
-    //        if (found) {
-    //            let solutions = solver.getSolutions();
-    //            for (let cell = 0; cell < solutions.length; cell++) {
-    //                if (board.clues[cell]) continue;
-    //                Board.clearCell(cellEleFromIndex(cell));
-    //                var solution = Number(solutions.charAt(cell)) - 1;
-    //                board.setCellSolution(cell, solution);
-    //            }
-    //            Board.writeToOutput("Solution found", true);
-    //            resolve(true);
-    //        } else {
-    //            Board.writeToOutput("Puzzle contains more than one solution", true);
-    //            resolve(false);
-    //        }
-    //    }
-    //});
+    let verifySolution = function () {
+        if (/*valid && */!board.isSolved()) {
+            Board.writeToOutput("Using brute force to find a unique solution...");
+            solver.setSolutions(board.getSolutionsStr());
+            let found = solver.solve();
+            if (found) {
+                let solutions = solver.getSolutions();
+                for (let cell = 0; cell < solutions.length; cell++) {
+                    if (board.clues[cell]) continue;
+                    Board.clearCell(cellEleFromIndex(cell));
+                    var solution = Number(solutions.charAt(cell)) - 1;
+                    board.setCellSolution(cell, solution);
+                }
+                Board.writeToOutput("Solution found", true);
+            } else {
+                Board.writeToOutput("Puzzle contains more than one solution", true);
+            }
+        }
+    };
 
-    //showLoader();
-    getStrategies
-        .then(applyStrategies)
-        .then(() => console.log("test"))
-        .catch(e => console.log(e))
-        .finally(() => solver.delete());
+    showLoader();
+    await getStrategies;
+    hideLoader();
+    await applyStrategies;
+    verifySolution();
+    solver.delete();
 }
 
 function newSolve() {
@@ -1817,7 +1815,7 @@ function newSolve() {
 
     //showLoader();
     getStrategies.then(applyStrategies(500, verifySolution))
-        //.then((valid) => verifySolution(valid))
+        .then((valid) => verifySolution(valid))
         .catch(e => console.log(e))
         //.finally(() => solver.delete());
 }
