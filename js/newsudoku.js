@@ -390,6 +390,7 @@ class Board {
         this.removeHighlighting();
     }
     printStrategy(strategy) {
+        if (!strategy) return;
         // Print strategy info to the output box
         let outputEle = document.getElementById("strategy-output");
         if (!outputEle) return;
@@ -802,6 +803,7 @@ class Board {
         }
     }
     highlightStrategy(strategy) {
+        if (!strategy) return;
         // Highlight strategy specific details on board
         switch (strategy.id) {
             case Module.StrategyID.Error: {
@@ -1053,6 +1055,25 @@ class Board {
         //    }
         //}
     }
+    applyStrategyChanges(strategy) {
+        if (!strategy) return;
+        let sols = strategy.solutions;
+        for (let i = 0; i < sols.size(); i++) {
+            let s = sols.get(i);
+            let cellNum = Number(s.row) * Board.N + Number(s.col);
+            let candidate = Number(s.candidate);
+            if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
+        }
+        sols.delete();
+        let elims = strategy.eliminations;
+        for (let i = 0; i < elims.size(); i++) {
+            let e = elims.get(i);
+            let cellNum = Number(e.row) * Board.N + Number(e.col);
+            let candidate = Number(e.candidate);
+            if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
+        }
+        elims.delete();
+    }
     step() {
         let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
         // Handle the previous step
@@ -1071,24 +1092,7 @@ class Board {
         } else if (this.isSolved()) {
             return Module.StrategyID.Solved;
         } else if (!endStrategies.includes(prevStep.id)) {
-            // Apply changes from previous step
-            let sols = prevStep.solutions;
-            for (let i = 0; i < sols.size(); i++) {
-                let s = sols.get(i);
-                let cellNum = Number(s.row) * Board.N + Number(s.col);
-                let candidate = Number(s.candidate);
-                if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
-            }
-            sols.delete();
-            let elims = prevStep.eliminations;
-            for (let i = 0; i < elims.size(); i++) {
-                let e = elims.get(i);
-                let cellNum = Number(e.row) * Board.N + Number(e.col);
-                let candidate = Number(e.candidate);
-                if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
-            }
-            elims.delete();
-            // Remove highlighting from board
+            this.applyStrategyChanges(prevStep);
             this.removeHighlighting();
         }
 
@@ -1639,11 +1643,27 @@ function stepHandler(e) {
     if (board) board.step();
 }
 
-function newSolve() {
-    let tryStrategies = async function () {
-        let steps = [];
-        let solver = new Module.sudokuBoard();
-        if (!solver) return null;
+async function showLoader() {
+    let loader = document.getElementById("strategy-loader");
+    if (loader) {
+        loader.classList.add("loading");
+        //let push = loader.parentElement;
+        //push.style.height = push.parentElement.clientHeight + 'px';
+        //loader.scrollIntoView();
+    }
+}
+async function hideLoader() {
+    let loader = document.getElementById("strategy-loader");
+    if (loader) loader.classList.remove("loading");
+}
+
+function tryAgain() {
+    if (board.isSolved()) return;
+    let steps = [];
+    let solver = new Module.SudokuBoard();
+    if (!solver) return null;
+
+    let getStrategies = new Promise((resolve, reject) => {
         let solutions = board.getSolutionsStr();
         let candidates = board.getCandidatesStr();
         let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
@@ -1657,12 +1677,149 @@ function newSolve() {
             solutions = solver.getSolutions();
             candidates = solver.getCandidates();
             steps.push(strategy);
-        } while (strategy && !endStrategies.includes(strategy) && counter++ < maxSteps);
+        } while (strategy && !endStrategies.includes(strategy.id) && counter++ < maxSteps);
+        resolve();
+    });
+    let applyStrategies = new Promise((resolve, reject) => {
+        //hideLoader();
+        let s = 0;
+        let prev = null;
+        let intr = setInterval(() => {
+            if (prev) {
+                board.applyStrategyChanges(prev);
+                board.solvePath.push(prev);
+            }
+            if (s >= steps.length) {
+                clearInterval(intr);
+                resolve(true);
+                return;
+            }
+            let strategy = steps[s];
+            board.removeHighlighting();
+            board.highlightStrategy(strategy);   // on board
+            board.printStrategy(strategy);       // in output box
+            if (strategy.id === Module.StrategyID.Error) {
+                clearInterval(intr);
+                resolve(false);
+                return;
+            }
+            prev = strategy;
+            s++;
+        }, 500);
+    });
+    //let verifySolution = new Promise((resolve, reject) => {
+    //    if (/*valid && */!board.isSolved()) {
+    //        Board.writeToOutput("Using brute force to find a unique solution...");
+    //        solver.setSolutions(board.getSolutionsStr());
+    //        let found = solver.solve();
+    //        if (found) {
+    //            let solutions = solver.getSolutions();
+    //            for (let cell = 0; cell < solutions.length; cell++) {
+    //                if (board.clues[cell]) continue;
+    //                Board.clearCell(cellEleFromIndex(cell));
+    //                var solution = Number(solutions.charAt(cell)) - 1;
+    //                board.setCellSolution(cell, solution);
+    //            }
+    //            Board.writeToOutput("Solution found", true);
+    //            resolve(true);
+    //        } else {
+    //            Board.writeToOutput("Puzzle contains more than one solution", true);
+    //            resolve(false);
+    //        }
+    //    }
+    //});
+
+    //showLoader();
+    getStrategies
+        .then(applyStrategies)
+        .then(() => console.log("test"))
+        .catch(e => console.log(e))
+        .finally(() => solver.delete());
+}
+
+function newSolve() {
+    if (board.isSolved()) return;
+    let steps = [];
+    let solver = new Module.SudokuBoard();
+    if (!solver) return null;
+
+    let getStrategies = new Promise((resolve, reject) => {
+        let solutions = board.getSolutionsStr();
+        let candidates = board.getCandidatesStr();
+        let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+        let counter = 0;
+        const maxSteps = 100;
+        let strategy = null;
+        do {
+            solver.setSolutions(solutions);
+            solver.setCandidates(candidates);
+            strategy = solver.step();
+            solutions = solver.getSolutions();
+            candidates = solver.getCandidates();
+            steps.push(strategy);
+        } while (strategy && !endStrategies.includes(strategy.id) && counter++ < maxSteps);
+        resolve();
+    });
+    let applyStrategies = function (ms, callback) {
+        return new Promise((resolve, reject) => {
+            //hideLoader();
+            let s = 0;
+            let prev = null;
+            let intr = setInterval(() => {
+                if (prev) {
+                    board.applyStrategyChanges(prev);
+                    board.solvePath.push(prev);
+                }
+                if (s >= steps.length) {
+                    clearInterval(intr);
+                    callback(true);
+                    resolve(true);
+                    return;
+                }
+                let strategy = steps[s];
+                board.removeHighlighting();
+                board.highlightStrategy(strategy);   // on board
+                board.printStrategy(strategy);       // in output box
+                if (strategy.id === Module.StrategyID.Error) {
+                    clearInterval(intr);
+                    callback(false);
+                    resolve(false);
+                    return;
+                }
+                prev = strategy;
+                s++;
+            }, ms);
+        });
     };
-    
+    let verifySolution = function (valid) {
+        return new Promise((resolve, reject) => {
+            if (/*valid && */!board.isSolved()) {
+                Board.writeToOutput("Using brute force to find a unique solution...");
+                solver.setSolutions(board.getSolutionsStr());
+                let found = solver.solve();
+                if (found) {
+                    let solutions = solver.getSolutions();
+                    for (let cell = 0; cell < solutions.length; cell++) {
+                        if (board.clues[cell]) continue;
+                        Board.clearCell(cellEleFromIndex(cell));
+                        var solution = Number(solutions.charAt(cell)) - 1;
+                        board.setCellSolution(cell, solution);
+                    }
+                    Board.writeToOutput("Solution found", true);
+                    resolve(true);
+                } else {
+                    Board.writeToOutput("Puzzle contains more than one solution", true);
+                    resolve(false);
+                }
+            }
+        });
+    };
 
-    if (!strategy || strategy.id === Module.StrategyID.Error) return null;
-
+    //showLoader();
+    getStrategies.then(applyStrategies(500, verifySolution))
+        //.then((valid) => verifySolution(valid))
+        .catch(e => console.log(e))
+        //.finally(() => solver.delete());
 }
 
 function solveBoard() {
@@ -1761,5 +1918,5 @@ function solveBoard() {
     });
 }
 
-document.getElementById("solve-button").addEventListener("click", solveBoard);
+document.getElementById("solve-button").addEventListener("click", tryAgain);
 document.getElementById("step-button").addEventListener("click", stepHandler);
