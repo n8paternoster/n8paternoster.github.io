@@ -106,6 +106,18 @@ class Board {
         /* clear canvas */
         Board.clearCanvas();
     }
+    fillEmptyCells() {
+        let cellsFilled = false;
+        for (let cell = 0; cell < Board.numCells; cell++) {
+            if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
+            else {
+                for (let can = 0; can < Board.N; can++)
+                    this.setCellCandidate(cell, can, true);
+                cellsFilled = true;
+            }
+        }
+        return cellsFilled;
+    }
     loadPuzzle(puzzleName) {
         /* Loads a puzzle into currentPuzzle and displays it on sudokuBoard */
 
@@ -342,9 +354,23 @@ class Board {
         outputEle.insertBefore(ele, pushEle);
         outputEle.insertBefore(document.createElement('br'), pushEle);
     }
+    static showLoader() {
+        let loader = document.getElementById("strategy-loader");
+        if (loader) {
+            loader.classList.add("loading");
+            //let push = loader.parentElement;
+            //push.style.height = push.parentElement.clientHeight + 'px';
+            //loader.scrollIntoView();
+        }
+    }
+    static hideLoader() {
+        let loader = document.getElementById("strategy-loader");
+        if (loader) loader.classList.remove("loading");
+    }
 
-    /* Step function */
+    /* Step/Solve */
     solvePath = [];
+    solving = false;
     isSolved() {
         for (let i = 0; i < Board.N; i++) {
             let rowCount = Array(Board.N).fill(0);
@@ -1044,16 +1070,6 @@ class Board {
         );
         Array.from(sudokuBoard.querySelectorAll('.candidate')).forEach(ele => ele.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple")
         );
-        //for (let cell = 0; cell < Board.numCells; cell++) {
-        //    let cellEle = cellEleFromIndex(cell);
-        //    if (cellEle) cellEle.classList.remove("cell-highlighted-red", "cell-highlighted-orange", "cell-highlighted-yellow", "cell-highlighted-green", "cell-highlighted-blue", "cell-highlighted-purple");
-        //    for (let can = 0; can < Board.N; can++) {
-        //        if (this.cellCandidates[cell][can] == 1) {
-        //            let canEle = candidateEleFromIndex(cell, can);
-        //            if (canEle) canEle.classList.remove("candidate-solution", "candidate-eliminated", "candidate-highlighted-red", "candidate-highlighted-orange", "candidate-highlighted-yellow", "candidate-highlighted-green", "candidate-highlighted-blue", "candidate-highlighted-purple");
-        //        }
-        //    }
-        //}
     }
     applyStrategyChanges(strategy) {
         if (!strategy) return;
@@ -1075,22 +1091,15 @@ class Board {
         elims.delete();
     }
     step() {
+        if (this.solving) return;
         let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+
         // Handle the previous step
         let prevStep = this.solvePath[this.solvePath.length - 1];
-        if (this.solvePath.length === 0) {
+        if (this.isSolved()) return;
+        else if (this.solvePath.length === 0) {
             // This is the first step, fill any 0-candidate cells with all candidates
-            let cansAdded = false;
-            for (let cell = 0; cell < Board.numCells; cell++) {
-                if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
-                for (let can = 0; can < Board.N; can++)
-                    this.setCellCandidate(cell, can, true);
-                cansAdded = true;
-            }
-            if (cansAdded)
-                return Module.StrategyID.CandidateRemoval;   // non-end strategy
-        } else if (this.isSolved()) {
-            return Module.StrategyID.Solved;
+            if (this.fillEmptyCells()) return;
         } else if (!endStrategies.includes(prevStep.id)) {
             this.applyStrategyChanges(prevStep);
             this.removeHighlighting();
@@ -1104,11 +1113,11 @@ class Board {
         let strategy = solver.step();
         solver.delete();
 
-        // If no changes were made, return the most recent strategy
+        // If no changes were made, return
         if (prevStep && endStrategies.includes(prevStep.id)) {
             if (prevStep.id === strategy.id) {
                 strategy.delete();
-                return prevStep.id;
+                return;
             }
         }
 
@@ -1116,7 +1125,102 @@ class Board {
         this.highlightStrategy(strategy);   // on board
         this.printStrategy(strategy);       // in output box
         this.solvePath.push(strategy);
-        return strategy.id;
+    }
+    solve() {
+        if (this.isSolved() || this.solving) return;
+        let solver = new Module.SudokuBoard();
+        if (!solver) return null;
+        this.solving = true;
+        let steps = [];
+        const ms = 200;
+
+        // Fill empty cells with all candidates
+        this.fillEmptyCells();
+
+        var getStrategies = () => {
+            return new Promise(resolve => {
+                let solutions = this.getSolutionsStr();
+                let candidates = this.getCandidatesStr();
+                let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+                let counter = 0;
+                const maxSteps = 100;
+                let strategy = null;
+                do {
+                    solver.setSolutions(solutions);
+                    solver.setCandidates(candidates);
+                    strategy = solver.step();
+                    solutions = solver.getSolutions();
+                    candidates = solver.getCandidates();
+                    steps.push(strategy);
+                } while (strategy && !endStrategies.includes(strategy.id) && counter++ < maxSteps);
+                resolve();
+            });
+        };
+        var runStrategies = () => {
+            Board.hideLoader();
+            return new Promise(resolve => {
+                let s = 0;
+                let prev = null;
+                let intr = setInterval(() => {
+                    if (prev) {
+                        this.applyStrategyChanges(prev);
+                        this.solvePath.push(prev);
+                    }
+                    if (s >= steps.length) {
+                        resolve(true);
+                        clearInterval(intr);
+                        return;
+                    }
+                    let strategy = steps[s];
+                    this.removeHighlighting();
+                    this.highlightStrategy(strategy);   // on board
+                    this.printStrategy(strategy);       // in output box
+                    if (strategy.id === Module.StrategyID.Error) {
+                        resolve(false);
+                        clearInterval(intr);
+                        return;
+                    }
+                    prev = strategy;
+                    s++;
+                }, ms);
+            });
+        };
+        var verifySolution = (valid) => {
+            return new Promise(resolve => {
+                if (!valid) resolve(false);
+                else if (!this.isSolved()) {
+                    Board.writeToOutput("Using brute force to find a unique solution...");
+                    setTimeout(() => {
+                        solver.setSolutions(this.getSolutionsStr());
+                        let found = solver.solve();
+                        if (found) {
+                            let solutions = solver.getSolutions();
+                            for (let cell = 0; cell < solutions.length; cell++) {
+                                if (this.clues[cell]) continue;
+                                Board.clearCell(cellEleFromIndex(cell));
+                                var solution = Number(solutions.charAt(cell)) - 1;
+                                this.setCellSolution(cell, solution);
+                            }
+                            Board.writeToOutput("Solution found", true);
+                            resolve(true);
+                        } else {
+                            Board.writeToOutput("Puzzle contains more than one solution", true);
+                            resolve(false);
+                        }
+                    }, ms);
+                } else resolve(true);
+            });
+        };
+
+        Board.showLoader();
+        getStrategies()
+            .then(() => runStrategies())
+            .then((valid) => verifySolution(valid))
+            .catch(e => console.log(e))
+            .finally(() => {
+                this.solving = false;
+                solver.delete();
+            });
     }
 };
 var board = new Board(newSavedPuzzles.get(currentPuzzle));
@@ -1642,279 +1746,284 @@ document.getElementById("custom-save-button").addEventListener("click", customSa
 function stepHandler(e) {
     if (board) board.step();
 }
-
-async function showLoader() {
-    let loader = document.getElementById("strategy-loader");
-    if (loader) {
-        loader.classList.add("loading");
-        //let push = loader.parentElement;
-        //push.style.height = push.parentElement.clientHeight + 'px';
-        //loader.scrollIntoView();
-    }
-}
-async function hideLoader() {
-    let loader = document.getElementById("strategy-loader");
-    if (loader) loader.classList.remove("loading");
+function solveHandler(e) {
+    if (board) board.solve();
 }
 
-async function tryAgain() {
-    if (board.isSolved()) return;
-    let steps = [];
-    const ms = 100;
-    let solver = new Module.SudokuBoard();
-    if (!solver) return null;
+//function tryAgain() {
+//    if (board.isSolved() || board.solving) return;
+//    let solver = new Module.SudokuBoard();
+//    if (!solver) return null;
+//    board.solving = true;
+//    let steps = [];
+//    const ms = 200;
 
-    let getStrategies = new Promise((resolve, reject) => {
-        let solutions = board.getSolutionsStr();
-        let candidates = board.getCandidatesStr();
-        let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
-        let counter = 0;
-        const maxSteps = 100;
-        let strategy = null;
-        do {
-            solver.setSolutions(solutions);
-            solver.setCandidates(candidates);
-            strategy = solver.step();
-            solutions = solver.getSolutions();
-            candidates = solver.getCandidates();
-            steps.push(strategy);
-        } while (strategy && !endStrategies.includes(strategy.id) && counter++ < maxSteps);
-        resolve();
-    });
-    let applyStrategies = new Promise((resolve, reject) => {
-        let s = 0;
-        let prev = null;
-        let intr = setInterval(() => {
-            if (prev) {
-                board.applyStrategyChanges(prev);
-                board.solvePath.push(prev);
-            }
-            if (s >= steps.length) {
-                clearInterval(intr);
-                resolve(true);
-                return;
-            }
-            let strategy = steps[s];
-            board.removeHighlighting();
-            board.highlightStrategy(strategy);   // on board
-            board.printStrategy(strategy);       // in output box
-            if (strategy.id === Module.StrategyID.Error) {
-                clearInterval(intr);
-                resolve(false);
-                return;
-            }
-            prev = strategy;
-            s++;
-        }, ms);
-    });
-    let verifySolution = function () {
-        if (/*valid && */!board.isSolved()) {
-            Board.writeToOutput("Using brute force to find a unique solution...");
-            solver.setSolutions(board.getSolutionsStr());
-            let found = solver.solve();
-            if (found) {
-                let solutions = solver.getSolutions();
-                for (let cell = 0; cell < solutions.length; cell++) {
-                    if (board.clues[cell]) continue;
-                    Board.clearCell(cellEleFromIndex(cell));
-                    var solution = Number(solutions.charAt(cell)) - 1;
-                    board.setCellSolution(cell, solution);
-                }
-                Board.writeToOutput("Solution found", true);
-            } else {
-                Board.writeToOutput("Puzzle contains more than one solution", true);
-            }
-        }
-    };
+//    function getStrategies() {
+//        return new Promise(resolve => {
+//            let solutions = board.getSolutionsStr();
+//            let candidates = board.getCandidatesStr();
+//            let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+//            let counter = 0;
+//            const maxSteps = 100;
+//            let strategy = null;
+//            do {
+//                solver.setSolutions(solutions);
+//                solver.setCandidates(candidates);
+//                strategy = solver.step();
+//                solutions = solver.getSolutions();
+//                candidates = solver.getCandidates();
+//                steps.push(strategy);
+//            } while (strategy && !endStrategies.includes(strategy.id) && counter++ < maxSteps);
+//            resolve();
+//        });
+//    };
+//    function runStrategies() {
+//        hideLoader();
+//        return new Promise(resolve => {
+//            let s = 0;
+//            let prev = null;
+//            let intr = setInterval(() => {
+//                if (prev) {
+//                    board.applyStrategyChanges(prev);
+//                    board.solvePath.push(prev);
+//                }
+//                if (s >= steps.length) {
+//                    resolve(true);
+//                    clearInterval(intr);
+//                    return;
+//                }
+//                let strategy = steps[s];
+//                board.removeHighlighting();
+//                board.highlightStrategy(strategy);   // on board
+//                board.printStrategy(strategy);       // in output box
+//                if (strategy.id === Module.StrategyID.Error) {
+//                    resolve(false);
+//                    clearInterval(intr);
+//                    return;
+//                }
+//                prev = strategy;
+//                s++;
+//            }, ms);
+//        });
+//    };
+//    function verifySolution(valid) {
+//        return new Promise(resolve => {
+//            if (!valid) resolve(false);
+//            else if (!board.isSolved()) {
+//                Board.writeToOutput("Using brute force to find a unique solution...");
+//                setTimeout(() => {
+//                    solver.setSolutions(board.getSolutionsStr());
+//                    let found = solver.solve();
+//                    if (found) {
+//                        let solutions = solver.getSolutions();
+//                        for (let cell = 0; cell < solutions.length; cell++) {
+//                            if (board.clues[cell]) continue;
+//                            Board.clearCell(cellEleFromIndex(cell));
+//                            var solution = Number(solutions.charAt(cell)) - 1;
+//                            board.setCellSolution(cell, solution);
+//                        }
+//                        Board.writeToOutput("Solution found", true);
+//                        resolve(true);
+//                    } else {
+//                        Board.writeToOutput("Puzzle contains more than one solution", true);
+//                        resolve(false);
+//                    }
+//                }, ms);
+//            } else resolve(true);
+//        });
+//    };
 
-    showLoader();
-    await getStrategies;
-    hideLoader();
-    await applyStrategies;
-    verifySolution();
-    solver.delete();
-}
+//    showLoader();
+//    getStrategies()
+//    .then(() => runStrategies())
+//    .then((valid) => verifySolution(valid))
+//    .catch(e => console.log(e))
+//    .finally(() => {
+//        board.solving = false;
+//        solver.delete();
+//    });
+//}
 
-function newSolve() {
-    if (board.isSolved()) return;
-    let steps = [];
-    let solver = new Module.SudokuBoard();
-    if (!solver) return null;
+//function newSolve() {
+//    if (board.isSolved()) return;
+//    let steps = [];
+//    let solver = new Module.SudokuBoard();
+//    if (!solver) return null;
 
-    let getStrategies = new Promise((resolve, reject) => {
-        let solutions = board.getSolutionsStr();
-        let candidates = board.getCandidatesStr();
-        let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
-        let counter = 0;
-        const maxSteps = 100;
-        let strategy = null;
-        do {
-            solver.setSolutions(solutions);
-            solver.setCandidates(candidates);
-            strategy = solver.step();
-            solutions = solver.getSolutions();
-            candidates = solver.getCandidates();
-            steps.push(strategy);
-        } while (strategy && !endStrategies.includes(strategy.id) && counter++ < maxSteps);
-        resolve();
-    });
-    let applyStrategies = function (ms, callback) {
-        return new Promise((resolve, reject) => {
-            //hideLoader();
-            let s = 0;
-            let prev = null;
-            let intr = setInterval(() => {
-                if (prev) {
-                    board.applyStrategyChanges(prev);
-                    board.solvePath.push(prev);
-                }
-                if (s >= steps.length) {
-                    clearInterval(intr);
-                    callback(true);
-                    resolve(true);
-                    return;
-                }
-                let strategy = steps[s];
-                board.removeHighlighting();
-                board.highlightStrategy(strategy);   // on board
-                board.printStrategy(strategy);       // in output box
-                if (strategy.id === Module.StrategyID.Error) {
-                    clearInterval(intr);
-                    callback(false);
-                    resolve(false);
-                    return;
-                }
-                prev = strategy;
-                s++;
-            }, ms);
-        });
-    };
-    let verifySolution = function (valid) {
-        return new Promise((resolve, reject) => {
-            if (/*valid && */!board.isSolved()) {
-                Board.writeToOutput("Using brute force to find a unique solution...");
-                solver.setSolutions(board.getSolutionsStr());
-                let found = solver.solve();
-                if (found) {
-                    let solutions = solver.getSolutions();
-                    for (let cell = 0; cell < solutions.length; cell++) {
-                        if (board.clues[cell]) continue;
-                        Board.clearCell(cellEleFromIndex(cell));
-                        var solution = Number(solutions.charAt(cell)) - 1;
-                        board.setCellSolution(cell, solution);
-                    }
-                    Board.writeToOutput("Solution found", true);
-                    resolve(true);
-                } else {
-                    Board.writeToOutput("Puzzle contains more than one solution", true);
-                    resolve(false);
-                }
-            }
-        });
-    };
+//    let getStrategies = new Promise((resolve, reject) => {
+//        let solutions = board.getSolutionsStr();
+//        let candidates = board.getCandidatesStr();
+//        let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+//        let counter = 0;
+//        const maxSteps = 100;
+//        let strategy = null;
+//        do {
+//            solver.setSolutions(solutions);
+//            solver.setCandidates(candidates);
+//            strategy = solver.step();
+//            solutions = solver.getSolutions();
+//            candidates = solver.getCandidates();
+//            steps.push(strategy);
+//        } while (strategy && !endStrategies.includes(strategy.id) && counter++ < maxSteps);
+//        resolve();
+//    });
+//    let applyStrategies = function (ms, callback) {
+//        return new Promise((resolve, reject) => {
+//            //hideLoader();
+//            let s = 0;
+//            let prev = null;
+//            let intr = setInterval(() => {
+//                if (prev) {
+//                    board.applyStrategyChanges(prev);
+//                    board.solvePath.push(prev);
+//                }
+//                if (s >= steps.length) {
+//                    clearInterval(intr);
+//                    callback(true);
+//                    resolve(true);
+//                    return;
+//                }
+//                let strategy = steps[s];
+//                board.removeHighlighting();
+//                board.highlightStrategy(strategy);   // on board
+//                board.printStrategy(strategy);       // in output box
+//                if (strategy.id === Module.StrategyID.Error) {
+//                    clearInterval(intr);
+//                    callback(false);
+//                    resolve(false);
+//                    return;
+//                }
+//                prev = strategy;
+//                s++;
+//            }, ms);
+//        });
+//    };
+//    let verifySolution = function (valid) {
+//        return new Promise((resolve, reject) => {
+//            if (/*valid && */!board.isSolved()) {
+//                Board.writeToOutput("Using brute force to find a unique solution...");
+//                solver.setSolutions(board.getSolutionsStr());
+//                let found = solver.solve();
+//                if (found) {
+//                    let solutions = solver.getSolutions();
+//                    for (let cell = 0; cell < solutions.length; cell++) {
+//                        if (board.clues[cell]) continue;
+//                        Board.clearCell(cellEleFromIndex(cell));
+//                        var solution = Number(solutions.charAt(cell)) - 1;
+//                        board.setCellSolution(cell, solution);
+//                    }
+//                    Board.writeToOutput("Solution found", true);
+//                    resolve(true);
+//                } else {
+//                    Board.writeToOutput("Puzzle contains more than one solution", true);
+//                    resolve(false);
+//                }
+//            }
+//        });
+//    };
 
-    //showLoader();
-    getStrategies.then(applyStrategies(500, verifySolution))
-        .then((valid) => verifySolution(valid))
-        .catch(e => console.log(e))
-        //.finally(() => solver.delete());
-}
+//    //showLoader();
+//    getStrategies.then(applyStrategies(500, verifySolution))
+//        .then((valid) => verifySolution(valid))
+//        .catch(e => console.log(e))
+//        //.finally(() => solver.delete());
+//}
 
-function solveBoard() {
+//function solveBoard() {
 
-    async function showSpinner() {
-        let loader = document.getElementById("strategy-loader");
-        if (loader) {
-            loader.classList.add("loading");
-            //let push = loader.parentElement;
-            //push.style.height = push.parentElement.clientHeight + 'px';
-            //loader.scrollIntoView();
-        }
-    }
-    async function hideSpinner() {
-        let loader = document.getElementById("strategy-loader");
-        if (loader) loader.classList.remove("loading");
-    }
+//    async function showSpinner() {
+//        let loader = document.getElementById("strategy-loader");
+//        if (loader) {
+//            loader.classList.add("loading");
+//            //let push = loader.parentElement;
+//            //push.style.height = push.parentElement.clientHeight + 'px';
+//            //loader.scrollIntoView();
+//        }
+//    }
+//    async function hideSpinner() {
+//        let loader = document.getElementById("strategy-loader");
+//        if (loader) loader.classList.remove("loading");
+//    }
 
-    function takeStep() {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
-                let lastStep = board.step();
-                if (!lastStep) reject("Error");
-                else if (endStrategies.includes(lastStep)) reject("Finished");
-                else resolve(lastStep);
-            }, 200);
-        });
-    }
+//    function takeStep() {
+//        return new Promise((resolve, reject) => {
+//            setTimeout(() => {
+//                let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+//                let lastStep = board.step();
+//                if (!lastStep) reject("Error");
+//                else if (endStrategies.includes(lastStep)) reject("Finished");
+//                else resolve(lastStep);
+//            }, 200);
+//        });
+//    }
 
-    async function stepStrategies(count = 100) {
-        if (count > 0) {
-            await showSpinner();
-            let step = await takeStep().catch(done => done);
-            await hideSpinner();
-            if (step === "Error") throw "Error loading solver";
-            else if (step === "Finished") return step;
-            else return await stepStrategies(count - 1);
-        } else {
-            throw "Solver timed out";
-        }
-    }
+//    async function stepStrategies(count = 100) {
+//        if (count > 0) {
+//            await showSpinner();
+//            let step = await takeStep().catch(done => done);
+//            await hideSpinner();
+//            if (step === "Error") throw "Error loading solver";
+//            else if (step === "Finished") return step;
+//            else return await stepStrategies(count - 1);
+//        } else {
+//            throw "Solver timed out";
+//        }
+//    }
 
-    function stepThroughStrategies(ms) {
-        return new Promise((resolve, reject) => {
-            let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
-            const maxSteps = 100;
-            let counter = 0;
-            let loader = document.getElementById("strategy-push");
-            setTimeout(function stepStrategy() {
-                loader.classList.add("loading");
-                let lastStep = board.step();
-                loader.classList.remove("loading");
-                if (!lastStep)
-                    reject("Error loading solver");
-                else if (counter++ > maxSteps || endStrategies.includes(lastStep))
-                    resolve(lastStep);
-                else
-                    setTimeout(stepStrategy, ms);
-            }, ms);
-        });
-    }
+//    function stepThroughStrategies(ms) {
+//        return new Promise((resolve, reject) => {
+//            let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
+//            const maxSteps = 100;
+//            let counter = 0;
+//            let loader = document.getElementById("strategy-push");
+//            setTimeout(function stepStrategy() {
+//                loader.classList.add("loading");
+//                let lastStep = board.step();
+//                loader.classList.remove("loading");
+//                if (!lastStep)
+//                    reject("Error loading solver");
+//                else if (counter++ > maxSteps || endStrategies.includes(lastStep))
+//                    resolve(lastStep);
+//                else
+//                    setTimeout(stepStrategy, ms);
+//            }, ms);
+//        });
+//    }
 
-    function bruteForce() {
-        let solver = new Module.SudokuBoard();
-        if (!solver) throw "Error loading solver";
-        solver.setSolutions(board.getSolutionsStr());
-        let found = solver.solve();
-        if (found) {
-            let solutions = solver.getSolutions();
-            for (let cell = 0; cell < solutions.length; cell++) {
-                if (board.clues[cell]) continue;
-                Board.clearCell(cellEleFromIndex(cell));
-                var solution = Number(solutions.charAt(cell)) - 1;
-                board.setCellSolution(cell, solution);
-            }
-        }
-        solver.delete();
-        return found;
-    }
+//    function bruteForce() {
+//        let solver = new Module.SudokuBoard();
+//        if (!solver) throw "Error loading solver";
+//        solver.setSolutions(board.getSolutionsStr());
+//        let found = solver.solve();
+//        if (found) {
+//            let solutions = solver.getSolutions();
+//            for (let cell = 0; cell < solutions.length; cell++) {
+//                if (board.clues[cell]) continue;
+//                Board.clearCell(cellEleFromIndex(cell));
+//                var solution = Number(solutions.charAt(cell)) - 1;
+//                board.setCellSolution(cell, solution);
+//            }
+//        }
+//        solver.delete();
+//        return found;
+//    }
 
-    stepStrategies()
-    .then(lastStep => {
-        if (lastStep === Module.StrategyID.Error) return;
-        if (!board.isSolved()) {
-            Board.writeToOutput("Using brute force to find a unique solution...");
-            if (bruteForce()) {
-                Board.writeToOutput("Solution found", true);
-            } else {
-                Board.writeToOutput("Puzzle contains more than one solution", true);
-            }
-        }
-    })
-    .catch(e => {
-        Board.writeToOutput(e);
-    });
-}
+//    stepStrategies()
+//    .then(lastStep => {
+//        if (lastStep === Module.StrategyID.Error) return;
+//        if (!board.isSolved()) {
+//            Board.writeToOutput("Using brute force to find a unique solution...");
+//            if (bruteForce()) {
+//                Board.writeToOutput("Solution found", true);
+//            } else {
+//                Board.writeToOutput("Puzzle contains more than one solution", true);
+//            }
+//        }
+//    })
+//    .catch(e => {
+//        Board.writeToOutput(e);
+//    });
+//}
 
-document.getElementById("solve-button").addEventListener("click", tryAgain);
+document.getElementById("solve-button").addEventListener("click", solveHandler);
 document.getElementById("step-button").addEventListener("click", stepHandler);
