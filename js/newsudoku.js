@@ -1134,9 +1134,6 @@ class Board {
         let steps = [];
         const ms = 200;
 
-        // Fill empty cells with all candidates
-        this.fillEmptyCells();
-
         var getStrategies = () => {
             return new Promise(resolve => {
                 let solutions = this.getSolutionsStr();
@@ -1157,7 +1154,7 @@ class Board {
             });
         };
         var runStrategies = () => {
-            Board.hideLoader();
+            //Board.hideLoader();
             return new Promise(resolve => {
                 let s = 0;
                 let prev = null;
@@ -1212,8 +1209,14 @@ class Board {
             });
         };
 
-        Board.showLoader();
-        getStrategies()
+        //this.fillEmptyCells();
+        //Board.showLoader();
+        // Fill empty cells with all candidates
+        (new Promise(resolve => {
+            this.fillEmptyCells();
+            Board.showLoader();
+            resolve();
+        })).then(() => getStrategies())
             .then(() => runStrategies())
             .then((valid) => verifySolution(valid))
             .catch(e => console.log(e))
