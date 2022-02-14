@@ -38,13 +38,15 @@ class Board {
         Board.clearCanvas();
         for (var cell = 0; cell < Board.numCells; cell++) {
             var val = clueStr.charAt(cell);
-            if (val >= '1' && val <= ' 9') {
+            if (val >= '1' && val <= '9') {
                 this.clues[cell] = Number(val);
                 this.cellSolutions[cell] = Number(val);
                 this.cellCandidates[cell].fill(0);  // remove candidates from this cell
                 Board.drawCellSolution(cellEleFromIndex(cell), val, true);
                 Board.lockCell(cellEleFromIndex(cell));
             } else {
+                this.clues[cell] = 0;
+                // add candidates?
                 Board.unlockCell(cellEleFromIndex(cell));
             }
         }
@@ -54,6 +56,7 @@ class Board {
         if (candidatesStr == null || candidatesStr.length != Board.numCells * Board.N) return;
         this.resetStep();    // invalidate step data
         for (var cell = 0; cell < Board.numCells; cell++) {
+            if (this.clues[cell] >= '1' && this.clues[cell] <= '9') continue;
             var ele = cellEleFromIndex(cell);
             Board.clearCell(ele);
             var solution = this.clues[cell] ? this.clues[cell] : solutionsStr.charAt(cell);
@@ -152,11 +155,11 @@ class Board {
         if (puzzleName === "Custom") {
             var editor = document.getElementById("show-custom-editor");
             customEditor.style.maxHeight = editor.scrollHeight + "px";
+            customEditor.style.overflow = "visible";
         } else {
             customEditor.style.maxHeight = 0;
+            customEditor.style.overflow = "hidden";
         }
-
-        saveSessionData();
     }
     loadUserData() {
         if (currentPuzzle != "Custom") return;  // load puzzle instead?
@@ -1330,9 +1333,15 @@ document.addEventListener("DOMContentLoaded", function (e) {
         select.appendChild(opt);
     });
 
-    /* load the default puzzle */
-    if (!currentPuzzle) currentPuzzle = "Easy Example";
-    board.loadPuzzle(currentPuzzle);
+    if (window.sessionStorage.getItem("currentPuzzle")) {
+        board.loadPuzzle(window.sessionStorage.getItem("currentPuzzle"));
+        loadSessionData();
+    } else {
+        /* load the default puzzle */
+        if (!currentPuzzle) currentPuzzle = "Easy Example";
+        board.loadPuzzle(currentPuzzle);
+        saveSessionData();
+    }
 
     /* set the board canvas element size */
     let canvas = document.getElementById("sudoku-board-canvas");
@@ -1375,17 +1384,13 @@ document.addEventListener("click", function (e) {
 
 function saveSessionData() {
     window.sessionStorage.setItem("currentPuzzle", currentPuzzle);
-    window.sessionStorage.setItem("boardClues", board.getCluesStr());
     window.sessionStorage.setItem("boardCellSolutions", board.getSolutionsStr());
     window.sessionStorage.setItem("boardCellCandidates", board.getCandidatesStr());
     window.sessionStorage.setItem("userCellSolutions", userData.cellSolutions.join(''));
     window.sessionStorage.setItem("userCellCandidates", userData.cellCandidates.map(cell => cell.join('')).join(''));
-    console.log("boardCellSolutions saved as: ", window.sessionStorage.getItem("boardCellSolutions"));
-    console.log("boardCellCandidates saved as: ", window.sessionStorage.getItem("boardCellCandidates"));
 }
 function loadSessionData() {
     currentPuzzle = window.sessionStorage.getItem("currentPuzzle");
-    board.setClues(window.sessionStorage.getItem("boardClues"));
     let solutions = window.sessionStorage.getItem("boardCellSolutions");
     let candidates = window.sessionStorage.getItem("boardCellCandidates");
     board.setData(solutions, candidates);
@@ -1395,14 +1400,6 @@ function loadSessionData() {
     for (let cell = 0; cell < Board.numCells; cell++) {
         userData.cellCandidates[cell] = userCandidates.substr(cell * Board.N, Board.N).split('').map(Number);
     }
-    console.log("boardCellSolutions loaded from: ", window.sessionStorage.getItem("boardCellSolutions"));
-    console.log("boardCellCandidates loaded from: ", window.sessionStorage.getItem("boardCellCandidates"));
-}
-
-/* on page refresh, load the current puzzle */
-if (window.sessionStorage.getItem("currentPuzzle")) {
-    loadSessionData();
-    //board.loadPuzzle(currentPuzzle);
 }
 
 /* ----------------- sudokuBoard handlers ----------------- */
@@ -1415,18 +1412,20 @@ function sudokuBoardHandleClick(e) {
 
         /* digit button is currently selected, set the cell value */
         if (digitInputSelection >= 0 && digitInputSelection <= 9) {
-            if (digitInputSelection == 0) {
-                if (!cell.classList.contains("cell-input-locked"))
-                    board.resetCell(cellNum);
-            } else {
-                let val = digitInputSelection - 1;
-                if (digitInputIsSolution) {
-                    board.setCellSolution(cellNum, val);
+            if (!board.solving) {
+                if (digitInputSelection == 0) {
+                    if (!cell.classList.contains("cell-input-locked"))
+                        board.resetCell(cellNum);
                 } else {
-                    // set candidate only if no solution in cell
-                    if (board.cellSolutions[cellNum] == 0) {
-                        let canIsSet = (board.cellCandidates[cellNum][val] == 1);
-                        board.setCellCandidate(cellNum, val, !canIsSet);
+                    let val = digitInputSelection - 1;
+                    if (digitInputIsSolution) {
+                        board.setCellSolution(cellNum, val);
+                    } else {
+                        // set candidate only if no solution in cell
+                        if (board.cellSolutions[cellNum] == 0) {
+                            let canIsSet = (board.cellCandidates[cellNum][val] == 1);
+                            board.setCellCandidate(cellNum, val, !canIsSet);
+                        }
                     }
                 }
             }
@@ -1459,7 +1458,7 @@ function sudokuBoardHandleKey(e) {
     } else if (backKeys.includes(e.key)) {
         /* delete input and tab backward */
         e.preventDefault();
-        e.target.value = "";
+        if (!board.solving) board.resetCell(index);
         let newIndex = index;
         let newCell = e.target;
         do {/* skip over locked cells */
@@ -1516,8 +1515,8 @@ function sudokuBoardHandleKey(e) {
     } else if (e.key === "Escape") {
         /* deselect current cell */
         e.target.blur();
-    } else if (e.key.length === 1 && !(/\d/.test(e.key)) && !e.ctrlKey) {
-        /* prevent invalid input from displaying */
+    } else if (board.solving || (e.key.length === 1 && !(/\d/.test(e.key)) && !e.ctrlKey)) {
+        /* prevent invalid input from displaying or prevent any input if the board is currently being solved */
         e.preventDefault();
     }
 }
@@ -1527,20 +1526,19 @@ function sudokuBoardHandleInput(e) {
     if (cell.value.length === 1) {
         e.preventDefault();
         /* Set this cell */
-        if (cell.value >= 1 && cell.value <= 9) {
-            var val = Number(cell.value) - 1;
-            if (digitInputIsSolution) {
-                board.setCellSolution(cellNum, val);
-            } else {
-                // set candidate only if no solution in cell
-                if (board.cellSolutions[cellNum] == 0) {
-                    cell.value = "";
-                    let canIsSet = board.cellCandidates[cellNum][val] == 1;
-                    board.setCellCandidate(cellNum, val, !canIsSet);
+        if (!board.solving) {
+            if (cell.value >= 1 && cell.value <= 9) {
+                var val = Number(cell.value) - 1;
+                if (digitInputIsSolution) {
+                    board.setCellSolution(cellNum, val);
+                } else {
+                    // set candidate only if no solution in cell
+                    if (board.cellSolutions[cellNum] == 0) {
+                        let canIsSet = board.cellCandidates[cellNum][val] == 1;
+                        board.setCellCandidate(cellNum, val, !canIsSet);
+                    }
                 }
-            }
-        } else {
-            board.resetCell(cellNum);
+            } else board.resetCell(cellNum);
         }
         /* Tab to the next cell */
         if (digitInputIsSolution) {
@@ -1554,8 +1552,8 @@ function sudokuBoardHandleInput(e) {
             nextCell.select();
         }
     } else if (cell.value.length > 1) {
-        board.resetCell(cellNum);
         e.preventDefault();
+        if (!board.solving) board.resetCell(cellNum);
     }
 }
 function sudokuBoardHandlePaste(e) {
@@ -1565,19 +1563,19 @@ function sudokuBoardHandlePaste(e) {
     if (pastedData.length === 1) {
         e.preventDefault();
         /* Set this cell */
-        if (pastedData >= '1' && pastedData <= '9') {
-            var val = Number(pastedData) - 1;
-            if (digitInputIsSolution) {
-                board.setCellSolution(cellNum, val);
-            } else {
-                // set candidate only if no solution in cell
-                if (board.cellSolutions[cellNum] == 0) {
-                    let canIsSet = (board.cellCandidates[cellNum][val] == 1);
-                    board.setCellCandidate(cellNum, val, !canIsSet);
+        if (!board.solving) {
+            if (pastedData >= '1' && pastedData <= '9') {
+                var val = Number(pastedData) - 1;
+                if (digitInputIsSolution) {
+                    board.setCellSolution(cellNum, val);
+                } else {
+                    // set candidate only if no solution in cell
+                    if (board.cellSolutions[cellNum] == 0) {
+                        let canIsSet = (board.cellCandidates[cellNum][val] == 1);
+                        board.setCellCandidate(cellNum, val, !canIsSet);
+                    }
                 }
-            }
-        } else {
-            board.resetCell(cellNum);
+            } else board.resetCell(cellNum);
         }
         /* Tab to the next cell */
         if (digitInputIsSolution) {
@@ -1592,8 +1590,8 @@ function sudokuBoardHandlePaste(e) {
             nextCell.select();
         }
     } else if (pastedData.length > 1) {
-        board.resetCell(cellNum);
         e.preventDefault();
+        if (!board.solving) board.resetCell(cellNum);
     }
 }
 
@@ -1630,7 +1628,7 @@ function digitInputHandleClick(e) {
         if (digitInputSelection >= 0 && digitInputSelection <= 9) {
             deselectDigitButton(digitButtonEleFromIndex(digitInputSelection));
             selectDigitButton(button);
-        } else {
+        } else if (!board.solving) {
             /* otherwise set the cell value */
             if (digit == 0) {
                 board.resetCell(cellInputSelection);
@@ -1695,12 +1693,14 @@ function puzzleSelectHandler(e) {
     var sel = e.target;
     var puzzle = sel.options[sel.selectedIndex].value;
     board.loadPuzzle(puzzle);
+    saveSessionData();
 }
 function puzzleHelpHandler(e) {
     /* navigate page to help section */
 }
 function puzzleRestartHandler(e) {
     board.loadPuzzle(currentPuzzle);
+    saveSessionData();
 }
 
 document.getElementById("puzzle-select").addEventListener("change", puzzleSelectHandler);
@@ -1712,11 +1712,10 @@ document.getElementById("restart-button").addEventListener("click", puzzleRestar
 function customInputHandler(e) {
     let ele = document.getElementById("custom-input");
     if (!ele) return;
-    // TODO : remove error message clipping
     let input = ele.value;
     if (input.length != Board.numCells) {
         /* display error message */
-        let popup = e.target.querySelector(".text-popup");
+        let popup = ele.parentElement.querySelector(".text-popup");
         popup.textContent = "Input must contain 81 characters";
         displayTextPopup(popup, 1000);
         return;
@@ -1724,7 +1723,7 @@ function customInputHandler(e) {
     let solutionStr = input.replace(/[^1-9]/g, '0');
     if (solutionStr.split('').every(c => c === '0')) {
         /* display error message */
-        let popup = e.target.querySelector(".text-popup");
+        let popup = ele.parentElement.querySelector(".text-popup");
         popup.textContent = "Input must contain at least 1 number";
         displayTextPopup(popup, 1000);
         return;

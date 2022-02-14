@@ -152,7 +152,7 @@ img {
 
 .text-popup {
     width: auto;
-    background-color: black;
+    background-color: #000000b0;
     color: white;
     text-align: center;
     border-radius: 6px;
@@ -167,11 +167,9 @@ img {
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
 }
-
 .text-popup-active {
     opacity: 1;
 }
-
 .text-popup::after {
     content: "";
     position: absolute;
@@ -180,7 +178,7 @@ img {
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: black transparent transparent transparent;
+    border-color: #000000b0 transparent transparent transparent;
 }
 
 .copyable-text:hover {
@@ -670,9 +668,14 @@ section {
 }
 .custom-input-container #custom-input {
     overflow: hidden;
+    width: 100%;
+    height: 100%;
 }
-#custom-save-button, #custom-input-submit {
+#custom-save-button, .custom-input-outer {
     position: relative; /* for text popup */
+}
+.custom-input-outer .text-popup { 
+    min-width: 100%;
 }
 
 /* Cell input */

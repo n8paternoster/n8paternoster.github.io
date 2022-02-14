@@ -34,7 +34,7 @@
                 <div id="board-left">
                     <div class="left-panel">
                         <div id="board-input">
-                            <h3 class="panel-title">Board Input</h3>
+                            <!--<h3 class="panel-title">Board Input</h3>-->
                             <div id="puzzle-box">
                                 <label for="puzzle-select">Puzzles</label>
                                 <select id="puzzle-select"></select>
@@ -47,8 +47,11 @@
                                 <div id="custom-editor-box">
                                     <h4>Custom Board Editor</h4>
                                     <div class="custom-input-container">
-                                        <input type="text" id="custom-input" name="custom-input" maxlength="81" placeholder="Enter Clues" />
-                                        <button id="custom-input-submit"><span class="text-popup"></span>Enter</button>
+                                        <div class="custom-input-outer">
+                                            <input type="text" id="custom-input" name="custom-input" maxlength="81" placeholder="Enter Clues" />
+                                            <span class="text-popup"></span>
+                                        </div>
+                                        <button id="custom-input-submit">Enter</button>
                                     </div>
                                     <div class="puzzle-buttons-row">
                                         <button id="custom-clear-button">Clear</button>
@@ -59,7 +62,7 @@
                             </div>
                         </div>
                         <div id="cell-input">
-                            <h3 class="panel-title">Cell Input</h3>
+                            <!--<h3 class="panel-title">Cell Input</h3>-->
                             <div id="digit-input-toggle-buttons">
                                 <button class="digit-input-toggle-active" id="digit-input-solution">Digit</button>
                                 <button id="digit-input-candidate">Candidate</button>
