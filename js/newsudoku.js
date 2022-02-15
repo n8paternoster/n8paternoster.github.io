@@ -346,7 +346,7 @@ class Board {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.restore();
     }
-    static writeToOutput(string, bold) {
+    static writeToOutput(string, bold = false) {
         let outputEle = document.getElementById("strategy-output");
         let pushEle = document.getElementById("strategy-push");
         if (!outputEle || !pushEle || string.length === 0) return;
@@ -1095,6 +1095,11 @@ class Board {
     }
     step() {
         if (this.isSolved() || this.solving) return;
+        let numClues = this.cellSolutions.filter(c => (typeof c === 'number') && (c >= 1 && c <= 9)).length;
+        if (numClues < 17) {    // minimum for valid sudoku
+            Board.writeToOutput("A valid sudoku must contain at least 17 clues", true);
+            return;
+        }
         let endStrategies = [Module.StrategyID.Solved, Module.StrategyID.Error, Module.StrategyID.None];
 
         // Handle the previous step
@@ -1144,6 +1149,11 @@ class Board {
     }
     solve() {
         if (this.isSolved() || this.solving) return;
+        let numClues = this.cellSolutions.filter(c => (typeof c === 'number') && (c >= 1 && c <= 9)).length;
+        if (numClues < 17) {    // minimum for valid sudoku
+            Board.writeToOutput("A valid sudoku must contain at least 17 clues", true);
+            return;
+        }
         let solver = new Module.SudokuBoard();
         if (!solver) return null;
         let steps = [];
