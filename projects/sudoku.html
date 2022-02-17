@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html class="smooth-scroll" lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title>Nathan Paternoster | Sudoku Solver</title>
@@ -32,53 +32,49 @@
         <div class="content wide-content">
             <div id="sudoku-board-container">
                 <div id="board-left">
-                    <div class="left-panel">
-                        <div id="board-input">
-                            <!--<h3 class="panel-title">Board Input</h3>-->
-                            <div id="puzzle-box">
-                                <label for="puzzle-select">Puzzles</label>
-                                <select id="puzzle-select"></select>
-                                <div class="puzzle-buttons-row">
-                                    <button id="help-button">Help</button>
-                                    <button id="restart-button">Restart</button>
-                                </div>
+                    <div id="board-input">
+                        <!--<h3 class="panel-title">Board Input</h3>-->
+                        <div id="puzzle-box">
+                            <label for="puzzle-select">Puzzles</label>
+                            <select id="puzzle-select"></select>
+                            <div class="puzzle-buttons-row">
+                                <button id="help-button">Help</button>
+                                <button id="restart-button">Restart</button>
                             </div>
-                            <div id="show-custom-editor">
-                                <div id="custom-editor-box">
-                                    <h4>Custom Board Editor</h4>
-                                    <div class="custom-input-container">
-                                        <div class="custom-input-outer">
-                                            <input type="text" id="custom-input" name="custom-input" maxlength="81" placeholder="Enter Clues" />
-                                            <span class="text-popup"></span>
-                                        </div>
-                                        <button id="custom-input-submit">Enter</button>
+                        </div>
+                        <div id="show-custom-editor">
+                            <div id="custom-editor-box">
+                                <h4>Custom Board Editor</h4>
+                                <div class="custom-input-container">
+                                    <div class="custom-input-outer">
+                                        <input type="text" id="custom-input" name="custom-input" maxlength="81" placeholder="Enter Clues" />
+                                        <span class="text-popup"></span>
                                     </div>
-                                    <div class="puzzle-buttons-row">
-                                        <button id="custom-clear-button">Clear</button>
-                                        <button id="custom-save-button"><span class="text-popup"></span>Save</button>
-                                        <button id="custom-load-button">Load</button>
-                                    </div>
+                                    <button id="custom-input-submit">Enter</button>
+                                </div>
+                                <div class="puzzle-buttons-row">
+                                    <button id="custom-clear-button">Clear</button>
+                                    <button id="custom-save-button"><span class="text-popup"></span>Save</button>
+                                    <button id="custom-load-button">Load</button>
                                 </div>
                             </div>
                         </div>
-                        <div id="cell-input">
-                            <!--<h3 class="panel-title">Cell Input</h3>-->
-                            <div id="digit-input-toggle-buttons">
-                                <button class="digit-input-toggle-active" id="digit-input-solution">Digit</button>
-                                <button id="digit-input-candidate">Candidate</button>
-                            </div>
-                            <div id="digit-input-grid">
-                                <button class="digit-button" id="digitInput1">1</button>
-                                <button class="digit-button" id="digitInput2">2</button>
-                                <button class="digit-button" id="digitInput3">3</button>
-                                <button class="digit-button" id="digitInput4">4</button>
-                                <button class="digit-button" id="digitInput5">5</button>
-                                <button class="digit-button" id="digitInput6">6</button>
-                                <button class="digit-button" id="digitInput7">7</button>
-                                <button class="digit-button" id="digitInput8">8</button>
-                                <button class="digit-button" id="digitInput9">9</button>
-                                <button class="digit-button" id="digitInput0"><i class="fas fa-eraser eraser"></i></button>
-                            </div>
+                    </div>
+                    <div id="cell-input">
+                        <!--<h3 class="panel-title">Cell Input</h3>-->
+                        <div id="digit-input-grid">
+                            <button class="digit-toggle digit-toggle-active" id="digitInputSolution">Digit</button>
+                            <button class="digit-toggle" id="digitInputCandidate">Candidate</button>
+                            <button class="digit-button" id="digitInput1">1</button>
+                            <button class="digit-button" id="digitInput2">2</button>
+                            <button class="digit-button" id="digitInput3">3</button>
+                            <button class="digit-button" id="digitInput4">4</button>
+                            <button class="digit-button" id="digitInput5">5</button>
+                            <button class="digit-button" id="digitInput6">6</button>
+                            <button class="digit-button" id="digitInput7">7</button>
+                            <button class="digit-button" id="digitInput8">8</button>
+                            <button class="digit-button" id="digitInput9">9</button>
+                            <button class="digit-button" id="digitInput0"><i class="fas fa-eraser eraser"></i></button>
                         </div>
                     </div>
                 </div>
@@ -1237,19 +1233,16 @@
                     </div>
                 </div>
                 <div id="board-right">
-                    <div class="right-panel">
-                        <output id="strategy-output" for="step-button">
-                            <!--<span id="strategy-loader"></span>-->
-                            <span id="strategy-push"></span>
-                        </output>
-                        <div id="board-buttons">
-                            <button id="step-button">Step</button>
-                            <button id="solve-button">Solve</button>
-                        </div>
+                    <output id="strategy-output" for="step-button">
+                        <span id="strategy-push"></span>
+                    </output>
+                    <div id="board-buttons">
+                        <button id="step-button">Step</button>
+                        <button id="solve-button">Solve</button>
                     </div>
                 </div>
             </div>
-            <section>
+            <section id="sudoku-help">
                 <h2>Using the solver</h2>
                 <p>Sudoku is a logic puzzle game played on a 9x9 grid of cells. The objective is to fill each row, each column, and each 3x3 sub-grid (box) with the numbers 1-9. The only rule is that no number can appear more than once in any row, column, or box. Although you can arrive at the solution through guessing, the purpose of the game is to find cell solutions through logical deductions.</p>
                 <p>Solutions can be entered or removed using a keyboard or the <samp>Digit</samp> input mode next to the board. In the process of solving, it's often helpful to write possible solutions into a cell before you know the true solution. Also known as <i>pencil marks</i>, these mini-numbers can be entered while <samp>Candidate</samp> mode is selected.</p>

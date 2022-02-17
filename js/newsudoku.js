@@ -155,10 +155,10 @@ class Board {
         if (puzzleName === "Custom") {
             var editor = document.getElementById("show-custom-editor");
             customEditor.style.maxHeight = editor.scrollHeight + "px";
-            customEditor.style.overflow = "visible";
+            customEditor.classList.add("show-overflow");
         } else {
             customEditor.style.maxHeight = 0;
-            customEditor.style.overflow = "hidden";
+            customEditor.classList.remove("show-overflow");
         }
     }
     loadUserData() {
@@ -824,11 +824,12 @@ class Board {
 
         // Push the details to the top of the output box
         pushEle.style.height = 0;
-        titleEle.scrollIntoView();
+        titleEle.parentElement.scrollTop = titleEle.offsetTop;
         let offset = parseInt(titleEle.offsetTop - outputEle.scrollTop);
         if (offset > 0) {
             if (pushEle) pushEle.style.height = offset + 'px';
-            titleEle.scrollIntoView();
+            titleEle.parentElement.scrollTop = titleEle.offsetTop;
+            console.log(titleEle.scrollTop);
         }
     }
     highlightStrategy(strategy) {
@@ -1378,8 +1379,8 @@ document.addEventListener("click", function (e) {
     //let clickCancelsDigitSelection = !(
     //    /* don't cancel digit selection if click contains any of: */
     //    e.target.classList.contains("digit-button") ||
-    //    e.target.id === "digit-input-candidate" ||
-    //    e.target.id === "digit-input-solution"
+    //    e.target.id === "digitInputCandidate" ||
+    //    e.target.id === "digitInputSolution"
     //);
 
     if (clickCancelsCellSelection && cellInputSelection !== -1) {
@@ -1544,6 +1545,7 @@ function sudokuBoardHandleInput(e) {
                 } else {
                     // set candidate only if no solution in cell
                     if (board.cellSolutions[cellNum] == 0) {
+                        cell.value = "";
                         let canIsSet = board.cellCandidates[cellNum][val] == 1;
                         board.setCellCandidate(cellNum, val, !canIsSet);
                     }
@@ -1623,7 +1625,6 @@ sudokuBoard.addEventListener("focusin", function (e) {
     }
 }, true);
 
-
 /* ----------------- Digit input handlers ----------------- */
 
 function digitInputHandleClick(e) {
@@ -1675,24 +1676,26 @@ function digitInputHandleClick(e) {
 function digitToggleHandleClick(e) {
     let button = e.target;
     let otherButton;
-    if (button.id === "digit-input-solution") {
-        otherButton = button.parentElement.querySelector("[id='digit-input-candidate']");
+    if (button.id === "digitInputSolution") {
+        otherButton = button.parentElement.querySelector("[id='digitInputCandidate']");
         digitInputIsSolution = true;
-    } else if (button.id === "digit-input-candidate") {
-        otherButton = button.parentElement.querySelector("[id='digit-input-solution']");
+    } else if (button.id === "digitInputCandidate") {
+        otherButton = button.parentElement.querySelector("[id='digitInputSolution']");
         digitInputIsSolution = false;
     } else {
         return;
     }
     /* swap which has the active classes */
-    otherButton.classList.remove("digit-input-toggle-active");
-    button.classList.add("digit-input-toggle-active");
+    otherButton.classList.remove("digit-toggle-active");
+    button.classList.add("digit-toggle-active");
 }
 
-document.querySelectorAll(".digit-button").forEach(function (button) {
+document.querySelectorAll(".digit-button").forEach(button => {
     button.addEventListener("click", digitInputHandleClick);
 });
-document.getElementById("digit-input-toggle-buttons").addEventListener("click", digitToggleHandleClick);
+document.querySelectorAll(".digit-toggle").forEach(button => {
+    button.addEventListener("click", digitToggleHandleClick);
+});
 
 
 /* ----------------- Board input handlers ----------------- */
@@ -1707,6 +1710,8 @@ function puzzleSelectHandler(e) {
 }
 function puzzleHelpHandler(e) {
     /* navigate page to help section */
+    let help = document.getElementById("sudoku-help");
+    if (help) help.scrollIntoView(true);
 }
 function puzzleRestartHandler(e) {
     board.loadPuzzle(currentPuzzle);
