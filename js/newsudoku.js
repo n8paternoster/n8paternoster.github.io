@@ -1728,6 +1728,7 @@ function customInputHandler(e) {
     let ele = document.getElementById("custom-input");
     if (!ele) return;
     let input = ele.value;
+    if (currentPuzzle != "Custom") board.loadPuzzle("Custom");
     if (input.length != Board.numCells) {
         /* display error message */
         let popup = ele.parentElement.querySelector(".text-popup");
@@ -1748,14 +1749,17 @@ function customInputHandler(e) {
     saveSessionData();
 }
 function customClearHandler(e) {
+    if (currentPuzzle != "Custom") board.loadPuzzle("Custom");
     board.reset();
     saveSessionData();
 }
 function customLoadHandler(e) {
+    if (currentPuzzle != "Custom") board.loadPuzzle("Custom");
     board.loadUserData();
     saveSessionData();
 }
 function customSaveHandler(e) {
+    if (currentPuzzle != "Custom") board.loadPuzzle("Custom");
     // TODO : change to deep copy to keep custom data on board through page refresh?
     userData.cellSolutions = board.cellSolutions.slice();                   // shallow copy
     userData.cellCandidates = board.cellCandidates.map(arr => arr.slice()); // shallow copy

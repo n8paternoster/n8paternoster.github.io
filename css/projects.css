@@ -665,6 +665,9 @@ section {
     flex-direction: row;
     max-width: 100%;
 }
+.custom-input-outer {
+    flex: 1;
+}
 .custom-input-container #custom-input, .custom-input-container #custom-input-submit {
     border: 0.12rem solid black;
 }
@@ -1021,7 +1024,9 @@ button.digit-toggle {
 @media screen and (max-width: 1000px) {
     #sudoku-board-container {
         flex-direction: column;
-        width: max-content;
+        /*width: max-content;*/
+        width: 65%;
+        min-width: min-content;
         align-content: center;
         margin: 0 auto; /* vertical center */
     }
@@ -1034,7 +1039,7 @@ button.digit-toggle {
     }
     #show-custom-editor {
         flex: 1;
-        max-height: unset;
+        max-height: unset !important;   /* override js hiding */
     }
     #cell-input, #board-right {
         margin: 1rem auto;
