@@ -786,7 +786,7 @@ class Board {
                         string += "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:\r\t";
                     } else {
                         let cell = cycle.discontinuity;
-                        let disc = alphaChar[Math.floor(cell.row / Board.N)] + numerChar[cell.col % Board.N];
+                        let disc = alphaChar[cell.row] + numerChar[cell.col];
                         let can = numerChar[cell.candidate];
                         if (cycle.rule === Module.CycleRule.WeakDiscontinuity)
                             string += "When " + disc + " is set to " + can + " the chain implies that it can't be " + can + ":\r\n";
