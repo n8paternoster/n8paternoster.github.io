@@ -831,7 +831,6 @@ class Board {
         if (offset > 0) {
             if (pushEle) pushEle.style.height = offset + 'px';
             titleEle.parentElement.scrollTop = titleEle.offsetTop;
-            console.log(titleEle.scrollTop);
         }
     }
     highlightStrategy(strategy) {
@@ -1651,7 +1650,7 @@ function digitInputHandleClick(e) {
                     board.setCellSolution(cellInputSelection, val);
                 } else {
                     // set candidate only if no solution in cell
-                    if (board.cellSolutions[cellNum] == 0) {
+                    if (board.cellSolutions[cellInputSelection] == 0) {
                         let canIsSet = (board.cellCandidates[cellInputSelection][val] == 1);
                         board.setCellCandidate(cellInputSelection, val, !canIsSet);
                     }
