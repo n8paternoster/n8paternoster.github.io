@@ -448,15 +448,15 @@ class Board {
             case Module.StrategyID.HiddenTriplet: title += "Hidden Triplet(s)\r\n"; break;
             case Module.StrategyID.HiddenQuad: title += "Hidden Quad(s)\r\n"; break;
             case Module.StrategyID.Pointing: title += "Pointing Pair(s)/Triplet(s)\r\n"; break;
-            case Module.StrategyID.BoxLine: title += "Box/Line\r\n"; break;
+            case Module.StrategyID.BoxLine: title += "Box/Line Reduction(s)\r\n"; break;
             case Module.StrategyID.XWing: title += "X-Wing\r\n"; break;
             case Module.StrategyID.Swordfish: title += "Swordfish\r\n"; break;
             case Module.StrategyID.Jellyfish: title += "Jellyfish\r\n"; break;
-            case Module.StrategyID.YWing: title += "Y-Wing\r\n"; break;
-            case Module.StrategyID.XYZWing: title += "XYZ-Wing\r\n"; break;
-            case Module.StrategyID.WXYZWing: title += "WXYZ-Wing\r\n"; break;
-            case Module.StrategyID.VWXYZWing: title += "VWXYZ-Wing\r\n"; break;
-            case Module.StrategyID.SinglesChain: title += "Single's Chain\r\n"; break;
+            case Module.StrategyID.YWing: title += "Bent Triplet (Y-Wing)\r\n"; break;
+            case Module.StrategyID.XYZWing: title += "Bent Triplet (XYZ-Wing)\r\n"; break;
+            case Module.StrategyID.WXYZWing: title += "Bent Quad (WXYZ-Wing)\r\n"; break;
+            case Module.StrategyID.VWXYZWing: title += "Bent Quint (VWXYZ-Wing)\r\n"; break;
+            case Module.StrategyID.SinglesChain: title += "Simple coloring\r\n"; break;
             case Module.StrategyID.Medusa: title += "3D Medusa\r\n"; break;
             case Module.StrategyID.XCycle: title += "X-Cycle\r\n"; break;
             case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chain\r\n"; break;
@@ -681,8 +681,8 @@ class Board {
             case Module.StrategyID.XYZWing:
             case Module.StrategyID.WXYZWing:
             case Module.StrategyID.VWXYZWing:
-                // "Cells X contain the candidates Y, and only Z is not restricted to one unit"
-                // "Cells X contain the candidates Y, and all the candidates are restricted to one unit"
+                // "Cells X contain the candidates Y and only Z is in more than 1 unit; therefore one of the yellow Z's must be a solution:"
+                // "Cells X contain the candidates Y and all the candidates are restricted to one unit:"
                 {
                     let bentSets = strategy.bentSets;
                     for (let i = 0; i < bentSets.size(); i++) {
@@ -700,9 +700,9 @@ class Board {
                             if (wing.elimCandidates.includes('1')) {
                                 elimCan += numerChar[wing.elimCandidates.indexOf('1')];
                             } else continue;
-                            string = "Cells" + cells + " contain" + cans + ", and only " + elimCan + " is not restricted to one unit:\r\n";
+                            string = "Cells" + cells + " contain" + cans + " and only " + elimCan + " is in more than 1 unit; therefore one of the yellow " + elimCan + "'s must be a solution:\r\n";
                         } else if (wing.rule === Module.BentsetRule.Locked) {
-                            string = "Cells" + cells + " contain" + cans + ", and every candidate is restricted to one unit:\r\n";
+                            string = "Cells" + cells + " contain" + cans + " and every candidate is restricted to one unit:\r\n";
                         } else continue;
                         let ele = document.createElement('span');
                         ele.textContent = string;
