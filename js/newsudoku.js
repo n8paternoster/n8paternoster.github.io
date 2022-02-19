@@ -681,7 +681,7 @@ class Board {
             case Module.StrategyID.XYZWing:
             case Module.StrategyID.WXYZWing:
             case Module.StrategyID.VWXYZWing:
-                // "Cells X contain the candidates Y and only Z is in more than 1 unit; therefore one of the yellow Z's must be a solution:"
+                // "Cells X contain the candidates Y and only candidate Z is in more than 1 unit; therefore one of the yellow Z's must be a solution:"
                 // "Cells X contain the candidates Y and all the candidates are restricted to one unit:"
                 {
                     let bentSets = strategy.bentSets;
@@ -700,7 +700,7 @@ class Board {
                             if (wing.elimCandidates.includes('1')) {
                                 elimCan += numerChar[wing.elimCandidates.indexOf('1')];
                             } else continue;
-                            string = "Cells" + cells + " contain" + cans + " and only " + elimCan + " is in more than 1 unit; therefore one of the yellow " + elimCan + "'s must be a solution:\r\n";
+                            string = "Cells" + cells + " contain" + cans + " and only candidate " + elimCan + " is in more than 1 unit; therefore one of the yellow " + elimCan + "'s must be a solution:\r\n";
                         } else if (wing.rule === Module.BentsetRule.Locked) {
                             string = "Cells" + cells + " contain" + cans + " and every candidate is restricted to one unit:\r\n";
                         } else continue;
