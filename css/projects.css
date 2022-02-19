@@ -633,6 +633,7 @@ section {
     font-weight: normal;
 }
 #puzzle-box select {
+    background-color: white;
     border: 0.12rem solid black;
     padding: 0;
     max-width: inherit;
