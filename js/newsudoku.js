@@ -1507,7 +1507,7 @@ function sudokuBoardHandleKey(e) {
         e.preventDefault();
         let newIndex = 0;
         let newCell = cellEleFromIndex(newIndex);
-        while (newCell.classList.contains("cell-input-locked"){
+        while (newCell.classList.contains("cell-input-locked")) {
             /* skip over locked cells */
             newIndex++;
             if (newIndex > 80) return;  /* no unlocked cells */
