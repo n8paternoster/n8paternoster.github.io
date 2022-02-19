@@ -1507,22 +1507,24 @@ function sudokuBoardHandleKey(e) {
         e.preventDefault();
         let newIndex = 0;
         let newCell = cellEleFromIndex(newIndex);
-        do {/* skip over locked cells */
+        while (newCell.classList.contains("cell-input-locked"){
+            /* skip over locked cells */
             newIndex++;
             if (newIndex > 80) return;  /* no unlocked cells */
             newCell = cellEleFromIndex(newIndex);
-        } while (newCell.classList.contains("cell-input-locked"));
+        }
         newCell.select();
     } else if (e.key === "End") {
         /* navigate to the bottom right cell */
         e.preventDefault();
         let newIndex = 80;
         let newCell = cellEleFromIndex(newIndex);
-        do {/* skip over locked cells */
+        while (newCell.classList.contains("cell-input-locked")) {
+            /* skip over locked cells */
             newIndex--;
             if (newIndex < 0) return;   /* no unlocked cells */
             newCell = cellEleFromIndex(newIndex);
-        } while (newCell.classList.contains("cell-input-locked"));
+        }
         newCell.select();
     } else if (e.key === "Escape") {
         /* deselect current cell */
