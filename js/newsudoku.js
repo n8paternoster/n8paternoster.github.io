@@ -419,8 +419,8 @@ class Board {
         this.removeHighlighting();
     }
     printStrategy(strategy) {
-        if (!strategy) return;
         // Print strategy info to the output box
+        if (!strategy) return;
         let outputEle = document.getElementById("strategy-output");
         if (!outputEle) return;
         let pushEle = document.getElementById("strategy-push");
@@ -429,6 +429,8 @@ class Board {
             pushEle.id = "strategy-push";
             outputEle.appendChild(pushEle);
         }
+        const alphaChar = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+        const numerChar = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
         // Print title
         let title = "";
@@ -478,7 +480,7 @@ class Board {
                     let elims = strategy.eliminations;
                     for (var i = 0; i < elims.size(); i++) {
                         let e = elims.get(i);
-                        let string = (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let string = numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                         if (outputEle) {
                             let ele = document.createElement('span');
                             ele.textContent = string;
@@ -494,7 +496,7 @@ class Board {
                     let singles = strategy.singles;
                     for (let i = 0; i < singles.size(); i++) {
                         let s = singles.get(i);
-                        let string = (s.candidate + 1).toString() + " is the only candidate left in (" + (Math.floor(s.cell / Board.N) + 1).toString() + ", " + (s.cell % Board.N + 1).toString() + ")\r\n";
+                        let string = numerChar[s.candidate] + " is the only candidate left in " + alphaChar[Math.floor(s.cell / Board.N)] + numerChar[s.cell % Board.N] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = string;
                         outputEle.insertBefore(ele, pushEle);
@@ -509,14 +511,14 @@ class Board {
                     for (let i = 0; i < singles.size(); i++) {
                         let s = singles.get(i);
                         let can = "", cell = "", unit = "";
-                        can = (s.candidate + 1).toString();
-                        cell = "(" + (Math.floor(s.cell / Board.N) + 1).toString() + ", " + (s.cell % Board.N + 1).toString() + ")";
+                        can = numerChar[s.candidate];
+                        cell = alphaChar[Math.floor(s.cell / Board.N)] + numerChar[s.cell % Board.N];
                         if (s.uniqueRow >= 0 && s.uniqueRow < Board.N)
-                            unit += " row " + (s.uniqueRow + 1).toString() + ",";
+                            unit += " row " + alphaChar[s.uniqueRow] + ",";
                         if (s.uniqueCol >= 0 && s.uniqueCol < Board.N)
-                            unit += " col " + (s.uniqueCol + 1).toString() + ",";
+                            unit += " col " + numerChar[s.uniqueCol] + ",";
                         if (s.uniqueBox >= 0 && s.uniqueBox < Board.N)
-                            unit += " box " + (s.uniqueBox + 1).toString() + ",";
+                            unit += " box " + numerChar[s.uniqueBox] + ",";
                         unit = unit.slice(0, -1);  // remove final comma
                         let string = can + " in " + cell + " is unique to" + unit + "\r\n";
                         let ele = document.createElement('span');
@@ -542,17 +544,17 @@ class Board {
                         let set = sets.get(i);
                         let unit = "", cans = "", cells = "";
                         if (set.rows.includes('1')) {
-                            unit += "row " + (set.rows.indexOf('1') + 1).toString();
+                            unit += "row " + alphaChar[set.rows.indexOf('1')];
                         } else if (set.cols.includes('1')) {
-                            unit += "col " + (set.cols.indexOf('1') + 1).toString();
+                            unit += "col " + numerChar[set.cols.indexOf('1')];
                         } else if (set.boxes.includes('1')) {
-                            unit += "box " + (set.boxes.indexOf('1') + 1).toString();
+                            unit += "box " + numerChar[set.boxes.indexOf('1')];
                         } else continue;
                         for (let c = 0; c < set.cells.length; c++)
-                            if (set.cells[c] === '1') cells += " (" + (Math.floor(c / Board.N) + 1).toString() + ", " + (c % Board.N + 1).toString() + "),";
+                            if (set.cells[c] === '1') cells += " " + alphaChar[Math.floor(c / Board.N)] + numerChar[c % Board.N] + ",";
                         cells = cells.slice(0, -1);   // remove the final comma
                         for (let c = 0; c < set.candidates.length; c++)
-                            if (set.candidates[c] == '1') cans += " " + (c + 1).toString() + ",";
+                            if (set.candidates[c] == '1') cans += " " + numerChar[c] + ",";
                         cans = cans.slice(0, -1);  // remove the final comma
                         let string = "";
                         if (naked) string = "In " + unit + ", cells" + cells + " only contain candidates" + cans + ":\r\n";
@@ -573,8 +575,8 @@ class Board {
                         map.forEach(function (candidates, cell) {
                             let str = "\t";
                             for (let i = 0; i < candidates.length; i++)
-                                str += (candidates[i] + 1).toString() + (i + 1 < candidates.length ? ", " : " ");
-                            str += "removed from (" + (Math.floor(cell / Board.N) + 1).toString() + ", " + (cell % Board.N + 1).toString() + ")\r\n";
+                                str += numerChar[candidates[i]] + (i + 1 < candidates.length ? ", " : " ");
+                            str += "removed from " + alphaChar[Math.floor(cell / Board.N)] + numerChar[cell % Board.N] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
                             outputEle.insertBefore(ele, pushEle);
@@ -594,15 +596,15 @@ class Board {
                         let set = sets.get(i);
                         let unit = "", can = "", box = "";
                         if (set.rows.includes('1')) {
-                            unit += "row " + (set.rows.indexOf('1') + 1).toString();
+                            unit += "row " + alphaChar[set.rows.indexOf('1')];
                         } else if (set.cols.includes('1')) {
-                            unit += "col " + (set.cols.indexOf('1') + 1).toString();
+                            unit += "col " + numerChar[set.cols.indexOf('1')];
                         } else continue;
                         if (set.boxes.includes('1')) {
-                            box += (set.boxes.indexOf('1') + 1).toString();
+                            box += numerChar[set.boxes.indexOf('1')];
                         } else continue;
                         if (set.candidates.includes('1')) {
-                            can += (set.candidates.indexOf('1') + 1).toString();
+                            can += numerChar[set.candidates.indexOf('1')];
                         } else continue;
                         let string = "";
                         if (strategy.id === Module.StrategyID.Pointing)
@@ -616,7 +618,7 @@ class Board {
                         let elims = set.eliminations;
                         for (let j = 0; j < elims.size(); j++) {
                             let e = elims.get(j);
-                            let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                            let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
                             outputEle.insertBefore(ele, pushEle);
@@ -637,22 +639,22 @@ class Board {
                         let set = sets.get(i);
                         let can = "", units = "", elimUnits = "";
                         if (set.candidates.includes('1')) {
-                            can += (set.candidates.indexOf('1') + 1).toString();
+                            can += numerChar[set.candidates.indexOf('1')];
                         } else continue;
                         if (set.elimUnitType === Module.StrategyUnit.Row) {
                             units += "cols";
                             for (let c = 0; c < set.cols.length; c++)
-                                if (set.cols[c] == '1') units += " " + (c + 1).toString() + ",";
+                                if (set.cols[c] == '1') units += " " + numerChar[c] + ",";
                             elimUnits += "rows";
                             for (let r = 0; r < set.rows.length; r++)
-                                if (set.rows[r] == '1') elimUnits += " " + (r + 1).toString() + ",";
+                                if (set.rows[r] == '1') elimUnits += " " + alphaChar[r] + ",";
                         } else if (set.elimUnitType === Module.StrategyUnit.Col) {
                             units += "rows";
                             for (let r = 0; r < set.rows.length; r++)
-                                if (set.rows[r] == '1') units += " " + (r + 1).toString() + ",";
+                                if (set.rows[r] == '1') units += " " + alphaChar[r] + ",";
                             elimUnits += "cols";
                             for (let c = 0; c < set.cols.length; c++)
-                                if (set.cols[c] == '1') elimUnits += " " + (c + 1).toString() + ",";
+                                if (set.cols[c] == '1') elimUnits += " " + numerChar[c] + ",";
                         } else continue;
                         units = units.slice(0, -1);         // remove final comma
                         elimUnits = elimUnits.slice(0, -1); // remove final comma
@@ -664,7 +666,7 @@ class Board {
                         let elims = set.eliminations;
                         for (let j = 0; j < elims.size(); j++) {
                             let e = elims.get(j);
-                            let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                            let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
                             outputEle.insertBefore(ele, pushEle);
@@ -687,16 +689,16 @@ class Board {
                         let wing = bentSets.get(i);
                         let cells = "", cans = "";
                         for (let c = 0; c < wing.cells.length; c++)
-                            if (wing.cells[c] === '1') cells += " (" + (Math.floor(c / Board.N) + 1).toString() + ", " + (c % Board.N + 1).toString() + "),";
+                            if (wing.cells[c] === '1') cells += " " + alphaChar[Math.floor(c / Board.N)] + numerChar[c % Board.N] + ",";
                         cells = cells.slice(0, -1);   // remove the final comma
                         for (let c = 0; c < wing.candidates.length; c++)
-                            if (wing.candidates[c] == '1') cans += " " + (c + 1).toString() + ",";
+                            if (wing.candidates[c] == '1') cans += " " + numerChar[c] + ",";
                         cans = cans.slice(0, -1);  // remove the final comma
                         let string = "";
                         if (wing.rule === Module.BentsetRule.NonRestCan) {
                             let elimCan = "";
                             if (wing.elimCandidates.includes('1')) {
-                                elimCan += (wing.elimCandidates.indexOf('1') + 1).toString();
+                                elimCan += numerChar[wing.elimCandidates.indexOf('1')];
                             } else continue;
                             string = "Cells" + cells + " contain" + cans + ", and only " + elimCan + " is not restricted to one unit:\r\n";
                         } else if (wing.rule === Module.BentsetRule.Locked) {
@@ -709,7 +711,7 @@ class Board {
                         let elims = wing.eliminations;
                         for (let j = 0; j < elims.size(); j++) {
                             let e = elims.get(j);
-                            let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                            let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
                             outputEle.insertBefore(ele, pushEle);
@@ -730,19 +732,19 @@ class Board {
                         if (coloring.conflictUnitType === Module.StrategyUnit.Cell)
                             can += "candidates";
                         else if (coloring.conflictCandidates.includes('1'))
-                            can += (coloring.conflictCandidates.indexOf('1') + 1).toString() + "'s";
+                            can += numerChar[coloring.conflictCandidates.indexOf('1')] + "'s";
                         switch (coloring.conflictUnitType) {
                             case Module.StrategyUnit.Row:
-                                unit += "row " + (coloring.conflictUnit + 1).toString();
+                                unit += "row " + alphaChar[coloring.conflictUnit];
                                 break;
                             case Module.StrategyUnit.Col:
-                                unit += "col " + (coloring.conflictUnit + 1).toString();
+                                unit += "col " + numerChar[coloring.conflictUnit];
                                 break;
                             case Module.StrategyUnit.Box:
-                                unit += "box " + (coloring.conflictUnit + 1).toString();
+                                unit += "box " + numerChar[coloring.conflictUnit];
                                 break;
                             case Module.StrategyUnit.Cell:
-                                unit += "cell (" + (Math.floor(coloring.conflictUnit / Board.N) + 1).toString() + ", " + (coloring.conflictUnit % Board.N + 1).toString();
+                                unit += "cell " + alphaChar[Math.floor(coloring.conflictUnit / Board.N)] + numerChar[coloring.conflictUnit % Board.N];
                                 break;
                         }
                         string = "All of the " + can + " in " + unit + " can see a " + elimColor + " candidate; all " + elimColor + " candidates can be removed and all green candidates are solutions:\r\n";
@@ -756,7 +758,7 @@ class Board {
                     let elims = strategy.eliminations;
                     for (let i = 0; i < elims.size(); i++) {
                         let e = elims.get(i);
-                        let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
                         outputEle.insertBefore(ele, pushEle);
@@ -766,7 +768,7 @@ class Board {
                     let sols = strategy.solutions;
                     for (let i = 0; i < sols.size(); i++) {
                         let s = sols.get(i);
-                        let str = "\t(" + (s.row + 1).toString() + ", " + (s.col + 1).toString() + ") set to " + (s.candidate + 1).toString() + "\r\n";
+                        let str = "\t" + alphaChar[s.row] + numerChar[s.col] + " set to " + numerChar[s.candidate] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
                         outputEle.insertBefore(ele, pushEle);
@@ -784,8 +786,8 @@ class Board {
                         string += "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:\r\t";
                     } else {
                         let cell = cycle.discontinuity;
-                        let disc = "(" + (Math.floor(cell.row / Board.N) + 1).toString() + ", " + (cell.col % Board.N + 1).toString() + ")";
-                        let can = (cell.candidate + 1).toString();
+                        let disc = alphaChar[Math.floor(cell.row / Board.N)] + numerChar[cell.col % Board.N];
+                        let can = numerChar[cell.candidate];
                         if (cycle.rule === Module.CycleRule.WeakDiscontinuity)
                             string += "When " + disc + " is set to " + can + " the chain implies that it can't be " + can + ":\r\n";
                         else if (cycle.rule === Module.CycleRule.StrongDiscontinuity)
@@ -798,7 +800,7 @@ class Board {
                     let elims = strategy.eliminations;
                     for (let i = 0; i < elims.size(); i++) {
                         let e = elims.get(i);
-                        let str = "\t" + (e.candidate + 1).toString() + " removed from (" + (e.row + 1).toString() + ", " + (e.col + 1).toString() + ")\r\n";
+                        let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
                         outputEle.insertBefore(ele, pushEle);
@@ -808,7 +810,7 @@ class Board {
                     let sols = strategy.solutions;
                     for (let i = 0; i < sols.size(); i++) {
                         let s = sols.get(i);
-                        let str = "\t(" + (s.row + 1).toString() + ", " + (s.col + 1).toString() + ") set to " + (s.candidate + 1).toString() + "\r\n";
+                        let str = "\t" + alphaChar[s.row] + numerChar[s.col] + " set to " + numerChar[s.candidate] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
                         outputEle.insertBefore(ele, pushEle);

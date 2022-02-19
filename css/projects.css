@@ -607,6 +607,7 @@ section {
     background-color: #91c48d; /* light green */
     border: 0.12rem solid black;
     text-align: center;
+    justify-content: space-between;
 }
 #puzzle-box button, #custom-editor-box button {
     text-align: center;
@@ -614,7 +615,7 @@ section {
     padding: 0.1em 0.5em;
     border: 0.12rem solid black;
     background-color: #91c48d; /* light green */
-    transition: all 0.2s;
+    transition: background-color 0.2s;
 }
 #puzzle-box button:hover, #custom-editor-box button:hover {
     cursor: pointer;
@@ -816,10 +817,10 @@ button.digit-toggle {
     flex: 1; /* fill all of the available space, share evenly*/
     text-align: center;
     font-size: 1.25em;
-    padding: 10px 0;
+    padding: 0.5rem 0;
     border: 0.12rem solid black;
     background-color: #91c48d; /* light green */
-    transition: all 0.2s;
+    transition: background-color 0.2s;
 }
 #step-button {
     margin-right: 5%; /* space between buttons */
@@ -856,6 +857,7 @@ button.digit-toggle {
     align-items: stretch;
     border-top: 0.3rem solid black;
     border-left: 0.3rem solid black;
+    position: relative; /* for row/col labels */
 }
 
 .candidate-grid {
@@ -882,18 +884,42 @@ button.digit-toggle {
     user-select: none; /* Standard syntax */
 }
 
-#sudoku-board :nth-of-type(3n).box-grid {   /* boxes in the right column */
-    border-right: 0.3rem solid black;
+.box3, .box6, .box9 {
+    border-right: 0.3rem solid black; /* boxes in the right column */
 }
-#sudoku-board :nth-last-of-type(-n+3).box-grid {/* boxes in the bottom row*/
-    border-bottom: 0.3rem solid black;
+.box7, .box8, .box9 {
+    border-bottom: 0.3rem solid black; /* boxes in the bottom row*/
 }
-.cell:not(:nth-of-type(3n)) { /* every cell except those in the right column */
-    border-right: 0.1rem solid black;
+.cell1, .cell2, .cell4, .cell5, .cell7, .cell8 {
+    border-right: 0.1rem solid black; /* every cell except those in the right column */
 }
-.cell:not(:nth-last-of-type(-n+3)) {  /* every cell except those in the bottom row */
-    border-bottom: 0.1rem solid black;
+.cell1, .cell2, .cell3, .cell4, .cell5, .cell6 {
+    border-bottom: 0.1rem solid black; /* every cell except those in the bottom row */
 }
+
+.row-label, .col-label {
+    position: absolute;
+    width: 2ch;
+    text-align: center;
+    font-size: 1em;
+    line-height: 1;
+    pointer-events: none;
+    font-weight: bold;
+}
+.row-label {
+    top: 50%;
+    transform: translate(-150%, -50%);
+}
+.col-label {
+    left: 50%;
+    transform: translate(-50%, -150%);
+}
+#rowA, #rowD, #rowG { grid-area: cell1; }
+#rowB, #rowE, #rowH { grid-area: cell4; }
+#rowC, #rowF, #rowI { grid-area: cell7; }
+#col1, #col4, #col7 { grid-area: cell1; }
+#col2, #col5, #col8 { grid-area: cell2; }
+#col3, #col6, #col9 { grid-area: cell3; }
 
 .cell {
     width: 50px;
@@ -1030,12 +1056,22 @@ button.digit-toggle {
         align-content: center;
         margin: 0 auto; /* vertical center */
     }
+    #sudoku-board {
+        margin: 1em auto;
+    }
     #board-left, #board-right {
 /*        align-items: center;*/
         max-width: unset;
         width: 100%;
         padding-left: 0;
         padding-right: 0;
+    }
+    #puzzle-box > *:first-child, #custom-editor-box > *:first-child {
+        margin-top: 0.75rem;
+    }
+    #puzzle-box > *, #custom-editor-box > * {
+        margin: 0 5%;
+        margin-bottom: 0.75rem;
     }
     #show-custom-editor {
         flex: 1;
