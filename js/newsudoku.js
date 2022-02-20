@@ -2,14 +2,15 @@
 
 const newSavedPuzzles = new Map([
     ["Custom", "000000000000000000000000000000000000000000000000000000000000000000000000000000000"],
-    ["Easy Example", "270306009040015027008090400750000004029000760800000092002030500190650040600204018"],
-    ["Medium Example", "002608100000143000030000060097804520100000008085706910020000030000279000004301700"],
-    ["Hard Example", "320000040004500200000000070075010068000409000280070310030000000008002100060000052"],
+    ["Easy 1", "270306009040015027008090400750000004029000760800000092002030500190650040600204018"],
+    ["Medium 1", "002608100000143000030000060097804520100000008085706910020000030000279000004301700"],
+    ["Hard 1", "320000040004500200000000070075010068000409000280070310030000000008002100060000052"],
+    ["Evil 1", "963000000100008000000205000040800000010000700000030025700000030009020407000000900"],
     ["Pointing Pairs", "500200040000603000030009007003007000007008000600000020080000003000400600000100500"],
     ["Minimum Clue Easy", "000870200640200000050000000807000300000051000000000000300700000000000051000000040"],
     ["Minimum Clue Hard", "002090300805000000100000000090060040000000058000000001070000200300500000000100000"],
 ]);
-var currentPuzzle = "Easy Example"; /* default puzzle */
+var currentPuzzle = "Easy 1"; /* default puzzle */
 
 class Board {
     static N = 9;
@@ -1011,10 +1012,11 @@ class Board {
                             conflictCans.push(can);
                     for (let cell = 0; cell < coloring.conflictCells.length; cell++) {
                         if (coloring.conflictCells[cell] == '1') {
-                            conflictCans.forEach(can => {
-                                if (this.cellCandidates[cell][can] == 1)
-                                    Board.drawVertex(Math.floor(cell / Board.N), cell % Board.N, can, conflictColor, ctx);
-                            });
+                            //conflictCans.forEach(can => {
+                            //    if (this.cellCandidates[cell][can] == 1)
+                            //        Board.drawVertex(Math.floor(cell / Board.N), cell % Board.N, can, conflictColor, ctx);
+                            //});
+                            Board.highlightCell(cellEleFromIndex(cell), conflictColor);
                         }
                     }
                 }

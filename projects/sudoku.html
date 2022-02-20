@@ -1260,18 +1260,48 @@
                     </div>
                 </div>
             </div>
-            <section id="sudoku-help">
-                <h2>Using the solver</h2>
-                <p>Sudoku is a logic puzzle game played on a 9x9 grid of cells. The objective is to fill each row, each column, and each 3x3 sub-grid (box) with the numbers 1-9. The only rule is that no number can appear more than once in any row, column, or box. Although you can arrive at the solution through guessing, the purpose of the game is to find cell solutions through logical deductions.</p>
-                <p>Solutions can be entered or removed using a keyboard or the <samp>Digit</samp> input mode next to the board. In the process of solving, it's often helpful to write possible solutions into a cell before you know the true solution. Also known as <i>pencil marks</i>, these mini-numbers can be entered while <samp>Candidate</samp> mode is selected.</p>
-                <p>To enter a custom puzzle, first select <samp>Custom</samp> from the puzzle dropdown. Then, given numbers, or <i>clues</i>, can be entered manually or as a string in the Custom Board Editor (for empty cells, use any other character such as <i>.</i> or <i>-</i> or <i>0</i>).</p>
-            </section>
+            <hr />
             <section>
                 <h2>Strategies</h2>
-                <p>In the world of sudoku solving techniques, there is a lot of different terminology used. Most of the strategies and names my solver uses come from <a href="https://www.sudokuwiki.org/Main_Page">this excellent site</a> by Andrew Stuart. For further details on these strategies check out </p>
+                <p>First, a brief explanation of the terminology used in the following strategies:</p>
+                <ul>
+                    <li>Cell - one of the 81 squares that make up the sudoku board</li>
+                    <li>Box - a grid of 3x3 cells that must contain the digits 1-9</li>
+                    <li>Unit - a section of the board that must contain the digits 1-9, the three types of units are row, column, and box</li>
+                    <li>Candidate - a possible solution to a cell, marked on the board as a smaller number</li>
+                    <li>Solution - </li>
+                </ul>
+                <h3>Singles</h3>
+                <p><i>naked singles, hidden singles</i></p>
+                <p>This simple strategy comes in two types. A <b>naked single</b> appears when a candidate is the only possible number left in a cell. Conversely, a <b>hidden single</b> is when there is only one possible cell left for a candidate. Or said another way, if candidate <i>k</i> can only be in one cell within a row, column, or box, <i>k</i> is a hidden single.</p>
+                <p>Singles are the bread and butter of sudoku solving strategies and are always the first thing you should look for. These two strategies alone are enough to solve nearly all "easy" and many "intermediate" level puzzles.</p>
+                <hr />
+                <h3>Subsets</h3>
+                <p><i>naked sets, hidden sets, pointing pairs/triplets, box/line reduction, x-wings, swordfish, jellyfish</i></p>
+                <p>The remainder of simple strategies all follow the same line of reasoning.</p>
+                <hr />
+                <h3>Bent sets</h3>
+                <p>Subsetse</p>
+                <hr />
+                <h3>Coloring</h3>
+                <p>Subsetse</p>
+                <hr />
+                <h3>Chains</h3>
+                <p>Subsetse</p>
+
+
+                <!--<p>In the world of sudoku solving techniques, there is a lot of different terminology used. Most of the strategies and names my solver uses come from <a href="https://www.sudokuwiki.org/Main_Page">this excellent site</a> by Andrew Stuart. For further details on these strategies check out </p>-->
             </section>
             <section>
                 <h2>About</h2>
+                <p>The solver was written in C++ and compiled to Webassembly using <a class="wiki-link-inline" href="https://emscripten.org/" target="_blank">Emscripten</a>. The GUI was written in Javascript. Both the original C++ source code and javascript can be found on my Github.</p>
+            </section>
+            <section id="sudoku-help">
+                <h2>Using the solver</h2>
+                <p>Sudoku is a logic puzzle game played on a 9x9 grid of cells. The objective is to fill each row, each column, and each 3x3 sub-grid (box) with the numbers 1-9. The only rule is that no number can appear more than once in any row, column, or box. Although you can arrive at the solution through guessing, the purpose of the game is to find cell solutions through logical deductions.</p>
+                <p><b>Entering data</b> - Solutions can be entered or removed using a keyboard or the <samp>Digit</samp> input mode next to the board. In the process of solving, it's often helpful to write possible solutions into a cell before you know the true solution. Also known as <i>pencil marks</i>, these mini-numbers can be entered while <samp>Candidate</samp> mode is selected. In addition</p>
+                <p><b>Custom puzzles</b> - To enter a custom puzzle, first select <samp>Custom</samp> from the puzzle dropdown. Then, any number of given cell solutions (or <i>clues</i>) and candidates can be entered manually as described above. Alternatively, puzzle clues can be entered as an 81 character string in the Custom Board Editor. For unsolved cells in this string, any character other than 1-9 may be used (common characters are <i>.</i> or <i>0</i>).</p>
+                <p><b>Solving</b> - The solver works by applying a predetermined order of strategies (described above) until some change is made to the board, displaying the results, and then starting the startegy list over from the beginning. The <samp>Step</samp> button will show the result of one successful strategy at a time while the <samp>Solve</samp> button will find and display all the steps needed to solve the puzzle. For the most difficult puzzles, the solver may run out of strategies in which case the solved puzzle (if it exists) will be found by a fast brute force search.</p>
             </section>
         </div>
 
