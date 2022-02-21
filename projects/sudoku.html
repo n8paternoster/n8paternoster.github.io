@@ -1260,25 +1260,81 @@
                     </div>
                 </div>
             </div>
-            <hr />
-            <section>
+
+            <section div="strategies">
                 <h2>Strategies</h2>
-                <p>First, a brief explanation of the terminology used in the following strategies:</p>
-                <ul>
-                    <li>Cell - one of the 81 squares that make up the sudoku board</li>
-                    <li>Box - a grid of 3x3 cells that must contain the digits 1-9</li>
-                    <li>Unit - a section of the board that must contain the digits 1-9, the three types of units are row, column, and box</li>
-                    <li>Candidate - a possible solution to a cell, marked on the board as a smaller number</li>
-                    <li>Solution - </li>
-                </ul>
-                <h3>Singles</h3>
-                <p><i>naked singles, hidden singles</i></p>
-                <p>This simple strategy comes in two types. A <b>naked single</b> appears when a candidate is the only possible number left in a cell. Conversely, a <b>hidden single</b> is when there is only one possible cell left for a candidate. Or said another way, if candidate <i>k</i> can only be in one cell within a row, column, or box, <i>k</i> is a hidden single.</p>
-                <p>Singles are the bread and butter of sudoku solving strategies and are always the first thing you should look for. These two strategies alone are enough to solve nearly all "easy" and many "intermediate" level puzzles.</p>
+                <div>
+                    <p>First, a brief explanation of the terminology used in the following strategies:</p>
+                    <ul>
+                        <li><i>Cell</i> - one of the 81 squares that make up the sudoku board</li>
+                        <li><i>Box</i> - a grid of 3x3 cells that must contain the digits 1-9</li>
+                        <li><i>Unit</i> - a section of the board that must contain the digits 1-9, the three types of units are row, column, and box</li>
+                        <li><i>Candidate</i> - a possible solution to a cell, marked on the board as a smaller number</li>
+                        <li>Solution - </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Singles</h3>
+                    <p><i>naked singles, hidden singles</i></p>
+                    <p>This simple strategy comes in two types. A <b>naked single</b> appears when a candidate is the only possible number left in a cell. Conversely, a <b>hidden single</b> is when there is only one possible cell left for a candidate. Or said another way, if candidate <i>k</i> can only be in one cell within a row, column, or box, <i>k</i> is a hidden single.</p>
+                    <p>Singles are the bread and butter of sudoku solving strategies and are always the first thing you should look for. These two strategies alone are enough to solve nearly all "easy" and many "intermediate" level puzzles.</p>
+                </div>
                 <hr />
-                <h3>Subsets</h3>
-                <p><i>naked sets, hidden sets, pointing pairs/triplets, box/line reduction, x-wings, swordfish, jellyfish</i></p>
-                <p>The remainder of simple strategies all follow the same line of reasoning.</p>
+                <div>
+                    <h3>Subsets</h3>
+                    <p><i>naked pairs/triplets/quads, hidden pairs/triplets/quads, pointing pairs/triplets, box/line reduction, x-wings, swordfish, jellyfish</i></p>
+                    <p>The remainder of the simple strategies all follow a common line of reasoning:</p>
+                    <blockquote>If there is a set of <i>n</i> X's and <i>n</i> Y's in Z, any other X's in those <i>n</i> Y's can be removed<br />where X, Y, and Z are some combination of row/column/box/cell/candidate and <i>n</i> determines the size of the subset</blockquote>
+                    <p>These subset strategies can be broken into four groups:</p>
+                    <div class="strategy-desc">
+                        <p><b>Naked subset</b> - If there is a set of <b>n cells</b> containing only <b>n candidates</b> in a <b>unit</b>, any other <b>cells</b> in that unit with those <b>n candidates</b> can have them removed.</p>
+                        <figure>
+                            <img src="../project-assets/sudoku/naked-triplet-example.png" />
+                            <figcaption>Naked triplet - In the third row, there are 3 cells that in total contain 3 candidates (colored blue); 1, 6, and 8 must go in those cells and so can be removed from other cells in that row</figcaption>
+                        </figure>
+                    </div>
+                    <hr />
+                    <div class="strategy-desc">
+                        <div>
+                            <p><b>Hidden subset</b> - If there is a set of <b>n candidates</b> within only <b>n cells</b> in a <b>unit</b>, any other <b>candidates</b> in those <b>n cells</b> can be removed.</p>
+                        </div>
+                        <figure>
+                            <img src="../project-assets/sudoku/hidden-triplet-example.png" />
+                            <figcaption>Hidden triplet - In the third column, there are 3 candidates that can only be found in the same 3 cells (colored blue); 1, 4, and 7 must go in those cells and so the other candidates can be removed</figcaption>
+                        </figure>
+                    </div>
+                    <hr />
+                    <div class="strategy-desc">
+                        <div>
+                            <p><b>'Fish' subset</b></p>
+                            <p>(Type 1) If there is a set of <b>n rows</b> with only <b>n columns</b> containing a <b>candidate</b>, any other <b>rows</b> containing that candidate in those <b>n columns</b> can have it removed.</p>
+                            <p>(Type 2) If there is a set of <b>n columns</b> with only <b>n rows</b> containing a <b>candidate</b>, any other <b>columns</b> containing that candidate in those <b>n rows</b> can have it removed.</p>
+                        </div>
+                        <figure>
+                            <img src="../project-assets/sudoku/naked-triplet-example.png" />
+                            <figcaption>Hidden triplet - In the third column, there are 3 candidates that can only be found in the same 3 cells (colored blue); 1, 4, and 7 must go in those cells and so the other candidates can be removed</</figcaption>
+                        </figure>
+                    </div>
+                    <hr />
+                    <div class="strategy-desc">
+                        <div>
+                            <p><b>Intersection subset</b></p>
+                            <p>(Pointing) If a candidate appears in only <b>n cells</b> in a <b>row/column</b> and those cells are also in the same <b>box</b>, that candidate can be removed from the other cells in that box.</p>
+                            <p>(Box/line) If a candidate appears in only <b>n cells</b> in a <b>box</b> and those cells are also in the same <b>row/column</b>, that candidate can be removed from the other cells in that row/column.</p>
+                        </div>
+                        <figure>
+                            <img src="../project-assets/sudoku/naked-triplet-example.png" />
+                            <figcaption>Hidden triplet - In the third column, there are 3 candidates that can only be found in the same 3 cells (colored blue); 1, 4, and 7 must go in those cells and so the other candidates can be removed</</figcaption>
+                        </figure>
+                    </div>
+                    <!--<blockquote>For X, if there are N Y's with(in) only N Z's, that/those candidate(s) can be removedany other Y's can have that/those candidate(s) removed</blockquote>
+    <blockquote>(Naked) For row A, if there are 3 columns with only 3 candidates, any other columns can have those candidates removed</blockquote>
+    <blockquote>(Hidden) For row A, if there are 3 candidates within only 3 columns, any other candidates in those columns can be removed</blockquote>
+    <blockquote>(Fish) For candidate 7, if there are 3 rows with only 3 columns, any other rows in those columns can have that candidate removed</blockquote>-->
+                    <!--<blockquote>If the intersection of X and Y contain candidate(s) K and the rest of X does not contain K, then the rest of Y also cannot contain K.</blockquote>
+    <p>X and Y can be replaced with row(s), column(s), box(s), or cell(s). Exactly two of (X, Y, and K) will consist of N values. For example:</p>
+    <p>Naked subsets - If there are N cells on a row that contain N candidates and the rest of those cells row does not contain those N candidates, then   </p>-->
+                </div>
                 <hr />
                 <h3>Bent sets</h3>
                 <p>Subsetse</p>

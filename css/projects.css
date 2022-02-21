@@ -1045,6 +1045,24 @@ button.digit-toggle {
 .can8 { grid-area: can8; }
 .can9 { grid-area: can9; }
 
+/* ----------- Sudoku info ----------- */
+.strategy-desc {
+    display: flex;
+}
+.strategy-desc figure {
+    margin: 0;
+}
+.strategy-desc figcaption {
+
+}
+.strategy-desc img {
+    width: 400px;
+    max-width: 100%;
+}
+.strategy-desc:nth-of-type(even) {
+    flex-direction: row-reverse;
+}
+
 
 /* ----------- Media Queries ----------- */
 
@@ -1110,6 +1128,9 @@ button.digit-toggle {
         margin-bottom: 0;
         margin-right: 1em;
         height: 20vh;   /* need to test this */
+    }
+    .strategy-desc, .strategy-desc:nth-of-type(even) {
+        flex-direction: column;
     }
 }
 
