@@ -1046,18 +1046,26 @@ button.digit-toggle {
 .can9 { grid-area: can9; }
 
 /* ----------- Sudoku info ----------- */
+.strategies blockquote {
+    padding: 0.75em;
+    background-color: #dbdbdb;
+}
 .strategy-desc {
     display: flex;
+    column-gap: 1em;
+}
+.strategy-desc > :first-child {
+    flex: 3;
 }
 .strategy-desc figure {
-    margin: 0;
+    margin: 0 auto;
+    flex: 2;
 }
-.strategy-desc figcaption {
-
-}
-.strategy-desc img {
-    width: 400px;
-    max-width: 100%;
+.strategy-desc img, .strategy-desc figcaption {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    margin: 0.5em auto;
 }
 .strategy-desc:nth-of-type(even) {
     flex-direction: row-reverse;

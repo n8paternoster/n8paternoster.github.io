@@ -377,7 +377,7 @@ header {
         font-size: 1em;
     }
 
-    .content p, .content a {
+    .content p, .content a, .content ul li {
         font-size: 1em;
     }
     

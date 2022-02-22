@@ -1261,7 +1261,12 @@
                 </div>
             </div>
 
-            <section div="strategies">
+            <section>
+                <h2>About</h2>
+                <p>The solver was written in C++ and compiled to Webassembly using <a class="wiki-link-inline" href="https://emscripten.org/" target="_blank">Emscripten</a>. The GUI was written in Javascript. Both the original C++ source code and javascript can be found on my Github.</p>
+            </section>
+            <hr />
+            <section class="strategies">
                 <h2>Strategies</h2>
                 <div>
                     <p>First, a brief explanation of the terminology used in the following strategies:</p>
@@ -1270,7 +1275,7 @@
                         <li><i>Box</i> - a grid of 3x3 cells that must contain the digits 1-9</li>
                         <li><i>Unit</i> - a section of the board that must contain the digits 1-9, the three types of units are row, column, and box</li>
                         <li><i>Candidate</i> - a possible solution to a cell, marked on the board as a smaller number</li>
-                        <li>Solution - </li>
+                        <li><i>Solution</i> - the final number that fills a cell</li>
                     </ul>
                 </div>
                 <div>
@@ -1284,10 +1289,15 @@
                     <h3>Subsets</h3>
                     <p><i>naked pairs/triplets/quads, hidden pairs/triplets/quads, pointing pairs/triplets, box/line reduction, x-wings, swordfish, jellyfish</i></p>
                     <p>The remainder of the simple strategies can all be described by a common line of reasoning:</p>
-                    <blockquote>If there is a set of <i>n</i> X's and <i>n</i> Y's in Z, any other X's in those <i>n</i> Y's can be removed<br />where X, Y, and Z are some combination of row/column/box/cell/candidate and <i>n</i> determines the size of the subset</blockquote>
+                    <blockquote>
+                        <p><b>If there is a set of <i>n</i> X's and <i>n</i> Y's in Z, any other X's in those <i>n</i> Y's can be removed</b></p>
+                        <p>where X, Y, and Z are some combination of row/column/box/cell/candidate and <i>n</i> is the size of the subset</p></blockquote>
                     <p>These subset strategies can be broken into four groups:</p>
                     <div class="strategy-desc">
-                        <p><b>Naked subset</b> - If there is a set of <b>n cells</b> containing only <b>n candidates</b> in a <b>unit</b>, any other <b>cells</b> in that unit with those <b>n candidates</b> can have them removed.</p>
+                        <div>
+                            <p><b>Naked subset</b> - If there is a set of <b>n cells</b> containing only <b>n candidates</b> in a <b>unit</b>, any other <b>cells</b> in that unit with those <b>n candidates</b> can have them removed.</p>
+                            <p>Naked subsets can come as <b>pairs</b>, <b>triplets</b>, or <b>quads</b>, corresponding to <i>n</i>&nbsp;=&nbsp;2, 3, 4. For triplets or quads, it is not necessary for <i>every</i> cell to contain every candidate; only that the <i>total</i> number of cells and candidates equals 3 or 4 (as shown in the naked triplet example).</p>
+                        </div>
                         <figure>
                             <img src="../project-assets/sudoku/naked-triplet-example.png" />
                             <figcaption>Naked triplet - In the third row, there are 3 cells that in total contain 3 candidates (colored blue); 1, 6, and 8 must go in those cells and so can be removed from other cells in that row</figcaption>
@@ -1297,6 +1307,7 @@
                     <div class="strategy-desc">
                         <div>
                             <p><b>Hidden subset</b> - If there is a set of <b>n candidates</b> within only <b>n cells</b> in a <b>unit</b>, any other <b>candidates</b> in those <b>n cells</b> can be removed.</p>
+                            <p>The same naming conventions listed above also apply to hidden subsets.</p>
                         </div>
                         <figure>
                             <img src="../project-assets/sudoku/hidden-triplet-example.png" />
@@ -1306,52 +1317,49 @@
                     <hr />
                     <div class="strategy-desc">
                         <div>
-                            <p><b>'Fish' subset</b></p>
+                            <p><b>Fish subset</b></p>
                             <p>(Type 1) If there is a set of <b>n rows</b> with only <b>n columns</b> containing a <b>candidate</b>, any other <b>rows</b> containing that candidate in those <b>n columns</b> can have it removed.</p>
                             <p>(Type 2) If there is a set of <b>n columns</b> with only <b>n rows</b> containing a <b>candidate</b>, any other <b>columns</b> containing that candidate in those <b>n rows</b> can have it removed.</p>
+                            <p>These formations have different names depending on their size <i>n</i>:</p>
+                            <ul>
+                                <li>n = 2 &rArr; <b>X-Wing</b></li>
+                                <li>n = 3 &rArr; <b>Swordfish</b></li>
+                                <li>n = 4 &rArr; <b>Jellyfish</b></li>
+                            </ul>
                         </div>
                         <figure>
-                            <img src="../project-assets/sudoku/naked-triplet-example.png" />
-                            <figcaption>Hidden triplet - In the third column, there are 3 candidates that can only be found in the same 3 cells (colored blue); 1, 4, and 7 must go in those cells and so the other candidates can be removed</</figcaption>
+                            <img src="../project-assets/sudoku/x-wing-example.png" />
+                            <figcaption>X-Wing (Type 1) - In the 2 blue rows, candidate 4 can only be placed in 2 columns (column 1 and column 7); the other cells in those 2 columns cannot contain a 4</figcaption>
                         </figure>
                     </div>
                     <hr />
                     <div class="strategy-desc">
                         <div>
                             <p><b>Intersection subset</b></p>
-                            <p>(Pointing) If a candidate appears in only <b>n cells</b> in a <b>row/column</b> and those cells are also in the same <b>box</b>, that candidate can be removed from the other cells in that box.</p>
-                            <p>(Box/line) If a candidate appears in only <b>n cells</b> in a <b>box</b> and those cells are also in the same <b>row/column</b>, that candidate can be removed from the other cells in that row/column.</p>
+                            <p>(Pointing) If a candidate appears in only <b>n cells</b> in a <b>box</b> and those cells are all in the same <b>row/column</b>, that candidate can be removed from the other cells in that row/column.</p>
+                            <p>(Box/line) If a candidate appears in only <b>n cells</b> in a <b>row/column</b> and those cells are all in the same <b>box</b>, that candidate can be removed from the other cells in that box.</p>
+                            <p>Intersection subsets can only have a size of n = 2 or n = 3 because a box can only have 3 cells at most aligned on the same row or column.</p>
                         </div>
                         <figure>
-                            <img src="../project-assets/sudoku/naked-triplet-example.png" />
-                            <figcaption>Hidden triplet - In the third column, there are 3 candidates that can only be found in the same 3 cells (colored blue); 1, 4, and 7 must go in those cells and so the other candidates can be removed</</figcaption>
+                            <img src="../project-assets/sudoku/pointing-example.png" />
+                            <figcaption>Pointing triple - In the 4th box, candidate 1 can only be on the 6th row (colored blue); the other cells on that row cannot contain a 1</figcaption>
                         </figure>
                     </div>
-                    <!--<blockquote>For X, if there are N Y's with(in) only N Z's, that/those candidate(s) can be removedany other Y's can have that/those candidate(s) removed</blockquote>
-    <blockquote>(Naked) For row A, if there are 3 columns with only 3 candidates, any other columns can have those candidates removed</blockquote>
-    <blockquote>(Hidden) For row A, if there are 3 candidates within only 3 columns, any other candidates in those columns can be removed</blockquote>
-    <blockquote>(Fish) For candidate 7, if there are 3 rows with only 3 columns, any other rows in those columns can have that candidate removed</blockquote>-->
-                    <!--<blockquote>If the intersection of X and Y contain candidate(s) K and the rest of X does not contain K, then the rest of Y also cannot contain K.</blockquote>
-    <p>X and Y can be replaced with row(s), column(s), box(s), or cell(s). Exactly two of (X, Y, and K) will consist of N values. For example:</p>
-    <p>Naked subsets - If there are N cells on a row that contain N candidates and the rest of those cells row does not contain those N candidates, then   </p>-->
                 </div>
                 <hr />
                 <h3>Bent sets</h3>
-                <p>Subsetse</p>
+                <p><b>Bent sets</b> are essentially naked subsets "bent" onto two different units. They consist of <b>n cells</b> containing only <b>n candidates</b> where the cells belong to <b>2 adjacent units</b>.</p>
                 <hr />
                 <h3>Coloring</h3>
-                <p>Subsetse</p>
+                <p>Text</p>
                 <hr />
                 <h3>Chains</h3>
-                <p>Subsetse</p>
+                <p>Text</p>
 
 
                 <!--<p>In the world of sudoku solving techniques, there is a lot of different terminology used. Most of the strategies and names my solver uses come from <a href="https://www.sudokuwiki.org/Main_Page">this excellent site</a> by Andrew Stuart. For further details on these strategies check out </p>-->
             </section>
-            <section>
-                <h2>About</h2>
-                <p>The solver was written in C++ and compiled to Webassembly using <a class="wiki-link-inline" href="https://emscripten.org/" target="_blank">Emscripten</a>. The GUI was written in Javascript. Both the original C++ source code and javascript can be found on my Github.</p>
-            </section>
+            <hr />
             <section id="sudoku-help">
                 <h2>Using the solver</h2>
                 <p>Sudoku is a logic puzzle game played on a 9x9 grid of cells. The objective is to fill each row, each column, and each 3x3 sub-grid (box) with the numbers 1-9. The only rule is that no number can appear more than once in any row, column, or box. Although you can arrive at the solution through guessing, the purpose of the game is to find cell solutions through logical deductions.</p>
