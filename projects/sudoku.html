@@ -1273,9 +1273,8 @@
                     <ul>
                         <li><i>Cell</i> - one of the 81 squares that make up the sudoku board</li>
                         <li><i>Box</i> - a grid of 3x3 cells that must contain the digits 1-9</li>
-                        <li><i>Unit</i> - a section of the board that must contain the digits 1-9, the three types of units are row, column, and box</li>
+                        <li><i>Unit</i> - a section of the board that must contain the digits 1-9; i.e., a row, a column, or a box</li>
                         <li><i>Candidate</i> - a possible solution to a cell, marked on the board as a smaller number</li>
-                        <li><i>Solution</i> - the final number that fills a cell</li>
                     </ul>
                 </div>
                 <div>
@@ -1295,7 +1294,7 @@
                     <p>These subset strategies can be broken into four groups:</p>
                     <div class="strategy-desc">
                         <div>
-                            <p><b>Naked subset</b> - If there is a set of <b>n cells</b> containing only <b>n candidates</b> in a <b>unit</b>, any other <b>cells</b> in that unit with those <b>n candidates</b> can have them removed.</p>
+                            <p><b>Naked subset</b> - If there are <b>n cells</b> containing only <b>n candidates</b> in a <b>unit</b>, then those <b>n candidates</b> can be removed from other <b>cells</b> in that unit.</p>
                             <p>Naked subsets can come as <b>pairs</b>, <b>triplets</b>, or <b>quads</b>, corresponding to <i>n</i>&nbsp;=&nbsp;2, 3, 4. For triplets or quads, it is not necessary for <i>every</i> cell to contain every candidate; only that the <i>total</i> number of cells and candidates equals 3 or 4 (as shown in the naked triplet example).</p>
                         </div>
                         <figure>
