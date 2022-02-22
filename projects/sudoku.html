@@ -1266,6 +1266,14 @@
                 <p>The solver was written in C++ and compiled to Webassembly using <a class="wiki-link-inline" href="https://emscripten.org/" target="_blank">Emscripten</a>. The GUI was written in Javascript. Both the original C++ source code and javascript can be found on my Github.</p>
             </section>
             <hr />
+            <section id="sudoku-help">
+                <h2>Using the solver</h2>
+                <p>Sudoku is a logic puzzle game played on a 9x9 grid of cells. The objective is to fill each row, each column, and each 3x3 sub-grid (box) with the numbers 1-9. The only rule is that no number can appear more than once in any row, column, or box. Although you can arrive at the solution through guessing, the purpose of the game is to find cell solutions through logical deductions.</p>
+                <p><b>Entering data</b> - Solutions can be entered or removed using a keyboard or the <samp>Digit</samp> input mode next to the board. In the process of solving, it's often helpful to write possible solutions into a cell before you know the true solution. Also known as <i>pencil marks</i>, these mini-numbers can be entered while <samp>Candidate</samp> mode is selected. In addition</p>
+                <p><b>Custom puzzles</b> - To enter a custom puzzle, first select <samp>Custom</samp> from the puzzle dropdown. Then, any number of given cell solutions (or <i>clues</i>) and candidates can be entered manually as described above. Alternatively, puzzle clues can be entered as an 81 character string in the Custom Board Editor. For unsolved cells in this string, any character other than 1-9 may be used (common characters are <i>.</i> or <i>0</i>).</p>
+                <p><b>Solving</b> - The solver works by applying a predetermined order of strategies (described above) until some change is made to the board, displaying the results, and then starting the startegy list over from the beginning. The <samp>Step</samp> button will show the result of one successful strategy at a time while the <samp>Solve</samp> button will find and display all the steps needed to solve the puzzle. For the most difficult puzzles, the solver may run out of strategies in which case the solved puzzle (if it exists) will be found by a fast brute force search.</p>
+            </section>
+            <hr />
             <section class="strategies">
                 <h2>Strategies</h2>
                 <div>
@@ -1290,7 +1298,8 @@
                     <p>The remainder of the simple strategies can all be described by a common line of reasoning:</p>
                     <blockquote>
                         <p><b>If there is a set of <i>n</i> X's and <i>n</i> Y's in Z, any other X's in those <i>n</i> Y's can be removed</b></p>
-                        <p>where X, Y, and Z are some combination of row/column/box/cell/candidate and <i>n</i> is the size of the subset</p></blockquote>
+                        <p>where X, Y, and Z are some combination of row/column/box/cell/candidate and <i>n</i> is the size of the subset</p>
+                    </blockquote>
                     <p>These subset strategies can be broken into four groups:</p>
                     <div class="strategy-desc">
                         <div>
@@ -1305,20 +1314,20 @@
                     <hr />
                     <div class="strategy-desc">
                         <div>
-                            <p><b>Hidden subset</b> - If there is a set of <b>n candidates</b> within only <b>n cells</b> in a <b>unit</b>, any other <b>candidates</b> in those <b>n cells</b> can be removed.</p>
+                            <p><b>Hidden subset</b> - If there are <b>n candidates</b> within only <b>n cells</b> in a <b>unit</b>, then any other <b>candidates</b> in those <b>n cells</b> can be removed.</p>
                             <p>The same naming conventions listed above also apply to hidden subsets.</p>
                         </div>
                         <figure>
                             <img src="../project-assets/sudoku/hidden-triplet-example.png" />
-                            <figcaption>Hidden triplet - In the third column, there are 3 candidates that can only be found in the same 3 cells (colored blue); 1, 4, and 7 must go in those cells and so the other candidates can be removed</figcaption>
+                            <figcaption>Hidden triplet - In the third column, there are 3 candidates (colored blue) that can only be found in the same 3 cells; 1, 4, and 7 must go in those cells and so the other candidates (colored red) can be removed</figcaption>
                         </figure>
                     </div>
                     <hr />
                     <div class="strategy-desc">
                         <div>
                             <p><b>Fish subset</b></p>
-                            <p>(Type 1) If there is a set of <b>n rows</b> with only <b>n columns</b> containing a <b>candidate</b>, any other <b>rows</b> containing that candidate in those <b>n columns</b> can have it removed.</p>
-                            <p>(Type 2) If there is a set of <b>n columns</b> with only <b>n rows</b> containing a <b>candidate</b>, any other <b>columns</b> containing that candidate in those <b>n rows</b> can have it removed.</p>
+                            <p>(Type 1) If there are <b>n rows</b> where <b>n columns</b> contain a <b>candidate</b>, that candidate can be removed from any other <b>rows</b> in those <b>n columns</b>.</p>
+                            <p>(Type 2) If there are <b>n columns</b>where <b>n rows</b> contain a <b>candidate</b>, that candidate can be removed any other <b>columns</b> in those <b>n rows</b>.</p>
                             <p>These formations have different names depending on their size <i>n</i>:</p>
                             <ul>
                                 <li>n = 2 &rArr; <b>X-Wing</b></li>
@@ -1347,7 +1356,22 @@
                 </div>
                 <hr />
                 <h3>Bent sets</h3>
-                <p><b>Bent sets</b> are essentially naked subsets "bent" onto two different units. They consist of <b>n cells</b> containing only <b>n candidates</b> where the cells belong to <b>2 adjacent units</b>.</p>
+                <p><b>Bent sets</b> are essentially naked subsets "bent" onto two different units. They consist of <b>n cells</b> containing only <b>n candidates</b> where the cells belong to <b>2 different units</b>. The 2 units must be different types and at least 1 cell must be present in both units. The cell(s) that are part of both units are the <b>hinge cells</b>.</p>
+                <p>Under certain conditions a bent set can be treated as a naked set where the n candidates must all appear in some combination in the n cells of the set:</p>
+                <p>(Type 1) If exactly <b>1</b> of the n candidates in the bent set is present in 2 separate units, <b>that</b> candidate can be removed from any cells outside the bent set that can "see" all instances of that candidate in the bent set.</p>
+                <p>(Type 2) If <b>none</b> of the n candidates in the bent set are present in 2 separate units, <b>all</b> of the n candidates in the bent set can be removed from any cells outside the bent set that "see" all instances of each candidate in the bent set.</p>
+                <p>Type 1 bent sets appear far more often. Both types of bent sets can be referred to by their size similar to naked/hidden sets (<b>bent triple</b>, <b>bent quad</b>, <b>bent quint</b>). They have also been given the following names:</p>
+                <ul>
+                    <li>n = 3 &rArr; <b>Y-Wing</b> (when the hinge cell contains 2 of the 3 candidates)</li>
+                    <li>n = 3 &rArr; <b>XYZ-Wing</b> (when the hinge cell contains all 3 candidates)</li>
+                    <li>n = 4 &rArr; <b>WXYZ-Wing</b></li>
+                </ul>
+                <div class="strategy-desc">
+                    <figure>
+                        <img src="../project-assets/sudoku/y-wing-example.png" />
+                        <figcaption>Y-Wing (Type 1) - The 3 shaded cells of the bent triple lie on row 4 and box 4 with the single hinge cell shaded orange. Within the bent set, only one candidate, 1, falls on the two different units. Therefore, 1 (colored yellow), must be the solution to one of the blue cells. The 1's outside the bent set (colored red) that "see" both yellow 1's can be removed.</figcaption>
+                    </figure>
+                </div>
                 <hr />
                 <h3>Coloring</h3>
                 <p>Text</p>
@@ -1357,14 +1381,6 @@
 
 
                 <!--<p>In the world of sudoku solving techniques, there is a lot of different terminology used. Most of the strategies and names my solver uses come from <a href="https://www.sudokuwiki.org/Main_Page">this excellent site</a> by Andrew Stuart. For further details on these strategies check out </p>-->
-            </section>
-            <hr />
-            <section id="sudoku-help">
-                <h2>Using the solver</h2>
-                <p>Sudoku is a logic puzzle game played on a 9x9 grid of cells. The objective is to fill each row, each column, and each 3x3 sub-grid (box) with the numbers 1-9. The only rule is that no number can appear more than once in any row, column, or box. Although you can arrive at the solution through guessing, the purpose of the game is to find cell solutions through logical deductions.</p>
-                <p><b>Entering data</b> - Solutions can be entered or removed using a keyboard or the <samp>Digit</samp> input mode next to the board. In the process of solving, it's often helpful to write possible solutions into a cell before you know the true solution. Also known as <i>pencil marks</i>, these mini-numbers can be entered while <samp>Candidate</samp> mode is selected. In addition</p>
-                <p><b>Custom puzzles</b> - To enter a custom puzzle, first select <samp>Custom</samp> from the puzzle dropdown. Then, any number of given cell solutions (or <i>clues</i>) and candidates can be entered manually as described above. Alternatively, puzzle clues can be entered as an 81 character string in the Custom Board Editor. For unsolved cells in this string, any character other than 1-9 may be used (common characters are <i>.</i> or <i>0</i>).</p>
-                <p><b>Solving</b> - The solver works by applying a predetermined order of strategies (described above) until some change is made to the board, displaying the results, and then starting the startegy list over from the beginning. The <samp>Step</samp> button will show the result of one successful strategy at a time while the <samp>Solve</samp> button will find and display all the steps needed to solve the puzzle. For the most difficult puzzles, the solver may run out of strategies in which case the solved puzzle (if it exists) will be found by a fast brute force search.</p>
             </section>
         </div>
 
