@@ -1070,6 +1070,12 @@ button.digit-toggle {
 .strategy-desc:nth-of-type(even) {
     flex-direction: row-reverse;
 }
+.strategy-desc.bent-strategy-example {
+    flex-direction: row;
+}
+.strategy-desc.bent-strategy-example > * {
+    flex: 1;
+}
 
 
 /* ----------- Media Queries ----------- */

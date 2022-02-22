@@ -1360,16 +1360,20 @@
                 <p>Under certain conditions a bent set can be treated as a naked set where the n candidates must all appear in some combination in the n cells of the set:</p>
                 <p>(Type 1) If exactly <b>1</b> of the n candidates in the bent set is present in 2 separate units, <b>that</b> candidate can be removed from any cells outside the bent set that can "see" all instances of that candidate in the bent set.</p>
                 <p>(Type 2) If <b>none</b> of the n candidates in the bent set are present in 2 separate units, <b>all</b> of the n candidates in the bent set can be removed from any cells outside the bent set that "see" all instances of each candidate in the bent set.</p>
-                <p>Type 1 bent sets appear far more often. Both types of bent sets can be referred to by their size similar to naked/hidden sets (<b>bent triple</b>, <b>bent quad</b>, <b>bent quint</b>). They have also been given the following names:</p>
+                <p>Type 1 bent sets appear far more often. Both types of bent sets can be referred to by their size similar to naked/hidden sets (<b>bent triplet</b>, <b>bent quad</b>, <b>bent quint</b>). They have also been given the following names:</p>
                 <ul>
                     <li>n = 3 &rArr; <b>Y-Wing</b> (when the hinge cell contains 2 of the 3 candidates)</li>
                     <li>n = 3 &rArr; <b>XYZ-Wing</b> (when the hinge cell contains all 3 candidates)</li>
                     <li>n = 4 &rArr; <b>WXYZ-Wing</b></li>
                 </ul>
-                <div class="strategy-desc">
+                <div class="strategy-desc bent-strategy-example">
                     <figure>
                         <img src="../project-assets/sudoku/y-wing-example.png" />
                         <figcaption>Y-Wing (Type 1) - The 3 shaded cells of the bent triple lie on row 4 and box 4 with the single hinge cell shaded orange. Within the bent set, only one candidate, 1, falls on the two different units. Therefore, 1 (colored yellow), must be the solution to one of the blue cells. The 1's outside the bent set (colored red) that "see" both yellow 1's can be removed.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="../project-assets/sudoku/bent-quint-example.png" />
+                        <figcaption>Bent quint (Type 2) - The 5 shaded cells lie on column 7 and box 9 with the two hinge cells shaded orange. Within the bent set, every candidate is restricted to a single unit (either column 7 or box 9). Therefore, 1, 2, 5, 7, and 9 must appear in some combination in the shaded cells. Any other candidate outside the bent set that can see all occurences in the bent set (colored red) can be removed.</figcaption>
                     </figure>
                 </div>
                 <hr />
