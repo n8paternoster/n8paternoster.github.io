@@ -1147,8 +1147,8 @@ button.digit-toggle {
         margin-right: 1em;
         height: 20vh;   /* need to test this */
     }
-    .strategy-desc, .strategy-desc:nth-of-type(even) {
-        flex-direction: column;
+    .strategy-desc {
+        flex-direction: column !important;
     }
 }
 
