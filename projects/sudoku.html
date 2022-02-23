@@ -1366,19 +1366,34 @@
                     <li>n = 3 &rArr; <b>XYZ-Wing</b> (when the hinge cell contains all 3 candidates)</li>
                     <li>n = 4 &rArr; <b>WXYZ-Wing</b></li>
                 </ul>
-                <div class="strategy-desc bent-strategy-example">
+                <div class="strategy-desc equal-cols">
                     <figure>
                         <img src="../project-assets/sudoku/y-wing-example.png" />
                         <figcaption>Y-Wing (Type 1) - The 3 shaded cells of the bent triple lie on row 4 and box 4 with the single hinge cell shaded orange. Within the bent set, only one candidate, 1, falls on the two different units. Therefore, 1 (colored yellow), must be the solution to one of the blue cells. The 1's outside the bent set (colored red) that "see" both yellow 1's can be removed.</figcaption>
                     </figure>
                     <figure>
                         <img src="../project-assets/sudoku/bent-quint-example.png" />
-                        <figcaption>Bent quint (Type 2) - The 5 shaded cells lie on column 7 and box 9 with the two hinge cells shaded orange. Within the bent set, every candidate is restricted to a single unit (either column 7 or box 9). Therefore, 1, 2, 5, 7, and 9 must appear in some combination in the shaded cells. Any other candidate outside the bent set that can see all occurences in the bent set (colored red) can be removed.</figcaption>
+                        <figcaption>Bent quint (Type 2) - The 5 shaded cells lie on column 7 and box 9 with the two hinge cells shaded orange. Within the bent set, every candidate is restricted to a single unit (either column 7 or box 9). Therefore, 1, 2, 5, 7, and 9 must appear in some combination in the shaded cells. Any other candidate outside the bent set that can see all occurrences in the bent set (colored red) can be removed.</figcaption>
                     </figure>
                 </div>
                 <hr />
                 <h3>Coloring</h3>
-                <p>Text</p>
+                <p>Coloring strategies begin the chain-based strategies. Imagine that a row has only 2 possible cells for candidate <i>k</i>. If the first cell IS <i>k</i> in the board's solution, then the second cell CANNOT be <i>k</i>. It is also equally valid to say that if the first cell is NOT <i>k</i> then the second cell MUST be (since there must be a <i>k</i> on this row). These two candidate possibilities are fundamentally linked.</p>
+                <p>By finding and connecting all of these <b>strong links</b> between candidates, we can create a connected graph of vertices. Coloring these vertices alternating between two colors will then represent the two possible outcomes the graph could resolve to in the board's solution.</p>
+                <p>There are 2 types of graphs. <b>Simple coloring</b> is when the graph consists of a single candidate. <b>3D Medusa</b> refers to a graph that contains any candidates. 3D Medusa requires another type of link; when a single cell contains 2 candidates, those 2 candidates can be connected with a strong link using the same reasoning given above.</p>
+                <p>With either type of graph, there are two ways to find eliminations:</p>
+                <p>(Rule 1) If any uncolored candidate on the board can "see" both colors of the graph, that candidate isn't possible in either outcome and can be removed.</p>
+                <p>(Rule 2) If all candidates in a <b>cell</b> can "see" color A, OR if all occurrences of candidate <i>k</i> in a <b>unit</b> can "see" color A, all candidates colored A can be removed and all candidates colored B are the solutions to their cell.</p>
+                <div class="strategy-desc equal-cols">
+                    <figure>
+                        <img src="../project-assets/sudoku/simple-coloring-example.png" />
+                        <figcaption>Simple coloring (rule 1) - Several strong links between occurrences of candidate 9 have been drawn and colored. In the board's solution, either all of the green 9's are solutions or all of the blue 9's are solutions. In either case the candidate colored in red cannot be possible, so it can be removed.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="../project-assets/sudoku/medusa-example.png" />
+                        <figcaption>3D Medusa (rule 2) - All of the 6's in column 2 (located in the yellow cells) can "see" a red colored candidate. In the top and bottom yellow cells it is another red 6 in the same row; in the middle yellow cell it is the red 4 in the same cell. If red was the solution to the board, column 2 would not contain a 6. Therefore green must be the solution and all red candidates can be removed.</figcaption>
+                    </figure>
+                </div>
                 <hr />
                 <h3>Chains</h3>
                 <p>Text</p>

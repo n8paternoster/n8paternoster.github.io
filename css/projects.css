@@ -1073,7 +1073,11 @@ button.digit-toggle {
 .strategy-desc.bent-strategy-example {
     flex-direction: row;
 }
-.strategy-desc.bent-strategy-example > * {
+.strategy-desc.equal-cols {
+    flex-direction: row;
+    row-gap: 1em;
+}
+.strategy-desc.equal-cols > * {
     flex: 1;
 }
 
