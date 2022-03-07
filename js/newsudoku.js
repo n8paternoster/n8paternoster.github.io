@@ -256,7 +256,7 @@ class Board {
         let className = "candidate-highlighted-" + color;
         can.classList.add(className);
     }
-    static drawLink(aRow, aCol, aCan, bRow, bCol, bCan, isStrongLink, ctx) {
+    static drawLink(aRow, aCol, aCan, bRow, bCol, bCan, isStrongLink, ctx, color = "blue") {
         let aEle = candidateEleFromIndex(aRow * Board.N + aCol, aCan);
         let bEle = candidateEleFromIndex(bRow * Board.N + bCol, bCan);
         if (sudokuBoard == null || aEle == null || bEle == null) return;
@@ -316,14 +316,14 @@ class Board {
 
         if (isStrongLink) ctx.setLineDash([0]);
         else ctx.setLineDash([5, 2]);
-        ctx.strokeStyle = "blue";
+        ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.quadraticCurveTo(cx, cy, x2, y2);
         ctx.stroke();
     }
-    static drawVertex(row, col, can, color, ctx) {
+    static drawVertex(row, col, can, color, ctx, filled = true) {
         let ele = candidateEleFromIndex(row * Board.N + col, can);
         if (sudokuBoard == null || ele == null || !Board.colors.includes(color)) return;
 
@@ -338,11 +338,13 @@ class Board {
         let vtxColor = window.getComputedStyle(ele).backgroundColor;
         ele.classList.remove(className);
         ctx.fillStyle = vtxColor;
+        ctx.strokeStyle = vtxColor;
         ctx.lineWidth = 2;
         
         ctx.beginPath();
         ctx.arc(x, y, r, 0, 2 * Math.PI);
-        ctx.fill();
+        if (filled) ctx.fill();
+        else ctx.stroke();
     }
     static clearCanvas() {
         let canvas = document.getElementById("sudoku-board-canvas");
@@ -466,7 +468,7 @@ class Board {
             case Module.StrategyID.Medusa: title += "3D Medusa\r\n"; break;
             case Module.StrategyID.XCycle: title += "X-Cycle\r\n"; break;
             case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chain\r\n"; break;
-            default: title += "Invalid strategy/Puzzle solved\r\n"; break;
+            default: title += "Strategy not found\r\n"; break;
         }
         let titleEle = document.createElement('span');
         titleEle.style.fontWeight = 'bold';
@@ -730,6 +732,8 @@ class Board {
                 }
             case Module.StrategyID.SinglesChain:
             case Module.StrategyID.Medusa:
+                // "All of the X in Y can see a [elimcolor] candidate; all [elimcolor] candidates can be removed and all green candidates are solutions:"
+                // "Either the blue candidates are the solutions or the green candidates are the solutions; some candidates can see both colors and can be removed:"
                 {
                     let coloring = strategy.coloring;
                     let string = "";
@@ -785,11 +789,30 @@ class Board {
                 }
             case Module.StrategyID.XCycle:
             case Module.StrategyID.AlternatingInferenceChain:
+                // "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:"
+                // "When [disc] is (set to)/(removed from) X, the chain implies that it (can't be)/(must be) X:"
+                // "When the red chain is set to red there is [conflict], all of the red candidates can be removed and all of the green candidates are solutions:"
                 {
                     let cycle = strategy.cycle;
                     let string = "";
-                    if (cycle.rule === Module.CycleRule.Continuous) {
-                        string += "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:\r\t";
+                    if (cycle.rule === Module.CycleRule.InvalidChain) {
+                        let c1 = cycle.conflict1, c2 = cycle.conflict2;
+                        let coloring = strategy.coloring;
+                        let conflict = "";
+                        if (c1.row === c2.row && c1.col === c2.col) {
+                            conflict += numerChar[c1.candidate] + " and " + numerChar[c2.candidate];
+                            conflict += "both being " + (c1.color === coloring.conflictColor ? "removed from" : "set in");
+                            conflict += " cell " + alphaChar[c1.row] + numerChar[c1.col];
+                        } else if (c1.candidate === c2.candidate) {
+                            conflict += (c1.color === coloring.conflictColor ? "no " : "two ") + numerChar[c1.candidate] + "'s in ";
+                            if (c1.row == c2.row) conflict += "row " + alphaChar[c1.row];
+                            else if (c1.col == c2.col) conflict += "col " + numerChar[c1.col];
+                            else conflict += "box " + numerChar(Math.floor(c1.row / 3) * 3 + Math.floor(c1.col / 3));
+                        }
+                        coloring.delete();
+                        string += "When the red chain is set to red it leads to " + conflict + "; all of the red candidates can be removed and all of the green candidates are solutions:\r\n";
+                    } else if (cycle.rule === Module.CycleRule.Continuous) {
+                        string += "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:\r\n";
                     } else {
                         let cell = cycle.discontinuity;
                         let disc = alphaChar[cell.row] + numerChar[cell.col];
@@ -1036,22 +1059,72 @@ class Board {
                 let ctx = canvas.getContext('2d');
                 let cycle = strategy.cycle;
                 let rule = cycle.rule;
-                let cycleIsDisc = (rule === Module.CycleRule.WeakDiscontinuity || rule === Module.CycleRule.StrongDiscontinuity);
-                let disc = cycle.discontinuity;
-                let cycleColors = ['blue', 'purple'];
-                let colorOne = true;    // alternate colors
-                let links = cycle.links;
-                for (let i = 0; i < links.size(); i++) {
-                    let l = links.get(i);
-                    let strong = l.link === Module.Link.Strong;
-                    let color = colorOne ? cycleColors[0] : cycleColors[1];
-                    if (cycleIsDisc && l.fromRow === disc.row && l.fromCol === disc.col && l.fromCan === disc.candidate) {
-                        color = (rule === Module.CycleRule.WeakDiscontinuity) ? 'red' : 'green';
-                    } else colorOne = !colorOne;
-                    Board.drawVertex(l.fromRow, l.fromCol, l.fromCan, color, ctx);
-                    Board.drawLink(l.fromRow, l.fromCol, l.fromCan, l.toRow, l.toCol, l.toCan, strong, ctx);
+                if (rule == Module.CycleRule.WeakDiscontinuity || rule == Module.CycleRule.StrongDiscontinuity || rule == Module.CycleRule.Continuous) {
+                    let cycleIsDisc = (rule === Module.CycleRule.WeakDiscontinuity || rule === Module.CycleRule.StrongDiscontinuity);
+                    let disc = cycle.discontinuity;
+                    let cycleColors = ['blue', 'purple'];
+                    let colorOne = true;    // alternate colors
+                    let links = cycle.chain;
+                    for (let i = 0; i < links.size(); i++) {
+                        let l = links.get(i);
+                        let strong = l.link === Module.Link.Strong;
+                        let color = colorOne ? cycleColors[0] : cycleColors[1];
+                        if (cycleIsDisc && l.fromRow === disc.row && l.fromCol === disc.col && l.fromCan === disc.candidate) {
+                            color = (rule === Module.CycleRule.WeakDiscontinuity) ? 'red' : 'green';
+                        } else colorOne = !colorOne;
+                        Board.drawVertex(l.fromRow, l.fromCol, l.fromCan, color, ctx);
+                        Board.drawLink(l.fromRow, l.fromCol, l.fromCan, l.toRow, l.toCol, l.toCan, strong, ctx);
+                    }
+                    links.delete();
+                } else if (rule === Module.CycleRule.InvalidChain) {
+                    let coloring = strategy.coloring;
+                    // Color vertex outlines
+                    let vertices = coloring.vertices;
+                    for (let i = 0; i < vertices.size(); i++) {
+                        let v = vertices.get(i);
+                        let color = (v.color === coloring.conflictColor) ? 'red' : 'green';
+                        Board.drawVertex(v.row, v.col, v.candidate, color, ctx, false);
+                    }
+                    vertices.delete();
+                    // Draw grey links
+                    let links = coloring.links;
+                    for (let i = 0; i < links.size(); i++) {
+                        let l = links.get(i);
+                        let strong = (l.link === Module.Link.Strong);
+                        Board.drawLink(l.fromRow, l.fromCol, l.fromCan, l.toRow, l.toCol, l.toCan, strong, ctx, 'grey');
+                    }
+                    links.delete();
+                    // Change the elimination chain links to red
+                    let chainLinks = cycle.chain;
+                    for (let i = 0; i < chainLinks.size(); i++) {
+                        let l = chainLinks.get(i);
+                        let strong = (l.link === Module.Link.Strong);
+                        Board.drawLink(l.fromRow, l.fromCol, l.fromCan, l.toRow, l.toCol, l.toCan, strong, ctx, 'red');
+                    }
+                    chainLinks.delete();
+                    // Change the elimination chain vertices to a solid fill
+                    let elims = strategy.eliminations;
+                    for (var i = 0; i < elims.size(); i++) {
+                        let e = elims.get(i);
+                        Board.drawVertex(e.row, e.col, e.candidate, 'red', ctx);
+                    }
+                    elims.delete();
+                    let sols = strategy.solutions;
+                    for (var i = 0; i < sols.size(); i++) {
+                        let s = sols.get(i);
+                        Board.drawVertex(s.row, s.col, s.candidate, 'green', ctx);
+                    }
+                    sols.delete();
+                    // Highlight conflict cells
+                    let conflictColor = 'yellow';
+                    let c1 = cycle.conflict1, c2 = cycle.conflict2;
+                    let cell1 = c1.row * Board.N + c1.col, cell2 = c2.row * Board.N + c2.col;
+                    //Board.drawVertex(c1.row, c1.col, c1.candidate, conflictColor, ctx);
+                    //Board.drawVertex(c2.row, c2.col, c2.candidate, conflictColor, ctx);
+                    Board.highlightCell(cellEleFromIndex(cell1), conflictColor);
+                    Board.highlightCell(cellEleFromIndex(cell2), conflictColor);
+                    coloring.delete();
                 }
-                links.delete();
                 cycle.delete();
                 if (rule === Module.CycleRule.Continuous) break;
                 else return;
