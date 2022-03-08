@@ -1398,6 +1398,10 @@
                 <h3>Alternating Inference Chains</h3>
                 <p>Coloring strategies only consider one strongly-linked chain at a time when searching for eliminations. We can take chaining strategies further by introducing <b>weak links</b> to our graphs.</p>
                 <p>Any two candidates that "see" each other and don't form a strong link instead form a weak link. Like strong links, if one end of the weak link IS the cell solution, the other CANNOT be. However, the inverse is not true: if one end is NOT the cell solution, we can't make any inferences about the other end.</p>
+                <figure>
+                    <img style="max-height:150px" src="../project-assets/sudoku/weak-strong-link.png" />
+                    <figcaption>Weak links are shown with a dotted line (left) and strong links with a solid line (right)</figcaption>
+                </figure>
                 <p>With weak links we can connect multiple strongly-linked chains together and make more inferences. The same rules in Coloring above also apply to alternating inference chains:</p>
                 <div class="strategy-desc">
                     <div>
@@ -1410,6 +1414,7 @@
                         <figcaption>X-Cycle (candidate 5): If the red 5 was the solution to its cell (turned "on"), the blue and purple 5's around the chain are alternatively turned "off" and "on" leading back to the red 5 being turned "off"; it can be removed</figcaption>
                     </figure>
                 </div>
+                <hr />
                 <div class="strategy-desc">
                     <div>
                         <p>(Rule 2) If setting a strong chain to one of its two possible outcomes leads to a conflict elsewhere on the board, that <i>chain</i> must be set to its other possible outcome.</p>

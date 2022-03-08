@@ -12,6 +12,7 @@ const newSavedPuzzles = new Map([
       "000007095000001000860020000020073008500000060003004900305000417240000000000000000"],
     ["X-Wings", "100200300300400500006007002007002005000000000500300100800100200002003001005008006"],
     ["Chains", "090200001000500380000098000907000053006705900510000702000120000053007000600009020"],
+    ["Invalid Chain", "060500009007000300240000000100020900000076000000004000800100000000000040000000070"],
     ["Minimum Clue Easy", "000870200640200000050000000807000300000051000000000000300700000000000051000000040"],
     ["Minimum Clue Hard", "002090300805000000100000000090060040000000058000000001070000200300500000000100000"],
 ]);
@@ -466,8 +467,14 @@ class Board {
             case Module.StrategyID.VWXYZWing: title += "Bent Quint\r\n"; break;
             case Module.StrategyID.SinglesChain: title += "Coloring (Simple)\r\n"; break;
             case Module.StrategyID.Medusa: title += "Coloring (3D Medusa)\r\n"; break;
-            case Module.StrategyID.XCycle: title += "Alternating Inference Chains (X-Cycle)\r\n"; break;
-            case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chains\r\n"; break;
+            case Module.StrategyID.XCycle: {
+                let rule = strategy.cycle.rule;
+                if (rule == Module.CycleRule.InvalidChain)
+                    title += "Alternating Inference Chains\r\n";
+                else title += "Alternating Inference Chains (X-Cycle)\r\n";
+                break;
+            }
+            case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chains"; break;
             default: title += "Strategy not found\r\n"; break;
         }
         let titleEle = document.createElement('span');
@@ -791,7 +798,7 @@ class Board {
             case Module.StrategyID.AlternatingInferenceChain:
                 // "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:"
                 // "When [disc] is (set to)/(removed from) X, the chain implies that it (can't be)/(must be) X:"
-                // "When the red chain is set to red there is [conflict], all of the red candidates can be removed and all of the green candidates are solutions:"
+                // "Invalid chain found. When the red chain is set to red it leads to [conflict], all of the solid red candidates can be removed and all of the solid green candidates are solutions:"
                 {
                     let cycle = strategy.cycle;
                     let string = "";
