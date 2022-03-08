@@ -474,7 +474,7 @@ class Board {
                 else title += "Alternating Inference Chains (X-Cycle)\r\n";
                 break;
             }
-            case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chains"; break;
+            case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chains\r\n"; break;
             default: title += "Strategy not found\r\n"; break;
         }
         let titleEle = document.createElement('span');
@@ -808,7 +808,7 @@ class Board {
                         let conflict = "";
                         if (c1.row === c2.row && c1.col === c2.col) {
                             conflict += numerChar[c1.candidate] + " and " + numerChar[c2.candidate];
-                            conflict += "both being " + (c1.color === coloring.conflictColor ? "removed from" : "set in");
+                            conflict += " both being " + (c1.color === coloring.conflictColor ? "removed from" : "set in");
                             conflict += " cell " + alphaChar[c1.row] + numerChar[c1.col];
                         } else if (c1.candidate === c2.candidate) {
                             conflict += (c1.color === coloring.conflictColor ? "no " : "two ") + numerChar[c1.candidate] + "'s in ";
