@@ -463,11 +463,11 @@ class Board {
             case Module.StrategyID.YWing: title += "Bent Triplet (Y-Wing)\r\n"; break;
             case Module.StrategyID.XYZWing: title += "Bent Triplet (XYZ-Wing)\r\n"; break;
             case Module.StrategyID.WXYZWing: title += "Bent Quad (WXYZ-Wing)\r\n"; break;
-            case Module.StrategyID.VWXYZWing: title += "Bent Quint (VWXYZ-Wing)\r\n"; break;
-            case Module.StrategyID.SinglesChain: title += "Simple coloring\r\n"; break;
-            case Module.StrategyID.Medusa: title += "3D Medusa\r\n"; break;
-            case Module.StrategyID.XCycle: title += "X-Cycle\r\n"; break;
-            case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chain\r\n"; break;
+            case Module.StrategyID.VWXYZWing: title += "Bent Quint\r\n"; break;
+            case Module.StrategyID.SinglesChain: title += "Coloring (Simple)\r\n"; break;
+            case Module.StrategyID.Medusa: title += "Coloring (3D Medusa)\r\n"; break;
+            case Module.StrategyID.XCycle: title += "Alternating Inference Chains (X-Cycle)\r\n"; break;
+            case Module.StrategyID.AlternatingInferenceChain: title += "Alternating Inference Chains\r\n"; break;
             default: title += "Strategy not found\r\n"; break;
         }
         let titleEle = document.createElement('span');
@@ -810,10 +810,10 @@ class Board {
                             else conflict += "box " + numerChar(Math.floor(c1.row / 3) * 3 + Math.floor(c1.col / 3));
                         }
                         coloring.delete();
-                        string += "When the red chain is set to red it leads to " + conflict + "; all of the red candidates can be removed and all of the green candidates are solutions:\r\n";
+                        string += "Invalid chain found. When the red chain is set to red it leads to " + conflict + "; all of the solid red candidates can be removed and all of the solid green candidates are solutions:\r\n";
                     } else if (cycle.rule === Module.CycleRule.Continuous) {
                         string += "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:\r\n";
-                    } else {
+                    } else if (cycle.rule === Module.CycleRule.WeakDiscontinuity || cycle.rule == Module.CycleRule.StrongDiscontinuity) {
                         let cell = cycle.discontinuity;
                         let disc = alphaChar[cell.row] + numerChar[cell.col];
                         let can = numerChar[cell.candidate];
