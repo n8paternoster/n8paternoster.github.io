@@ -108,6 +108,7 @@ class Board {
         this.clues = Array(Board.numCells).fill(0);
         this.cellSolutions = Array(Board.numCells).fill(0);
         this.cellCandidates = Array(Board.numCells).fill().map(() => Array(Board.N).fill(0));
+        this.changes = [];
         /* empty all cells */
         var cells = sudokuBoard.querySelectorAll("input");
         cells.forEach((cell) => Board.clearCell(cell));
@@ -381,8 +382,10 @@ class Board {
     }
 
     /* Step/Solve */
-    solvePath = [];
+    changes = [];   // {prevSolutions, prevCandidates, solvePath index (or -1)}
+    solvePath = []; // strategy objects
     solving = false;
+    pendingStrategy = false;
     isSolved() {
         for (let i = 0; i < Board.N; i++) {
             let rowCount = Array(Board.N).fill(0);
@@ -409,6 +412,7 @@ class Board {
     }
     resetStep() {
         // delete strategy objects
+        this.pendingStrategy = false;
         while (this.solvePath.length) {
             let strategy = this.solvePath.pop();
             strategy.delete();
@@ -1165,6 +1169,11 @@ class Board {
     }
     applyStrategyChanges(strategy) {
         if (!strategy) return;
+        this.changes.push({
+            solutions: this.getSolutionsStr(),
+            candidates: this.getCandidatesStr(),
+            strategy: strategy
+        });
         let sols = strategy.solutions;
         for (let i = 0; i < sols.size(); i++) {
             let s = sols.get(i);
@@ -1181,6 +1190,7 @@ class Board {
             if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
         }
         elims.delete();
+        this.pendingStrategy = false;
     }
     step() {
         if (this.isSolved() || this.solving) return;
@@ -1196,7 +1206,7 @@ class Board {
         if (this.solvePath.length === 0) {
             // This is the first step, fill any 0-candidate cells with all candidates
             if (this.fillEmptyCells()) return;
-        } else if (!endStrategies.includes(prevStep.id)) {
+        } else if (this.pendingStrategy && !endStrategies.includes(prevStep.id)) {
             this.applyStrategyChanges(prevStep);
             this.removeHighlighting();
         }
@@ -1232,9 +1242,44 @@ class Board {
             this.highlightStrategy(strategy);   // on board
             this.printStrategy(strategy);       // in output box
             this.solvePath.push(strategy);
+            this.pendingStrategy = true;
         };
         this.solving = true;
         getStrategy().then(strategy => showStrategy(strategy)).catch(e => console.log(e)).finally(() => this.solving = false);
+    }
+    undo() {
+        if (this.solving) return;
+        if (this.pendingStrategy) {
+            this.removeHighlighting();
+            let strategy = this.solvePath.pop();
+            if (strategy) strategy.delete();
+            this.pendingStrategy = false;
+            return;
+        }
+        let prev = this.changes.pop();
+        if (!prev) return;
+        this.removeHighlighting();
+        let prevSolutions = prev.solutions;
+        let prevCandidates = prev.candidates;
+        for (let c = 0; c < Board.numCells; c++) {
+            if (this.cellSolutions[c] == prevSolutions[c] && this.cellSolutions[c] != 0) continue;
+            if (this.cellSolutions[c] != prevSolutions[c]) {
+                if (prevSolutions[c] == '0') this.resetCell(c);
+                else this.setCellSolution(c, Number(prevSolutions[c]) - 1);
+            }
+            if (this.cellSolutions[c] == 0) {
+                for (let d = 0; d < Board.N; d++) {
+                    let set = prevCandidates[c * Board.N + d] == '1';
+                    this.setCellCandidate(c, d, set);
+                }
+            }
+        }
+        if (prev.strategy) {
+            let i = this.solvePath.indexOf(prev.strategy);
+            let strategy = this.solvePath.splice(i);
+            strategy[0].delete();
+        }
+        // need to update output window
     }
     solve() {
         if (this.isSolved() || this.solving) return;
