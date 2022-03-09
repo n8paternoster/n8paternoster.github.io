@@ -85,21 +85,43 @@ class Board {
             }
         }
     }
-    setCellSolution(cellNum, solutionNum) { // cellNum 0-indexed, solutionNum 0-indexed
+    setCellSolution(cellNum, solutionNum, saveChanges = true) { // cellNum 0-indexed, solutionNum 0-indexed
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         if (solutionNum < 0 || solutionNum >= Board.N) return;
-        this.cellSolutions[cellNum] = Number(solutionNum + 1); // set the cell value
-        this.cellCandidates[cellNum].fill(0);               // remove candidates from this cell
+        let newVal = Number(solutionNum + 1);
+        if (saveChanges && this.cellSolutions[cellNum] != newVal) {
+            this.changes.push({
+                solutions: this.getSolutionsStr(),
+                candidates: this.getCandidatesStr(),
+                strategy: null
+            });
+        }
+        this.cellSolutions[cellNum] = newVal;   // set the cell value
+        this.cellCandidates[cellNum].fill(0);   // remove candidates from this cell
         Board.drawCellSolution(cellEleFromIndex(cellNum), (solutionNum + 1).toString());
     }
-    setCellCandidate(cellNum, candidateNum, set) {  // cellNum 0-indexed, candidateNum 0-indexed
+    setCellCandidate(cellNum, candidateNum, set, saveChanges = true) {  // cellNum 0-indexed, candidateNum 0-indexed
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         if (candidateNum < 0 || candidateNum >= Board.N) return;
+        if (saveChanges && this.cellCandidates[cellNum][candidateNum] != Number(set)) {
+            this.changes.push({
+                solutions: this.getSolutionsStr(),
+                candidates: this.getCandidatesStr(),
+                strategy: null
+            });
+        }
         this.cellCandidates[cellNum][candidateNum] = Number(set);
         Board.drawCellCandidate(cellEleFromIndex(cellNum), (candidateNum + 1).toString(), set);
     }
-    resetCell(cellNum) {
+    resetCell(cellNum, saveChanges = true) {
         if (cellNum < 0 || cellNum >= Board.numCells) return;
+        if (saveChanges && this.cellSolutions[cellNum] != 0 || this.cellCandidates[cellNum].some(can => can != 0)) {
+            this.changes.push({
+                solutions: this.getSolutionsStr(),
+                candidates: this.getCandidatesStr(),
+                strategy: null
+            });
+        }
         this.cellSolutions[cellNum] = 0;
         this.cellCandidates[cellNum].fill(0);           // maybe need to change this
         Board.clearCell(cellEleFromIndex(cellNum));
@@ -123,7 +145,7 @@ class Board {
             if (this.cellSolutions[cell] || this.cellCandidates[cell].some(can => can == 1)) continue;
             else {
                 for (let can = 0; can < Board.N; can++)
-                    this.setCellCandidate(cell, can, true);
+                    this.setCellCandidate(cell, can, true, false);
                 cellsFilled = true;
             }
         }
@@ -1179,7 +1201,8 @@ class Board {
             let s = sols.get(i);
             let cellNum = Number(s.row) * Board.N + Number(s.col);
             let candidate = Number(s.candidate);
-            if (this.cellSolutions[cellNum] == 0) this.setCellSolution(cellNum, candidate);
+            if (this.cellSolutions[cellNum] == 0)
+                this.setCellSolution(cellNum, candidate, false);
         }
         sols.delete();
         let elims = strategy.eliminations;
@@ -1187,7 +1210,8 @@ class Board {
             let e = elims.get(i);
             let cellNum = Number(e.row) * Board.N + Number(e.col);
             let candidate = Number(e.candidate);
-            if (this.cellSolutions[cellNum] == 0) this.setCellCandidate(cellNum, candidate, false);
+            if (this.cellSolutions[cellNum] == 0)
+                this.setCellCandidate(cellNum, candidate, false, false);
         }
         elims.delete();
         this.pendingStrategy = false;
@@ -1264,13 +1288,13 @@ class Board {
         for (let c = 0; c < Board.numCells; c++) {
             if (this.cellSolutions[c] == prevSolutions[c] && this.cellSolutions[c] != 0) continue;
             if (this.cellSolutions[c] != prevSolutions[c]) {
-                if (prevSolutions[c] == '0') this.resetCell(c);
-                else this.setCellSolution(c, Number(prevSolutions[c]) - 1);
+                if (prevSolutions[c] == '0') this.resetCell(c, false);
+                else this.setCellSolution(c, Number(prevSolutions[c]) - 1, false);
             }
             if (this.cellSolutions[c] == 0) {
                 for (let d = 0; d < Board.N; d++) {
                     let set = prevCandidates[c * Board.N + d] == '1';
-                    this.setCellCandidate(c, d, set);
+                    this.setCellCandidate(c, d, set, false);
                 }
             }
         }
@@ -1358,7 +1382,7 @@ class Board {
                                 if (this.clues[cell]) continue;
                                 Board.clearCell(cellEleFromIndex(cell));
                                 var solution = Number(solutions.charAt(cell)) - 1;
-                                this.setCellSolution(cell, solution);
+                                this.setCellSolution(cell, solution, false);
                             }
                             Board.writeToOutput("Solution found", true);
                             resolve(true);
@@ -1373,6 +1397,13 @@ class Board {
 
         (new Promise(resolve => {
             this.solving = true;
+            if (this.pendingStrategy) {
+                let prevStep = this.solvePath[this.solvePath.length - 1];
+                if (prevStep) {
+                    this.applyStrategyChanges(prevStep);
+                    this.removeHighlighting();
+                }
+            }
             this.fillEmptyCells();
             Board.showLoader();
             resolve();
@@ -1916,9 +1947,13 @@ document.getElementById("custom-save-button").addEventListener("click", customSa
 function stepHandler(e) {
     if (board) board.step();
 }
+function undoHandler(e) {
+    if (board) board.undo();
+}
 function solveHandler(e) {
     if (board) board.solve();
 }
 
 document.getElementById("solve-button").addEventListener("click", solveHandler);
+document.getElementById("undo-button").addEventListener("click", undoHandler);
 document.getElementById("step-button").addEventListener("click", stepHandler);

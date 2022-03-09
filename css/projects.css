@@ -810,11 +810,11 @@ button.digit-toggle {
 /* Board buttons */
 #board-buttons {
     display: flex;
-    /*margin-top: auto;*/ /* move board buttons to bottom */
     margin-bottom: 0; /* flush with bottom of sudoku board */
     width: 100%;
+    gap: 0.5em;
 }
-#solve-button, #step-button {
+#solve-button, #step-button, #undo-button {
     flex: 1; /* fill all of the available space, share evenly*/
     text-align: center;
     font-size: 1.25em;
@@ -824,9 +824,9 @@ button.digit-toggle {
     transition: background-color 0.2s;
 }
 #step-button {
-    margin-right: 5%; /* space between buttons */
+    //margin-right: 5%; /* space between buttons */
 }
-#solve-button:hover, #step-button:hover {
+#solve-button:hover, #step-button:hover, #undo-button:hover {
     cursor: pointer;
     background-color: #45aa3d; /* dark green */
 }
@@ -1137,10 +1137,6 @@ button.digit-toggle {
     #board-buttons {
         flex-shrink: 3;
         flex-direction: column;
-    }
-    #step-button {
-        margin-right: unset;
-        margin-bottom: 5%;
     }
     #strategy-output {
         margin-bottom: 0;
