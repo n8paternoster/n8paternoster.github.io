@@ -1270,9 +1270,9 @@
             <section id="sudoku-help">
                 <h2>Using the solver</h2>
                 <p>Sudoku is a logic puzzle game played on a 9x9 grid of cells. The objective is to fill each row, each column, and each 3x3 sub-grid (box) with the numbers 1-9. The only rule is that no number can appear more than once in any row, column, or box. Although you can arrive at the solution through guessing, the purpose of the game is to find cell solutions through logical deductions.</p>
-                <p><b>Entering data</b> - Solutions can be entered or removed using a keyboard or the <samp>Digit</samp> input mode next to the board. In the process of solving, it's often helpful to write possible solutions into a cell before you know the true solution. Also known as <i>pencil marks</i>, these mini-numbers can be entered while <samp>Candidate</samp> mode is selected. In addition</p>
+                <p><b>Entering data</b> - Solutions can be entered or removed using a keyboard or the <samp>Digit</samp> input mode next to the board. In the process of solving, it's often helpful to write possible solutions into a cell before you know the true solution. Also known as <i>pencil marks</i>, these mini-numbers can be entered while <samp>Candidate</samp> mode is selected.</p>
                 <p><b>Custom puzzles</b> - To enter a custom puzzle, first select <samp>Custom</samp> from the puzzle dropdown. Then, any number of given cell solutions (or <i>clues</i>) and candidates can be entered manually as described above. Alternatively, puzzle clues can be entered as an 81 character string in the Custom Board Editor. For unsolved cells in this string, any character other than 1-9 may be used (common characters are <i>.</i> or <i>0</i>).</p>
-                <p><b>Solving</b> - The solver works by applying a predetermined order of strategies (described above) until some change is made to the board, displaying the results, and then starting the startegy list over from the beginning. The <samp>Step</samp> button will show the result of one successful strategy at a time while the <samp>Solve</samp> button will find and display all the steps needed to solve the puzzle. For the most difficult puzzles, the solver may run out of strategies in which case the solved puzzle (if it exists) will be found by a fast brute force search.</p>
+                <p><b>Solving</b> - The solver works by applying a predetermined order of strategies (described below) until some change is made to the board, displaying the results, and then starting the strategy list over from the beginning. The <samp>Step</samp> button will show the result of one successful strategy at a time while the <samp>Solve</samp> button will find and display all the steps needed to solve the puzzle. Any change made can also be undone with the <samp>Undo</samp> button. For the most difficult puzzles, the solver may run out of strategies in which case the solved puzzle (if it exists) will be found by a fast brute force search.</p>
             </section>
             <hr />
             <section class="strategies">
@@ -1282,7 +1282,7 @@
                     <ul>
                         <li><i>Cell</i> - one of the 81 squares that make up the sudoku board</li>
                         <li><i>Box</i> - a grid of 3x3 cells that must contain the digits 1-9</li>
-                        <li><i>Unit</i> - a section of the board that must contain the digits 1-9; i.e., a row, a column, or a box</li>
+                        <li><i>Unit</i> - a group of cells that must contain the digits 1-9; i.e., a row, a column, or a box</li>
                         <li><i>Candidate</i> - a possible solution to a cell, marked on the board as a smaller number</li>
                     </ul>
                 </div>
