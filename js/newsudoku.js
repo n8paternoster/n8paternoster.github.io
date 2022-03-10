@@ -920,11 +920,13 @@ class Board {
         let ele = document.getElementById("strategy" + i.toString());
         if (ele) {
             let prevEle = ele.previousElementSibling;
+            // if there are any elements after this strategy, remove them
             let nextEle = ele.nextElementSibling;
             while (nextEle && nextEle.id != "strategy-push") {
                 nextEle.remove();
                 nextEle = ele.nextElementSibling;
             }
+            // remove the element
             ele.remove();
             if (prevEle) {
                 // Push the prev strategy details to the top of the output box

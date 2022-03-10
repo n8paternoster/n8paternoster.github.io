@@ -1397,13 +1397,13 @@
                 </div>
                 <hr />
                 <h3>Alternating Inference Chains</h3>
-                <p>Coloring strategies only consider one strongly-linked chain at a time when searching for eliminations. We can take chaining strategies further by introducing <b>weak links</b> to our graphs.</p>
+                <p>As previously described, a strong link between candidates has only 2 possible outcomes in the board's solution. When multiple candidates are connected with strong links, that <i>group</i> of candidates forms a <b>strongly-linked chain</b>. The chain as a whole also has only two possible outcomes. Coloring strategies only consider one strongly-linked chain at a time when searching for eliminations. We can take chaining strategies further by introducing <b>weak links</b> to our graph.</p>
                 <p>Any two candidates that "see" each other and don't form a strong link instead form a weak link. Like strong links, if one end of the weak link IS the cell solution, the other CANNOT be. However, the inverse is not true: if one end is NOT the cell solution, we can't make any inferences about the other end.</p>
                 <figure>
                     <img style="max-height:150px" src="../project-assets/sudoku/weak-strong-link.png" />
                     <figcaption>Weak links are shown with a dotted line (left) and strong links with a solid line (right)</figcaption>
                 </figure>
-                <p>With weak links we can connect multiple strongly-linked chains together and make more inferences. The same rules in Coloring above also apply to alternating inference chains:</p>
+                <p>With weak links we can connect several strongly-linked chains together and make more inferences. The same rules in Coloring above also apply to alternating inference chains:</p>
                 <div class="strategy-desc">
                     <div>
                         <p>(Rule 1) If both possible outcomes of a chain lead to a candidate being "turned off", that candidate can be eliminated.</p>
@@ -1412,18 +1412,18 @@
                     </div>
                     <figure>
                         <img src="../project-assets/sudoku/x-cycle-weak-example.png" />
-                        <figcaption>X-Cycle (candidate 5): If the red 5 was the solution to its cell (turned "on"), the blue and purple 5's around the chain are alternatively turned "off" and "on" leading back to the red 5 being turned "off"; it can be removed</figcaption>
+                        <figcaption>X-Cycle (candidate 5): If the red 5 was the solution to its cell (turned "on"), the blue and purple 5's around the chain would be alternatively turned "off" and "on" leading back to the red 5 being turned "off" - a contradiction, therefore it can be removed.</figcaption>
                     </figure>
                 </div>
                 <hr />
                 <div class="strategy-desc">
                     <div>
-                        <p>(Rule 2) If setting a strong chain to one of its two possible outcomes leads to a conflict elsewhere on the board, that <i>chain</i> must be set to its other possible outcome.</p>
-                        <p>Here, a "conflict" means any impossible scenario on the board. For example, setting a chain to one of its possibilities could imply (1) a candidate appearing twice in a unit, (2) a candidate not appearing in a unit, (3) two different candidates both in the same cell, or (4) a cell with no candidates in it. Since every strong chain can only be set to one of two possibilities, a conflict arising means that the chain must be set to its other possibility.</p>
+                        <p>(Rule 2) If setting a strongly-linked chain to one of its two possible outcomes leads to a conflict elsewhere on the board, that entire <i>chain</i> must be set to its other possible outcome.</p>
+                        <p>Here, a <i>conflict</i> means any impossible scenario on the board. For example, setting a chain to one of its possibilities could imply (1) a candidate appearing twice in a unit, (2) a candidate not appearing in a unit, (3) two different candidates both set in the same cell, or (4) a cell with no candidates in it. Since every strongly-linked chain only has two possibilities, a conflict arising with one possibility means that the chain must be set to its other possibility.</p>
                     </div>
                     <figure>
                         <img src="../project-assets/sudoku/invalid-chain-example.png" />
-                        <figcaption>Invalid chain - When the red chain has the solid red candidates turned "on", it leads to several conflicts - here the solver finds that two 4's in the bottom row would both be turned "on"; the red chain can have the solid red candidates removed and the solid green candidates are the solutions</figcaption>
+                        <figcaption>Invalid chain - When the red chain has the solid red candidates turned "on", it leads to several conflicts - here the solver finds that two 4's in the bottom row would both be turned "on". Therefore the red chain cannot be set to red - the solid red candidates can be removed and the solid green candidate is a solution.</figcaption>
                     </figure>
                 </div>
 
