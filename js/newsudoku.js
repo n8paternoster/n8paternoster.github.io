@@ -90,11 +90,14 @@ class Board {
         if (solutionNum < 0 || solutionNum >= Board.N) return;
         let newVal = Number(solutionNum + 1);
         if (saveChanges && this.cellSolutions[cellNum] != newVal) {
-            this.changes.push({
-                solutions: this.getSolutionsStr(),
-                candidates: this.getCandidatesStr(),
-                strategy: null
-            });
+            if (this.pendingStrategy)
+                this.applyStrategyChanges(this.solvePath[this.solvePath.length - 1]);
+            else
+                this.changes.push({
+                    solutions: this.getSolutionsStr(),
+                    candidates: this.getCandidatesStr(),
+                    strategy: null
+                });
         }
         this.cellSolutions[cellNum] = newVal;   // set the cell value
         this.cellCandidates[cellNum].fill(0);   // remove candidates from this cell
@@ -104,11 +107,14 @@ class Board {
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         if (candidateNum < 0 || candidateNum >= Board.N) return;
         if (saveChanges && this.cellCandidates[cellNum][candidateNum] != Number(set)) {
-            this.changes.push({
-                solutions: this.getSolutionsStr(),
-                candidates: this.getCandidatesStr(),
-                strategy: null
-            });
+            if (this.pendingStrategy)
+                this.applyStrategyChanges(this.solvePath[this.solvePath.length - 1]);
+            else
+                this.changes.push({
+                    solutions: this.getSolutionsStr(),
+                    candidates: this.getCandidatesStr(),
+                    strategy: null
+                });
         }
         this.cellCandidates[cellNum][candidateNum] = Number(set);
         Board.drawCellCandidate(cellEleFromIndex(cellNum), (candidateNum + 1).toString(), set);
@@ -116,11 +122,14 @@ class Board {
     resetCell(cellNum, saveChanges = true) {
         if (cellNum < 0 || cellNum >= Board.numCells) return;
         if (saveChanges && this.cellSolutions[cellNum] != 0 || this.cellCandidates[cellNum].some(can => can != 0)) {
-            this.changes.push({
-                solutions: this.getSolutionsStr(),
-                candidates: this.getCandidatesStr(),
-                strategy: null
-            });
+            if (this.pendingStrategy)
+                this.applyStrategyChanges(this.solvePath[this.solvePath.length - 1]);
+            else
+                this.changes.push({
+                    solutions: this.getSolutionsStr(),
+                    candidates: this.getCandidatesStr(),
+                    strategy: null
+                });
         }
         this.cellSolutions[cellNum] = 0;
         this.cellCandidates[cellNum].fill(0);           // maybe need to change this
@@ -439,6 +448,7 @@ class Board {
             let strategy = this.solvePath.pop();
             strategy.delete();
         }
+        this.changes = [];
         // clear the strategy output
         let outputEle = document.getElementById("strategy-output");
         if (outputEle) {
@@ -464,6 +474,8 @@ class Board {
             pushEle.id = "strategy-push";
             outputEle.appendChild(pushEle);
         }
+        let strategyEle = document.createElement("span");
+        strategyEle.id = "strategy" + (this.solvePath.length).toString();
         const alphaChar = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
         const numerChar = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
@@ -506,7 +518,7 @@ class Board {
         let titleEle = document.createElement('span');
         titleEle.style.fontWeight = 'bold';
         titleEle.textContent = title;
-        outputEle.insertBefore(titleEle, pushEle);
+        strategyEle.appendChild(titleEle);
 
         // Print strategy specific details
         switch (strategy.id) {
@@ -522,11 +534,9 @@ class Board {
                     for (var i = 0; i < elims.size(); i++) {
                         let e = elims.get(i);
                         let string = numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
-                        if (outputEle) {
-                            let ele = document.createElement('span');
-                            ele.textContent = string;
-                            outputEle.insertBefore(ele, pushEle);
-                        }
+                        let ele = document.createElement('span');
+                        ele.textContent = string;
+                        strategyEle.appendChild(ele);
                     }
                     elims.delete();
                     break;
@@ -540,7 +550,7 @@ class Board {
                         let string = numerChar[s.candidate] + " is the only candidate left in " + alphaChar[Math.floor(s.cell / Board.N)] + numerChar[s.cell % Board.N] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = string;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                     }
                     singles.delete();
                     break;
@@ -564,7 +574,7 @@ class Board {
                         let string = can + " in " + cell + " is unique to" + unit + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = string;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                     }
                     singles.delete();
                     break;
@@ -602,7 +612,7 @@ class Board {
                         else if (hidden) string = "In " + unit + ", candidates" + cans + " can only be found in cells" + cells + ":\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = string;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                         // "X removed from Y"
                         let map = new Map();
                         let elims = set.eliminations;
@@ -620,7 +630,7 @@ class Board {
                             str += "removed from " + alphaChar[Math.floor(cell / Board.N)] + numerChar[cell % Board.N] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
-                            outputEle.insertBefore(ele, pushEle);
+                            strategyEle.appendChild(ele);
                         });
                         set.delete();
                     }
@@ -654,7 +664,7 @@ class Board {
                             string = "In " + unit + ", candidate " + can + " can only be found in box " + box + ":\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = string;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                         // "X removed from Y"
                         let elims = set.eliminations;
                         for (let j = 0; j < elims.size(); j++) {
@@ -662,7 +672,7 @@ class Board {
                             let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
-                            outputEle.insertBefore(ele, pushEle);
+                            strategyEle.appendChild(ele);
                         }
                         elims.delete();
                         set.delete();
@@ -702,7 +712,7 @@ class Board {
                         let string = "On " + units + ", candidate " + can + " can only be found on " + elimUnits + ":\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = string;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                         // "X removed from Y"
                         let elims = set.eliminations;
                         for (let j = 0; j < elims.size(); j++) {
@@ -710,7 +720,7 @@ class Board {
                             let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
-                            outputEle.insertBefore(ele, pushEle);
+                            strategyEle.appendChild(ele);
                         }
                         elims.delete();
                         set.delete();
@@ -747,7 +757,7 @@ class Board {
                         } else continue;
                         let ele = document.createElement('span');
                         ele.textContent = string;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                         // "X removed from Y"
                         let elims = wing.eliminations;
                         for (let j = 0; j < elims.size(); j++) {
@@ -755,7 +765,7 @@ class Board {
                             let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                             let ele = document.createElement('span');
                             ele.textContent = str;
-                            outputEle.insertBefore(ele, pushEle);
+                            strategyEle.appendChild(ele);
                         }
                         elims.delete();
                         wing.delete();
@@ -796,7 +806,7 @@ class Board {
                     }
                     let ele = document.createElement('span');
                     ele.textContent = string;
-                    outputEle.insertBefore(ele, pushEle);
+                    strategyEle.appendChild(ele);
                     // "X removed from Y"
                     let elims = strategy.eliminations;
                     for (let i = 0; i < elims.size(); i++) {
@@ -804,7 +814,7 @@ class Board {
                         let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                     }
                     elims.delete();
                     // "X set to Y"
@@ -814,7 +824,7 @@ class Board {
                         let str = "\t" + alphaChar[s.row] + numerChar[s.col] + " set to " + numerChar[s.candidate] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                     }
                     sols.delete();
                     coloring.delete();
@@ -857,7 +867,7 @@ class Board {
                     }
                     let ele = document.createElement('span');
                     ele.textContent = string;
-                    outputEle.insertBefore(ele, pushEle);
+                    strategyEle.appendChild(ele);
                     // "X removed from Y"
                     let elims = strategy.eliminations;
                     for (let i = 0; i < elims.size(); i++) {
@@ -865,7 +875,7 @@ class Board {
                         let str = "\t" + numerChar[e.candidate] + " removed from " + alphaChar[e.row] + numerChar[e.col] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                     }
                     elims.delete();
                     // "X set to Y"
@@ -875,7 +885,7 @@ class Board {
                         let str = "\t" + alphaChar[s.row] + numerChar[s.col] + " set to " + numerChar[s.candidate] + "\r\n";
                         let ele = document.createElement('span');
                         ele.textContent = str;
-                        outputEle.insertBefore(ele, pushEle);
+                        strategyEle.appendChild(ele);
                     }
                     sols.delete();
                     cycle.delete();
@@ -884,15 +894,48 @@ class Board {
         }
 
         // Space between steps
-        outputEle.insertBefore(document.createElement('br'), pushEle);
+        strategyEle.appendChild(document.createElement('br'));
+        outputEle.insertBefore(strategyEle, pushEle);
 
         // Push the details to the top of the output box
         pushEle.style.height = 0;
-        titleEle.parentElement.scrollTop = titleEle.offsetTop;
-        let offset = parseInt(titleEle.offsetTop - outputEle.scrollTop);
+        strategyEle.parentElement.scrollTop = strategyEle.offsetTop;
+        let offset = parseInt(strategyEle.offsetTop - outputEle.scrollTop);
         if (offset > 0) {
             if (pushEle) pushEle.style.height = offset + 'px';
-            titleEle.parentElement.scrollTop = titleEle.offsetTop;
+            strategyEle.parentElement.scrollTop = strategyEle.offsetTop;
+        }
+    }
+    removeDetails(strategy) {
+        // Remove strategy info from the output box
+        let outputEle = document.getElementById("strategy-output");
+        if (!strategy || !outputEle) return;
+        let pushEle = document.getElementById("strategy-push");
+        if (!pushEle) {
+            pushEle = document.createElement("span");
+            pushEle.id = "strategy-push";
+            outputEle.appendChild(pushEle);
+        }
+        let i = this.solvePath.indexOf(strategy);
+        let ele = document.getElementById("strategy" + i.toString());
+        if (ele) {
+            let prevEle = ele.previousElementSibling;
+            let nextEle = ele.nextElementSibling;
+            while (nextEle && nextEle.id != "strategy-push") {
+                nextEle.remove();
+                nextEle = ele.nextElementSibling;
+            }
+            ele.remove();
+            if (prevEle) {
+                // Push the prev strategy details to the top of the output box
+                pushEle.style.height = 0;
+                prevEle.parentElement.scrollTop = prevEle.offsetTop;
+                let offset = parseInt(prevEle.offsetTop - outputEle.scrollTop);
+                if (offset > 0) {
+                    pushEle.style.height = offset + 'px';
+                    prevEle.parentElement.scrollTop = prevEle.offsetTop;
+                }
+            }
         }
     }
     highlightStrategy(strategy) {
@@ -1266,44 +1309,53 @@ class Board {
             this.highlightStrategy(strategy);   // on board
             this.printStrategy(strategy);       // in output box
             this.solvePath.push(strategy);
-            this.pendingStrategy = true;
+            if (!endStrategies.includes(strategy.id))
+                this.pendingStrategy = true;
         };
         this.solving = true;
         getStrategy().then(strategy => showStrategy(strategy)).catch(e => console.log(e)).finally(() => this.solving = false);
     }
     undo() {
         if (this.solving) return;
+        // remove pending strategy
         if (this.pendingStrategy) {
             this.removeHighlighting();
+            this.removeDetails(this.solvePath[this.solvePath.length - 1]);
             let strategy = this.solvePath.pop();
             if (strategy) strategy.delete();
             this.pendingStrategy = false;
             return;
         }
-        let prev = this.changes.pop();
-        if (!prev) return;
-        this.removeHighlighting();
-        let prevSolutions = prev.solutions;
-        let prevCandidates = prev.candidates;
-        for (let c = 0; c < Board.numCells; c++) {
-            if (this.cellSolutions[c] == prevSolutions[c] && this.cellSolutions[c] != 0) continue;
-            if (this.cellSolutions[c] != prevSolutions[c]) {
-                if (prevSolutions[c] == '0') this.resetCell(c, false);
-                else this.setCellSolution(c, Number(prevSolutions[c]) - 1, false);
-            }
-            if (this.cellSolutions[c] == 0) {
-                for (let d = 0; d < Board.N; d++) {
-                    let set = prevCandidates[c * Board.N + d] == '1';
-                    this.setCellCandidate(c, d, set, false);
+        // restore the board's previous state
+        let changesMade = false;
+        while (!changesMade && this.changes.length) {
+            let prev = this.changes.pop();
+            if (!prev) return;
+            this.removeHighlighting();
+            let prevSolutions = prev.solutions;
+            let prevCandidates = prev.candidates;
+            if (prevSolutions != this.getSolutionsStr() || prevCandidates != this.getCandidatesStr())
+                changesMade = true;
+            for (let c = 0; c < Board.numCells; c++) {
+                if (this.cellSolutions[c] == prevSolutions[c] && this.cellSolutions[c] != 0) continue;
+                if (this.cellSolutions[c] != prevSolutions[c]) {
+                    if (prevSolutions[c] == '0') this.resetCell(c, false);
+                    else this.setCellSolution(c, Number(prevSolutions[c]) - 1, false);
+                }
+                if (this.cellSolutions[c] == 0) {
+                    for (let d = 0; d < Board.N; d++) {
+                        let set = prevCandidates[c * Board.N + d] == '1';
+                        this.setCellCandidate(c, d, set, false);
+                    }
                 }
             }
+            if (prev.strategy) {
+                this.removeDetails(prev.strategy);
+                let i = this.solvePath.indexOf(prev.strategy);
+                let strategy = this.solvePath.splice(i);
+                strategy[0].delete();
+            }
         }
-        if (prev.strategy) {
-            let i = this.solvePath.indexOf(prev.strategy);
-            let strategy = this.solvePath.splice(i);
-            strategy[0].delete();
-        }
-        // need to update output window
     }
     solve() {
         if (this.isSolved() || this.solving) return;
