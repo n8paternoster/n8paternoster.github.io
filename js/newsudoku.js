@@ -844,10 +844,10 @@ class Board {
                         let conflict = "";
                         if (c1.row === c2.row && c1.col === c2.col) {
                             conflict += numerChar[c1.candidate] + " and " + numerChar[c2.candidate];
-                            conflict += " both being " + (c1.color === coloring.conflictColor ? "removed from" : "set in");
+                            conflict += " both being " + (c1.color === coloring.conflictColor ? "set in" : "removed from");
                             conflict += " cell " + alphaChar[c1.row] + numerChar[c1.col];
                         } else if (c1.candidate === c2.candidate) {
-                            conflict += (c1.color === coloring.conflictColor ? "no " : "two ") + numerChar[c1.candidate] + "'s in ";
+                            conflict += (c1.color === coloring.conflictColor ? "two " : "no ") + numerChar[c1.candidate] + "'s in ";
                             if (c1.row == c2.row) conflict += "row " + alphaChar[c1.row];
                             else if (c1.col == c2.col) conflict += "col " + numerChar[c1.col];
                             else conflict += "box " + numerChar(Math.floor(c1.row / 3) * 3 + Math.floor(c1.col / 3));
