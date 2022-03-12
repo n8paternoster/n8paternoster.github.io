@@ -1050,6 +1050,13 @@ button.digit-toggle {
     padding: 0.75em;
     background-color: #dbdbdb;
 }
+.strategies > .accordion {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+}
+.strategies > .accordion-panel {
+    transition: max-height 0.6s ease-in-out;    /* longer transition */
+}
 .strategy-desc {
     display: flex;
     column-gap: 1em;

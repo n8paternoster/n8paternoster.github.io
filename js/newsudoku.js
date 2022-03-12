@@ -834,7 +834,7 @@ class Board {
             case Module.StrategyID.AlternatingInferenceChain:
                 // "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:"
                 // "When [disc] is (set to)/(removed from) X, the chain implies that it (can't be)/(must be) X:"
-                // "Invalid chain found. When the red chain is set to red it leads to [conflict], all of the solid red candidates can be removed and all of the solid green candidates are solutions:"
+                // "Invalid chain found. When the red chain is set to red it leads to [conflict]. All of the solid red candidates can be removed and all of the solid green candidates are solutions:"
                 {
                     let cycle = strategy.cycle;
                     let string = "";
@@ -847,13 +847,15 @@ class Board {
                             conflict += " both being " + (c1.color === coloring.conflictColor ? "set in" : "removed from");
                             conflict += " cell " + alphaChar[c1.row] + numerChar[c1.col];
                         } else if (c1.candidate === c2.candidate) {
-                            conflict += (c1.color === coloring.conflictColor ? "two " : "no ") + numerChar[c1.candidate] + "'s in ";
+                            if (c1.color === coloring.conflictColor)
+                                conflict += "two " + numerChar[c1.candidate] + "'s in ";
+                            else conflict += "no " + numerChar[c1.candidate] + " in ";
                             if (c1.row == c2.row) conflict += "row " + alphaChar[c1.row];
                             else if (c1.col == c2.col) conflict += "col " + numerChar[c1.col];
-                            else conflict += "box " + numerChar(Math.floor(c1.row / 3) * 3 + Math.floor(c1.col / 3));
+                            else conflict += "box " + numerChar[Math.floor(c1.row / 3) * 3 + Math.floor(c1.col / 3)];
                         }
                         coloring.delete();
-                        string += "Invalid chain found. When the red chain is set to red it leads to " + conflict + "; all of the solid red candidates can be removed and all of the solid green candidates are solutions:\r\n";
+                        string += "Invalid chain found. When the red chain is set to red it leads to " + conflict + ". The red chain must be set to green; all of the solid red candidates can be removed and all of the solid green candidates are solutions:\r\n";
                     } else if (cycle.rule === Module.CycleRule.Continuous) {
                         string += "The chain implies that either all blue candidates are the solution or all purple candidates are the solution; some candidates can see both colors and can be removed:\r\n";
                     } else if (cycle.rule === Module.CycleRule.WeakDiscontinuity || cycle.rule == Module.CycleRule.StrongDiscontinuity) {

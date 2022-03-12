@@ -1286,14 +1286,16 @@
                         <li><i>Candidate</i> - a possible solution to a cell, marked on the board as a smaller number</li>
                     </ul>
                 </div>
-                <div>
+                <button class="accordion" type="button">Singles</button>
+                <div class="accordion-panel">
                     <h3>Singles</h3>
                     <p><i>naked singles, hidden singles</i></p>
                     <p>This simple strategy comes in two types. A <b>naked single</b> appears when a candidate is the only possible number left in a cell. Conversely, a <b>hidden single</b> is when there is only one possible cell left for a candidate. Or said another way, if candidate <i>k</i> can only be in one cell within a row, column, or box, <i>k</i> is a hidden single.</p>
                     <p>Singles are the bread and butter of sudoku solving strategies and are always the first thing you should look for. These two strategies alone are enough to solve nearly all "easy" and many "intermediate" level puzzles.</p>
                 </div>
-                <hr />
-                <div>
+                <!--<hr />-->
+                <button class="accordion" type="button">Subsets</button>
+                <div class="accordion-panel">
                     <h3>Subsets</h3>
                     <p><i>naked pairs/triplets/quads, hidden pairs/triplets/quads, pointing pairs/triplets, box/line reduction, x-wings, swordfish, jellyfish</i></p>
                     <p>The remainder of the simple strategies can all be described by a common line of reasoning:</p>
@@ -1355,78 +1357,86 @@
                         </figure>
                     </div>
                 </div>
-                <hr />
-                <h3>Bent sets</h3>
-                <p><b>Bent sets</b> are essentially naked subsets "bent" onto two different units. They consist of <b>n cells</b> containing only <b>n candidates</b> where the cells belong to <b>2 different units</b>. The 2 units must be different types and at least 1 cell must be present in both units. The cell(s) that are part of both units are the <b>hinge cells</b>.</p>
-                <p>Under certain conditions a bent set can be treated as a naked set where the n candidates must all appear in some combination in the n cells of the set:</p>
-                <p>(Type 1) If exactly <b>1</b> of the n candidates in the bent set is present in 2 separate units, <b>that</b> candidate can be removed from any cells outside the bent set that can "see" all instances of that candidate in the bent set.</p>
-                <p>(Type 2) If <b>none</b> of the n candidates in the bent set are present in 2 separate units, <b>all</b> of the n candidates in the bent set can be removed from any cells outside the bent set that "see" all instances of each candidate in the bent set.</p>
-                <p>Type 1 bent sets appear far more often. Both types of bent sets can be referred to by their size similar to naked/hidden sets (<b>bent triplet</b>, <b>bent quad</b>, <b>bent quint</b>). They have also been given the following names:</p>
-                <ul>
-                    <li>n = 3 &rArr; <b>Y-Wing</b> (when the hinge cell contains 2 of the 3 candidates)</li>
-                    <li>n = 3 &rArr; <b>XYZ-Wing</b> (when the hinge cell contains all 3 candidates)</li>
-                    <li>n = 4 &rArr; <b>WXYZ-Wing</b></li>
-                </ul>
-                <div class="strategy-desc equal-cols">
-                    <figure>
-                        <img src="../project-assets/sudoku/y-wing-example.png" />
-                        <figcaption>Y-Wing (Type 1) - The 3 shaded cells of the bent triple lie on row 4 and box 4 with the single hinge cell shaded orange. Within the bent set, only one candidate, 1, falls on the two different units. Therefore one of the 1's (colored yellow) must be a cell solution. The 1's outside the bent set (colored red) that "see" both yellow 1's can be removed.</figcaption>
-                    </figure>
-                    <figure>
-                        <img src="../project-assets/sudoku/bent-quint-example.png" />
-                        <figcaption>Bent quint (Type 2) - The 5 shaded cells lie on column 7 and box 9 with the two hinge cells shaded orange. Within the bent set, every candidate is restricted to a single unit (either column 7 or box 9). Therefore, 1, 2, 5, 7, and 9 must appear in some combination in the shaded cells. Any other candidate outside the bent set that can see all occurrences in the bent set can be removed (colored red).</figcaption>
-                    </figure>
-                </div>
-                <hr />
-                <h3>Coloring</h3>
-                <p>The coloring strategy introduces the more general chaining strategies. Imagine that a row has only 2 possible cells for candidate <i>k</i>. If the first cell IS <i>k</i> in the board's solution, then the second cell CANNOT be <i>k</i>. It is also equally valid to say that if the first cell is NOT <i>k</i> then the second cell MUST be (since there must be a <i>k</i> in this row). These two candidate possibilities are fundamentally linked.</p>
-                <p>By finding and connecting all of these <b>strong links</b> between candidates, we can create a connected graph of vertices. Coloring these vertices alternating between two colors will then represent the two possible outcomes the graph could resolve to in the board's solution.</p>
-                <p>There are 2 types of these graphs. <b>Simple</b> coloring describes a graph that is built on a single candidate <i>k</i>. <b>3D-Medusa</b> refers to a graph that contains any of the candidates from 1-9. 3D-Medusa coloring requires another type of strong link: when a <i>single cell</i> contains only 2 candidates, those 2 candidates can be connected with a strong link using the same reasoning given above.</p>
-                <p>With either type of graph, there are two ways to find eliminations:</p>
-                <p>(Rule 1) If any uncolored candidate on the board can "see" both colors of the graph, that candidate isn't possible in either outcome and can be removed.</p>
-                <p>(Rule 2) If all candidates in a <b>cell</b> can "see" color A, OR if all occurrences of candidate <i>k</i> in a <b>unit</b> can "see" color A, all candidates colored A can be removed and all candidates colored B are the solutions to their cell.</p>
-                <div class="strategy-desc equal-cols">
-                    <figure>
-                        <img src="../project-assets/sudoku/simple-coloring-example.png" />
-                        <figcaption>Simple coloring (rule 1) - Several strong links between occurrences of candidate 9 have been drawn and colored. In the board's solution, either all of the green 9's are solutions or all of the blue 9's are solutions. In either case the candidate colored in red cannot be possible, so it can be removed.</figcaption>
-                    </figure>
-                    <figure>
-                        <img src="../project-assets/sudoku/medusa-example.png" />
-                        <figcaption>3D-Medusa coloring (rule 2) - All of the 6's in column 2 (located in the yellow cells) can "see" a red colored candidate (in the top and bottom yellow cells there is another red 6 in the same row; in the middle yellow cell there is a red 4 in the same cell). If red was the solution to the board, column 2 would not contain a 6. Therefore green must be the solution and all red candidates can be removed.</figcaption>
-                    </figure>
-                </div>
-                <hr />
-                <h3>Alternating Inference Chains</h3>
-                <p>As previously described, a strong link between candidates has only 2 possible outcomes in the board's solution. When multiple candidates are connected with strong links, that <i>group</i> of candidates forms a <b>strongly-linked chain</b>. The chain as a whole also has only two possible outcomes. Coloring strategies only consider one strongly-linked chain at a time when searching for eliminations. We can take chaining strategies further by introducing <b>weak links</b> to our graph.</p>
-                <p>Any two candidates that "see" each other and don't form a strong link instead form a weak link. Like strong links, if one end of the weak link IS the cell solution, the other CANNOT be. However, the inverse is not true: if one end is NOT the cell solution, we can't make any inferences about the other end.</p>
-                <figure>
-                    <img style="max-height:150px" src="../project-assets/sudoku/weak-strong-link.png" />
-                    <figcaption>Weak links are shown with a dotted line (left) and strong links with a solid line (right)</figcaption>
-                </figure>
-                <p>With weak links we can connect several strongly-linked chains together and make more inferences. The same rules in Coloring above also apply to alternating inference chains:</p>
-                <div class="strategy-desc">
-                    <div>
-                        <p>(Rule 1) If both possible outcomes of a chain lead to a candidate being "turned off", that candidate can be eliminated.</p>
-                        <p>This contradiction produces a pattern consisting of a <i>cycle of alternating strong/weak links that contains two weak links adjacent to the eliminated candidate</i>. Logically, you can interpret the cycle as saying "if candidate <i>k</i> is the solution to its cell, the links of the cycle imply it must not be the solution". This works because "turning on" <i>k</i> results in the other end of the adjacent weak link being "turned off." That "off" candidate then implies the candidate at the other end of the next (strong) link must be "turned on". These inferences <i>alternate</i> around the cycle back to <i>k</i> and work in either direction. The resulting contradiction allows us to remove <i>k</i>.</p>
-                        <p>When a cycle with these properties consists of only one candidate, it is called an <b>X-Cycle</b>.</p>
+                <!--<hr />-->
+                <button class="accordion" type="button">Bent sets</button>
+                <div class="accordion-panel">
+                    <h3>Bent sets</h3>
+                    <p><b>Bent sets</b> are essentially naked subsets "bent" onto two different units. They consist of <b>n cells</b> containing only <b>n candidates</b> where the cells belong to <b>2 different units</b>. The 2 units must be different types and at least 1 cell must be present in both units. The cell(s) that are part of both units are the <b>hinge cells</b>.</p>
+                    <p>Under certain conditions a bent set can be treated as a naked set where the n candidates must all appear in some combination in the n cells of the set:</p>
+                    <p>(Type 1) If exactly <b>1</b> of the n candidates in the bent set is present in 2 separate units, <b>that</b> candidate can be removed from any cells outside the bent set that can "see" all instances of that candidate in the bent set.</p>
+                    <p>(Type 2) If <b>none</b> of the n candidates in the bent set are present in 2 separate units, <b>all</b> of the n candidates in the bent set can be removed from any cells outside the bent set that "see" all instances of each candidate in the bent set.</p>
+                    <p>Type 1 bent sets appear far more often. Both types of bent sets can be referred to by their size similar to naked/hidden sets (<b>bent triplet</b>, <b>bent quad</b>, <b>bent quint</b>). They have also been given the following names:</p>
+                    <ul>
+                        <li>n = 3 &rArr; <b>Y-Wing</b> (when the hinge cell contains 2 of the 3 candidates)</li>
+                        <li>n = 3 &rArr; <b>XYZ-Wing</b> (when the hinge cell contains all 3 candidates)</li>
+                        <li>n = 4 &rArr; <b>WXYZ-Wing</b></li>
+                    </ul>
+                    <div class="strategy-desc equal-cols">
+                        <figure>
+                            <img src="../project-assets/sudoku/y-wing-example.png" />
+                            <figcaption>Y-Wing (Type 1) - The 3 shaded cells of the bent triple lie on row 4 and box 4 with the single hinge cell shaded orange. Within the bent set, only one candidate, 1, falls on the two different units. Therefore one of the 1's (colored yellow) must be a cell solution. The 1's outside the bent set (colored red) that "see" both yellow 1's can be removed.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="../project-assets/sudoku/bent-quint-example.png" />
+                            <figcaption>Bent quint (Type 2) - The 5 shaded cells lie on column 7 and box 9 with the two hinge cells shaded orange. Within the bent set, every candidate is restricted to a single unit (either column 7 or box 9). Therefore, 1, 2, 5, 7, and 9 must appear in some combination in the shaded cells. Any other candidate outside the bent set that can see all occurrences in the bent set can be removed (colored red).</figcaption>
+                        </figure>
                     </div>
-                    <figure>
-                        <img src="../project-assets/sudoku/x-cycle-weak-example.png" />
-                        <figcaption>X-Cycle (candidate 5): If the red 5 was the solution to its cell (turned "on"), the blue and purple 5's around the chain would be alternatively turned "off" and "on" leading back to the red 5 being turned "off" - a contradiction, therefore it can be removed.</figcaption>
-                    </figure>
                 </div>
-                <hr />
-                <div class="strategy-desc">
-                    <div>
-                        <p>(Rule 2) If setting a strongly-linked chain to one of its two possible outcomes leads to a conflict elsewhere on the board, that entire <i>chain</i> must be set to its other possible outcome.</p>
-                        <p>Here, a <i>conflict</i> means any impossible scenario on the board. For example, setting a chain to one of its possibilities could imply (1) a candidate appearing twice in a unit, (2) a candidate not appearing in a unit, (3) two different candidates both set in the same cell, or (4) a cell with no candidates in it. Since every strongly-linked chain only has two possibilities, a conflict arising with one possibility means that the chain must be set to its other possibility.</p>
+                <!--<hr />-->
+                <button class="accordion" type="button">Coloring</button>
+                <div class="accordion-panel">
+                    <h3>Coloring</h3>
+                    <p>The coloring strategy introduces the more general chaining strategies. Imagine that a row has only 2 possible cells for candidate <i>k</i>. If the first cell IS <i>k</i> in the board's solution, then the second cell CANNOT be <i>k</i>. It is also equally valid to say that if the first cell is NOT <i>k</i> then the second cell MUST be (since there must be a <i>k</i> in this row). These two candidate possibilities are fundamentally linked.</p>
+                    <p>By finding and connecting all of these <b>strong links</b> between candidates, we can create a connected graph of vertices. Coloring these vertices alternating between two colors will then represent the two possible outcomes the graph could resolve to in the board's solution.</p>
+                    <p>There are 2 types of these graphs. <b>Simple</b> coloring describes a graph that is built on a single candidate <i>k</i>. <b>3D-Medusa</b> refers to a graph that contains any of the candidates from 1-9. 3D-Medusa coloring requires another type of strong link: when a <i>single cell</i> contains only 2 candidates, those 2 candidates can be connected with a strong link using the same reasoning given above.</p>
+                    <p>With either type of graph, there are two ways to find eliminations:</p>
+                    <p>(Rule 1) If any uncolored candidate on the board can "see" both colors of the graph, that candidate isn't possible in either outcome and can be removed.</p>
+                    <p>(Rule 2) If all candidates in a <b>cell</b> can "see" color A, OR if all occurrences of candidate <i>k</i> in a <b>unit</b> can "see" color A, all candidates colored A can be removed and all candidates colored B are the solutions to their cell.</p>
+                    <div class="strategy-desc equal-cols">
+                        <figure>
+                            <img src="../project-assets/sudoku/simple-coloring-example.png" />
+                            <figcaption>Simple coloring (rule 1) - Several strong links between occurrences of candidate 9 have been drawn and colored. In the board's solution, either all of the green 9's are solutions or all of the blue 9's are solutions. In either case the candidate colored in red cannot be possible, so it can be removed.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="../project-assets/sudoku/medusa-example.png" />
+                            <figcaption>3D-Medusa coloring (rule 2) - All of the 6's in column 2 (located in the yellow cells) can "see" a red colored candidate (in the top and bottom yellow cells there is another red 6 in the same row; in the middle yellow cell there is a red 4 in the same cell). If red was the solution to the board, column 2 would not contain a 6. Therefore green must be the solution and all red candidates can be removed.</figcaption>
+                        </figure>
                     </div>
-                    <figure>
-                        <img src="../project-assets/sudoku/invalid-chain-example.png" />
-                        <figcaption>Invalid chain - When the red chain has the solid red candidates turned "on", it leads to several conflicts - here the solver finds that two 4's in the bottom row would both be turned "on". Therefore the red chain cannot be set to red - the solid red candidates can be removed and the solid green candidate is a solution.</figcaption>
-                    </figure>
                 </div>
-
+                <!--<hr />-->
+                <button class="accordion" type="button">Chains</button>
+                <div class="accordion-panel">
+                    <h3>Alternating Inference Chains</h3>
+                    <p>As previously described, a strong link between candidates has only 2 possible outcomes in the board's solution. When multiple candidates are connected with strong links, that <i>group</i> of candidates forms a <b>strongly-linked chain</b>. The chain as a whole also has only two possible outcomes. Coloring strategies only consider one strongly-linked chain at a time when searching for eliminations. We can take chaining strategies further by introducing <b>weak links</b> to our graph.</p>
+                    <p>Any two candidates that "see" each other and don't form a strong link instead form a weak link. Like strong links, if one end of the weak link IS the cell solution, the other CANNOT be. However, the inverse is not true: if one end is NOT the cell solution, we can't make any inferences about the other end.</p>
+                    <figure>
+                        <img style="max-height:150px" src="../project-assets/sudoku/weak-strong-link.png" />
+                        <figcaption>Weak links are shown with a dotted line (left) and strong links with a solid line (right)</figcaption>
+                    </figure>
+                    <p>With weak links we can connect several strongly-linked chains together and make more inferences. The same rules in Coloring above also apply to alternating inference chains:</p>
+                    <div class="strategy-desc">
+                        <div>
+                            <p>(Rule 1) If both possible outcomes of a chain lead to a candidate being "turned off", that candidate can be eliminated.</p>
+                            <p>This contradiction produces a pattern consisting of a <i>cycle of alternating strong/weak links that contains two weak links adjacent to the eliminated candidate</i>. Logically, you can interpret the cycle as saying "if candidate <i>k</i> is the solution to its cell, the links of the cycle imply it must not be the solution". This works because "turning on" <i>k</i> results in the other end of the adjacent weak link being "turned off." That "off" candidate then implies the candidate at the other end of the next (strong) link must be "turned on". These inferences <i>alternate</i> around the cycle back to <i>k</i> and work in either direction. The resulting contradiction allows us to remove <i>k</i>.</p>
+                            <p>When a cycle with these properties consists of only one candidate, it is called an <b>X-Cycle</b>.</p>
+                        </div>
+                        <figure>
+                            <img src="../project-assets/sudoku/x-cycle-weak-example.png" />
+                            <figcaption>X-Cycle (candidate 5): If the red 5 was the solution to its cell (turned "on"), the blue and purple 5's around the chain would be alternatively turned "off" and "on" leading back to the red 5 being turned "off" - a contradiction, therefore it can be removed.</figcaption>
+                        </figure>
+                    </div>
+                    <hr />
+                    <div class="strategy-desc">
+                        <div>
+                            <p>(Rule 2) If setting a strongly-linked chain to one of its two possible outcomes leads to a conflict elsewhere on the board, that entire <i>chain</i> must be set to its other possible outcome.</p>
+                            <p>Here, a <i>conflict</i> means any impossible scenario on the board. For example, setting a chain to one of its possibilities could imply (1) a candidate appearing twice in a unit, (2) a candidate not appearing in a unit, (3) two different candidates both set in the same cell, or (4) a cell with no candidates in it. Since every strongly-linked chain only has two possibilities, a conflict arising with one possibility means that the chain must be set to its other possibility.</p>
+                        </div>
+                        <figure>
+                            <img src="../project-assets/sudoku/invalid-chain-example.png" />
+                            <figcaption>Invalid chain - When the red chain has the solid red candidates turned "on", it leads to several conflicts - here the solver finds that two 4's in the bottom row would both be turned "on". Therefore the red chain cannot be set to red - the solid red candidates can be removed and the solid green candidate is a solution.</figcaption>
+                        </figure>
+                    </div>
+                </div>
                 <!--<p>In the world of sudoku solving techniques, there is a lot of different terminology used. Most of the strategies and names my solver uses come from <a href="https://www.sudokuwiki.org/Main_Page">this excellent site</a> by Andrew Stuart. For further details on these strategies check out </p>-->
             </section>
         </div>
