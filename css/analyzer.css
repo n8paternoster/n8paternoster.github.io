@@ -1,5 +1,16 @@
 ﻿#canvas-container {
     display: block;
     width: 100%;
-    height: 50vh;
+    height: 60vh;
+}
+
+#canvas-container canvas {
+    position: absolute;
+}
+
+#grid-layer {
+    z-index: 1;
+}
+#waveform-layer {
+    z-index: 2;
 }
