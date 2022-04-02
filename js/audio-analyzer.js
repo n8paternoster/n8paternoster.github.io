@@ -79,20 +79,26 @@ var drawHandle;
 var waveformCanvas = document.getElementById('waveform-layer');
 var waveformCtx = waveformCanvas.getContext('2d');
 function drawWaveform() {
-    var width = canvasContainer.clientWidth;
+    var width = canvasContainer.clientWidth / 2;
     var height = canvasContainer.clientHeight;
 
-    // reset the canvas
+    // move the previous waveform over
     waveformCtx.clearRect(0, 0, width, height);
+    //waveformCtx.drawImage(waveformCtx.canvas, width, 0, width, height, 0, 0, width, height);
+    waveformCtx.drawImage(waveformCtx.canvas, waveformCanvas.width / 2, 0, waveformCanvas.width / 2, waveformCanvas.height, 0, 0, width, height);
+
+    // reset the previous waveform
+    //waveformCtx.clearRect(0, 0, canvasContainer.clientWidth, canvasContainer.clientHeight);
+    waveformCtx.clearRect(width, 0, width, height);
 
     analyzer.getFloatTimeDomainData(samples);
-
     waveformCtx.lineWidth = 2;
     waveformCtx.strokeStyle = "blue";
     waveformCtx.beginPath();
+    
 
     // move to the first sample
-    var x = 0;
+    var x = canvasContainer.clientWidth - width;
     var y = (height / 2) * (1 - samples[0]);
     waveformCtx.moveTo(x, y);
 
@@ -106,7 +112,8 @@ function drawWaveform() {
     }
 
     // end on the midpoint
-    waveformCtx.lineTo(width, height / 2);
+    //waveformCtx.lineTo(width, height / 2);
+
     waveformCtx.stroke();
 
     drawHandle = requestAnimationFrame(drawWaveform);
