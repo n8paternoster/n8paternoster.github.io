@@ -1,9 +1,9 @@
 ﻿var audioEle = document.getElementById('audio-source');
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var analyzer = new AnalyserNode(audioCtx);
-analyzer.fftSize = 2048;
-const bufferSize = analyzer.frequencyBinCount;    // 1024
-var samples = new Float32Array(bufferSize);
+const bufferSize = 1024;
+analyzer.fftSize = bufferSize;
+var buffer = new Float32Array(bufferSize);
 var canvasContainer = document.getElementById('canvas-container');
 
 function setup() {
@@ -75,48 +75,56 @@ function drawGrid(sampleRate = 44100) {
     ctx.stroke();
 }
 
-var drawHandle;
+var fpsInterval, now, then, elapsed;
 var waveformCanvas = document.getElementById('waveform-layer');
 var waveformCtx = waveformCanvas.getContext('2d');
 function drawWaveform() {
-    var width = canvasContainer.clientWidth / 2;
-    var height = canvasContainer.clientHeight;
-
-    // move the previous waveform over
-    waveformCtx.clearRect(0, 0, width, height);
-    //waveformCtx.drawImage(waveformCtx.canvas, width, 0, width, height, 0, 0, width, height);
-    waveformCtx.drawImage(waveformCtx.canvas, waveformCanvas.width / 2, 0, waveformCanvas.width / 2, waveformCanvas.height, 0, 0, width, height);
-
-    // reset the previous waveform
-    //waveformCtx.clearRect(0, 0, canvasContainer.clientWidth, canvasContainer.clientHeight);
-    waveformCtx.clearRect(width, 0, width, height);
-
-    analyzer.getFloatTimeDomainData(samples);
+    waveformCtx.imageSmoothingEnabled = false;  // prevent browser anti-aliasing which will distort the copied data
     waveformCtx.lineWidth = 2;
     waveformCtx.strokeStyle = "blue";
-    waveformCtx.beginPath();
-    
+    fpsInterval = 1000 / (44100 / bufferSize);  // fps = sampleRate/bufferSize
+    console.log(fpsInterval);
+    then = window.performance.now();
+    drawHandle = drawFrame();
+}
+var drawHandle;
+var prevSample = 0;
+function drawFrame(timestamp) {
+    drawHandle = requestAnimationFrame(drawFrame);
+    now = timestamp;
+    elapsed = now - then;
+    if (elapsed > fpsInterval) {
+        then = now - (elapsed % fpsInterval)
 
-    // move to the first sample
-    var x = canvasContainer.clientWidth - width;
-    var y = (height / 2) * (1 - samples[0]);
-    waveformCtx.moveTo(x, y);
+        var width = waveformCanvas.width;
+        var height = waveformCanvas.height;
+        var frameWidth = width / 1000;
+        var deltaX = frameWidth / bufferSize;
 
-    // line to each subsequent sample
-    var deltaX = width / bufferSize;
-    for (let i = 1; i < bufferSize; i++) {
-        x += deltaX;
-        y = (height / 2) * (1 - samples[i]);
-        waveformCtx.lineTo(x, y);
-        if (samples[i] >= 1 || samples[i] <= -1) console.log(samples[i]);
+        // move the previous waveform over
+        waveformCtx.globalCompositeOperation = 'copy';
+        waveformCtx.drawImage(waveformCanvas, -frameWidth, 0);
+        waveformCtx.globalCompositeOperation = 'source-over';
+
+        analyzer.getFloatTimeDomainData(buffer);
+
+        // move to the previous sample
+        waveformCtx.beginPath();
+        var x = width - frameWidth - deltaX;
+        var y = (height / 2) * (1 - prevSample);
+        prevSample = buffer[bufferSize - 1];
+        waveformCtx.moveTo(x, y);
+
+        // line to each subsequent sample
+        for (let i = 0; i < bufferSize; i++) {
+            x += deltaX;
+            y = (height / 2) * (1 - buffer[i]);
+            waveformCtx.lineTo(x, y);
+            if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
+        }
+
+        waveformCtx.stroke();
     }
-
-    // end on the midpoint
-    //waveformCtx.lineTo(width, height / 2);
-
-    waveformCtx.stroke();
-
-    drawHandle = requestAnimationFrame(drawWaveform);
 }
 
 
@@ -124,7 +132,7 @@ audioEle.addEventListener('play', function () {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
-    drawHandle = drawWaveform();
+    drawWaveform();
 });
 audioEle.addEventListener('pause', function () {
     cancelAnimationFrame(drawHandle);
