@@ -1,7 +1,7 @@
 ﻿var audioEle = document.getElementById('audio-source');
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var analyzer = new AnalyserNode(audioCtx);
-const bufferSize = 1024;
+const bufferSize = 512; // lower = faster fps, smoother waveform scrolling
 analyzer.fftSize = bufferSize;
 var buffer = new Float32Array(bufferSize);
 var canvasContainer = document.getElementById('canvas-container');
@@ -98,7 +98,7 @@ function drawFrame(timestamp) {
 
         var width = waveformCanvas.width;
         var height = waveformCanvas.height;
-        var frameWidth = width / 1000;
+        var frameWidth = width / 100;
         var deltaX = frameWidth / bufferSize;
 
         // move the previous waveform over
