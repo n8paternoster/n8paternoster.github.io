@@ -51,8 +51,18 @@ function drawGrid(sampleRate = 44100) {
     ctx.strokeRect(1, 1, width-2, height-2);
 
     // draw the x-axis
-    const numNotches = 20;
-    var tDelta = bufferSize / sampleRate / numNotches * 1000;   // in msecs
+    var windowLength = (bufferSize * visibleFrames) / sampleRate * 1000;    // in msecs
+    var tDelta = 1000; // in msecs
+    if (windowLength <= 20) tDelta = 1;
+    else if (windowLength <= 100) tDelta = 5;
+    else if (windowLength <= 500) tDelta = 25;
+    else if (windowLength <= 1000) tDelta = 50;
+    else if (windowLength <= 2000) tDelta = 100;
+    else if (windowLength <= 5000) tDelta = 250;
+    else if (windowLength <= 10000) tDelta = 500;
+    else tDelta = 1000;
+    var numNotches = Math.floor(windowLength/tDelta);
+    //var tDelta = (bufferSize*visibleFrames) / sampleRate / numNotches * 1000;   // in msecs
     ctx.fillStyle = 'black';
     ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'center';
@@ -60,22 +70,21 @@ function drawGrid(sampleRate = 44100) {
     ctx.moveTo(0, height / 2);
     ctx.lineTo(width, height / 2);
     for (let i = 1; i < numNotches; i++) {  // notches
-        if (i === numNotches/2) continue;
         ctx.moveTo(i * (width / numNotches), (height / 2) - 7);
         ctx.lineTo(i * (width / numNotches), (height / 2) + 7);
-        ctx.fillText((i < numNotches/2 ? '' : '+') + (tDelta*(i-numNotches/2)).toFixed(2), i * (width / numNotches), (height/2)+20);
+        ctx.fillText((tDelta*(i-numNotches)).toFixed(2), i * (width / numNotches), (height/2)+20);
     }
     ctx.stroke();
     
 
     // draw the y-axis
     ctx.beginPath();
-    ctx.moveTo(width / 2, 0);
-    ctx.lineTo(width / 2, height);
+    ctx.moveTo(width, 0);
+    ctx.lineTo(width, height);
     for (let i = 1; i < 10; i++) {
         if (i === 5) continue;
-        ctx.moveTo((width / 2) - 7, i * (height / 10));
-        ctx.lineTo((width / 2) + 7, i * (height / 10));
+        ctx.moveTo(width - 7, i * (height / 10));
+        ctx.lineTo(width+ 7, i * (height / 10));
     }
     ctx.stroke();
 }
@@ -156,6 +165,7 @@ document.getElementById('x-scale').addEventListener('input', function (e) {
     //visibleFrames = Math.floor(e.target.min * Math.pow(b, e.target.value));
 
     visibleFrames = e.target.value;
+    drawGrid();
 });
 
 const observer = new ResizeObserver((entries) => {
