@@ -2,6 +2,7 @@
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var analyzer = new AnalyserNode(audioCtx);
 const bufferSize = 512; // lower = faster fps, smoother waveform scrolling
+var visibleFrames = 1;
 analyzer.fftSize = bufferSize;
 var buffer = new Float32Array(bufferSize);
 var canvasContainer = document.getElementById('canvas-container');
@@ -11,6 +12,10 @@ function setup() {
     var source = audioCtx.createMediaElementSource(audioEle);
     source.connect(analyzer);
     analyzer.connect(audioCtx.destination);
+
+    // round the canvas width down to the nearest hundred; this ensures that scaling with any common device pixel ratio results in an even integer and the waveform animation is smooth
+    var width = canvasContainer.getBoundingClientRect().width;
+    canvasContainer.style.width = (100 * Math.floor(width / 100)) + 'px';
 
     // scale canvas to device resolution
     if (canvasContainer) {
@@ -33,8 +38,8 @@ setup();
 function drawGrid(sampleRate = 44100) {
     var canvas = document.getElementById('grid-layer');
     var ctx = canvas.getContext('2d');
-    var width = canvasContainer.clientWidth;
-    var height = canvasContainer.clientHeight;
+    var width = canvas.clientWidth;
+    var height = canvas.clientHeight;
 
     // set the background
     ctx.fillStyle = "rgb(230, 230, 230)";
@@ -79,7 +84,15 @@ var fpsInterval, now, then, elapsed;
 var waveformCanvas = document.getElementById('waveform-layer');
 var waveformCtx = waveformCanvas.getContext('2d');
 function drawWaveform() {
-    waveformCtx.imageSmoothingEnabled = false;  // prevent browser anti-aliasing which will distort the copied data
+    // prevent browser anti-aliasing which will distort the copied data
+    waveformCtx.mozImageSmoothingEnabled = false;
+    waveformCtx.webkitImageSmoothingEnabled = false;
+    waveformCtx.msImageSmoothingEnabled = false;
+    waveformCtx.imageSmoothingEnabled = false;
+
+    // TODO - change this?
+    analyzer.smoothingTimeConstant = 0;
+
     waveformCtx.lineWidth = 2;
     waveformCtx.strokeStyle = "blue";
     fpsInterval = 1000 / (44100 / bufferSize);  // fps = sampleRate/bufferSize
@@ -87,6 +100,7 @@ function drawWaveform() {
     then = window.performance.now();
     drawHandle = drawFrame();
 }
+
 var drawHandle;
 var prevSample = 0;
 function drawFrame(timestamp) {
@@ -94,20 +108,19 @@ function drawFrame(timestamp) {
     now = timestamp;
     elapsed = now - then;
     if (elapsed > fpsInterval) {
-        then = now - (elapsed % fpsInterval)
-
-        var width = waveformCanvas.width;
-        var height = waveformCanvas.height;
-        var frameWidth = width / 100;
+        then = now - (elapsed % fpsInterval);
+        
+        var width = waveformCanvas.clientWidth;
+        var height = waveformCanvas.clientHeight;
+        var frameWidth = width / visibleFrames;
         var deltaX = frameWidth / bufferSize;
 
         // move the previous waveform over
         waveformCtx.globalCompositeOperation = 'copy';
-        waveformCtx.drawImage(waveformCanvas, -frameWidth, 0);
+        waveformCtx.drawImage(waveformCanvas, -frameWidth, 0, width, height);
         waveformCtx.globalCompositeOperation = 'source-over';
 
         analyzer.getFloatTimeDomainData(buffer);
-
         // move to the previous sample
         waveformCtx.beginPath();
         var x = width - frameWidth - deltaX;
@@ -120,9 +133,8 @@ function drawFrame(timestamp) {
             x += deltaX;
             y = (height / 2) * (1 - buffer[i]);
             waveformCtx.lineTo(x, y);
-            if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
+            //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
         }
-
         waveformCtx.stroke();
     }
 }
@@ -137,3 +149,22 @@ audioEle.addEventListener('play', function () {
 audioEle.addEventListener('pause', function () {
     cancelAnimationFrame(drawHandle);
 });
+document.getElementById('x-scale').addEventListener('input', function (e) {
+    //// exponential scaling
+    //const a = e.target.max;
+    //const b = Math.pow(a, 1 / a);
+    //visibleFrames = Math.floor(e.target.min * Math.pow(b, e.target.value));
+
+    visibleFrames = e.target.value;
+});
+
+const observer = new ResizeObserver((entries) => {
+    const entry = entries.find((entry) => entry.target === waveformCanvas);
+    //waveformCanvas.width = entry.devicePixelContentBoxSize[0].inlineSize;
+    //waveformCanvas.height = entry.devicePixelContentBoxSize[0].blockSize;
+    console.log("observed width: ", entry.devicePixelContentBoxSize[0].inlineSize);
+    console.log("observed height: ", entry.devicePixelContentBoxSize[0].blockSize);
+
+    // TODO - resize canvas here?
+});
+observer.observe(waveformCanvas, { box: ['device-pixel-content-box'] });
