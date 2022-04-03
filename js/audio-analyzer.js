@@ -54,7 +54,9 @@ function drawGrid(sampleRate = 44100) {
     var windowLength = (bufferSize * visibleFrames) / sampleRate * 1000;    // in msecs
     var tDelta = 1000; // in msecs
     if (windowLength <= 20) tDelta = 1;
+    else if (windowLength <= 50) tDelta = 2.5;
     else if (windowLength <= 100) tDelta = 5;
+    else if (windowLength <= 200) tDelta = 10;
     else if (windowLength <= 500) tDelta = 25;
     else if (windowLength <= 1000) tDelta = 50;
     else if (windowLength <= 2000) tDelta = 100;
