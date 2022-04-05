@@ -9,7 +9,8 @@
     <link rel="stylesheet" type="text/css" href="/css/analyzer.css" />
     <noscript><link rel="stylesheet" type="text/css" href="/css/no-js.css" /></noscript>
     <script src="/js/nate.js" defer></script>
-    <script src="/js/audio-analyzer.js" defer></script>
+    <!--<script src="/js/audio-analyzer.js" defer></script>-->
+    <script src="/js/analyzer.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -27,8 +28,15 @@
         <!-- Page content -->
         <div class="content wide-content">
 
+            <!--<div id="canvas-container">
+                <div>
+                    <canvas id="grid-layer"></canvas>
+                </div>
+                <div>
+                    <canvas id="waveform-layer"></canvas>
+                </div>
+            </div>-->
             <div id="canvas-container">
-                <canvas id="grid-layer"></canvas>
                 <canvas id="waveform-layer"></canvas>
             </div>
             <audio id="audio-source" controls src="../project-assets/audio-analyzer/africa-toto.wav">audio</audio>

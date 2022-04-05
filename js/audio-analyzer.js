@@ -14,11 +14,11 @@ function setup() {
     analyzer.connect(audioCtx.destination);
 
     // round the canvas width down to the nearest hundred; this ensures that scaling with any common device pixel ratio results in an even integer and the waveform animation is smooth
-    var width = canvasContainer.getBoundingClientRect().width;
-    width = 100 * Math.floor(width / 100);
-    canvasContainer.style.width = width + 'px';
-    var height = width / 2; // 2:1 aspect ratio
-    canvasContainer.style.height = height + 'px';
+    var cssWidth = canvasContainer.getBoundingClientRect().width;
+    cssWidth = 100 * Math.floor(cssWidth / 100);
+    canvasContainer.style.width = cssWidth + 'px';
+    var cssHeight = cssWidth / 2; // 2:1 aspect ratio
+    canvasContainer.style.height = cssHeight + 'px';
 
     // round to nearest hundredth
     var scale = Math.floor(window.devicePixelRatio * 100) / 100;
@@ -27,10 +27,18 @@ function setup() {
     if (canvasContainer) {
         var canvases = canvasContainer.children;
         for (let i = 0; i < canvases.length; i++) {
-            canvases[i].style.width = canvasContainer.clientWidth + "px";
-            canvases[i].style.height = canvasContainer.clientHeight + "px";
-            canvases[i].width = Math.floor(canvasContainer.clientWidth * scale);
-            canvases[i].height = Math.floor(canvasContainer.clientHeight * scale);
+            //canvases[i].style.width = canvasContainer.clientWidth + "px";
+            //canvases[i].style.height = canvasContainer.clientHeight + "px";
+            //canvases[i].width = Math.floor(canvasContainer.clientWidth * scale);
+            //canvases[i].height = Math.floor(canvasContainer.clientHeight * scale);
+
+            // set the display width/height
+            canvases[i].style.width = cssWidth + "px";
+            canvases[i].style.height = cssHeight + "px";
+
+            // canvas content size
+            canvases[i].width = Math.floor(cssWidth * scale);
+            canvases[i].height = Math.floor(cssHeight * scale);
             var ctx = canvases[i].getContext('2d');
             ctx.scale(scale, scale);
         }
@@ -182,43 +190,5 @@ const observer = new ResizeObserver((entries) => {
 
     // TODO - resize canvas here?
 
-    // round the canvas width down to the nearest hundred; this ensures that scaling with any common device pixel ratio results in an even integer and the waveform animation is smooth
-    var width = canvasContainer.getBoundingClientRect().width;
-    console.log("observed width: ", entry.devicePixelContentBoxSize[0].inlineSize);
-    console.log("clientWidth: ", width);
-    console.log("dpr: ", window.devicePixelRatio);
-    width = 100 * Math.floor(width / 100);
-    if (width < 300) width = 300;
-    console.log("rounded clientWidth: ", width);
-   // canvasContainer.style.width = width + 'px';
-    var height = width / 2; // 2:1 aspect ratio
-    //canvasContainer.style.height = height + 'px';
-
-    //// round to nearest hundredth
-    //var scale = Math.floor(window.devicePixelRatio * 100) / 100;
-
-    //// scale canvas to device resolution
-    //if (canvasContainer) {
-    //    var canvases = canvasContainer.children;
-    //    for (let i = 0; i < canvases.length; i++) {
-    //        canvases[i].style.width = canvasContainer.clientWidth + "px";
-    //        canvases[i].style.height = canvasContainer.clientHeight + "px";
-    //        canvases[i].width = Math.floor(canvasContainer.clientWidth * scale);
-    //        canvases[i].height = Math.floor(canvasContainer.clientHeight * scale);
-    //        var ctx = canvases[i].getContext('2d');
-    //        ctx.scale(scale, scale);
-    //    }
-    //}
-
-    //// prevent browser anti-aliasing which will distort the copied data
-    //waveformCtx.mozImageSmoothingEnabled = false;
-    //waveformCtx.webkitImageSmoothingEnabled = false;
-    //waveformCtx.msImageSmoothingEnabled = false;
-    //waveformCtx.imageSmoothingEnabled = false;
-
-    //waveformCtx.lineWidth = 2;
-    //waveformCtx.strokeStyle = "blue";
-
-    //drawGrid();
 });
-observer.observe(canvasContainer, { box: ['device-pixel-content-box'] });
+//observer.observe(canvasContainer, { box: ['device-pixel-content-box'] });
