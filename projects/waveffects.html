@@ -27,17 +27,13 @@
 
         <!-- Page content -->
         <div class="content wide-content">
-
-            <!--<div id="canvas-container">
-                <div>
-                    <canvas id="grid-layer"></canvas>
-                </div>
-                <div>
+            <div id="visualizer">
+                <div class="canvas-container">
                     <canvas id="waveform-layer"></canvas>
                 </div>
-            </div>-->
-            <div id="canvas-container">
-                <canvas id="waveform-layer"></canvas>
+                <div class="canvas-container">
+                    <canvas id="grid-layer"></canvas>
+                </div>
             </div>
             <audio id="audio-source" controls src="../project-assets/audio-analyzer/africa-toto.wav">audio</audio>
             <input type="range" id="x-scale" name="period" min="1" max="200" value="1" step="1"/>
