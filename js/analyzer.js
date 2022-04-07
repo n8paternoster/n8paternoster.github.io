@@ -116,26 +116,30 @@ function drawGrid(sampleRate = 44100) {
     else if (windowLength <= 10000) tDelta = 500;
     else tDelta = 1000;
     var numNotches = Math.floor(windowLength / tDelta);
-    const notchHeight = Math.floor((gridCanvas.height - waveformCanvas.height) / 2);
-
-    ctx.fillStyle = 'black';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.textAlign = 'center';
+    var notchLength = Math.floor((gridCanvas.height - waveformCanvas.height) / 2);
+    ctx.fillStyle = "black";
+    ctx.font = "bold " + notchLength + "px sans-serif";
+    ctx.textBaseline = "top";
+    ctx.textAlign = "center";
     ctx.beginPath();
     for (let i = 1; i < numNotches; i++) {  // notches
-        ctx.moveTo(Math.floor(i * (width / numNotches)), height - (notchHeight/2));
-        ctx.lineTo(Math.floor(i * (width / numNotches)), height + (notchHeight/2));
-        ctx.fillText((tDelta * (i - numNotches)).toFixed(2), i * (width / numNotches), height + 20);
+        let w = Math.floor(i * (width / numNotches));
+        ctx.moveTo(w, height - (notchLength/2));
+        ctx.lineTo(w, height + (notchLength/2));
+        ctx.fillText((tDelta * (i - numNotches)) + "ms", w, height + notchLength);
     }
     ctx.stroke();
 
 
     // draw the y-axis
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "start";
     ctx.beginPath();
     for (let i = 1; i < 10; i++) {
-        if (i === 5) continue;
-        ctx.moveTo(width - 7, i * (height / 10));
-        ctx.lineTo(width + 7, i * (height / 10));
+        let h = Math.floor(i * (height / 10));
+        ctx.moveTo(width - (notchLength/2), h);
+        ctx.lineTo(width + (notchLength/2), h);
+        ctx.fillText((1 - (i / 10)).toFixed(1), width + notchLength, h);
     }
     ctx.stroke();
 }
