@@ -85,12 +85,15 @@ var drawHandle;
 var prevSample = 0;
 
 function drawGrid(sampleRate = 44100) {
-    var canvas = document.getElementById('grid-layer');
-    var ctx = canvas.getContext('2d');
-    var width = canvas.width;
-    var height = canvas.height;
+    var gridCanvas = document.getElementById('grid-layer');
+    var ctx = gridCanvas.getContext('2d');
+    var width = gridCanvas.width;
+    var height = gridCanvas.height;
+    width = waveformCanvas.width;
+    height = waveformCanvas.height;
 
     // set the background
+    ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
     ctx.fillStyle = "rgb(230, 230, 230)";
     ctx.fillRect(0, 0, width, height);
 
@@ -113,13 +116,15 @@ function drawGrid(sampleRate = 44100) {
     else if (windowLength <= 10000) tDelta = 500;
     else tDelta = 1000;
     var numNotches = Math.floor(windowLength / tDelta);
+    const notchHeight = Math.floor((gridCanvas.height - waveformCanvas.height) / 2);
+
     ctx.fillStyle = 'black';
     ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'center';
     ctx.beginPath();
     for (let i = 1; i < numNotches; i++) {  // notches
-        ctx.moveTo(i * (width / numNotches), height - 7);
-        ctx.lineTo(i * (width / numNotches), height + 7);
+        ctx.moveTo(Math.floor(i * (width / numNotches)), height - (notchHeight/2));
+        ctx.lineTo(Math.floor(i * (width / numNotches)), height + (notchHeight/2));
         ctx.fillText((tDelta * (i - numNotches)).toFixed(2), i * (width / numNotches), height + 20);
     }
     ctx.stroke();
@@ -205,7 +210,7 @@ document.getElementById('x-scale').addEventListener('input', function (e) {
 });
 document.addEventListener('DOMContentLoaded', e => {
 
-    // Observe the canvases on the page to 
+    // Observe the canvases on the page and adjust size for 'pixel-perfect' device rendering
     const canvases = document.querySelectorAll('canvas');
     let supportsDevicePixelContextBox = true;
     const resizeObserver = new ResizeObserver(onResize);
