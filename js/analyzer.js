@@ -104,29 +104,33 @@ function drawGrid(sampleRate = 44100) {
 
     // draw the x-axis
     var windowLength = (bufferSize * visibleFrames) / sampleRate * 1000;    // in msecs
-    var tDelta = 1000; // in msecs
-    if (windowLength <= 20) tDelta = 1;
-    else if (windowLength <= 50) tDelta = 2.5;
-    else if (windowLength <= 100) tDelta = 5;
-    else if (windowLength <= 200) tDelta = 10;
-    else if (windowLength <= 500) tDelta = 25;
-    else if (windowLength <= 1000) tDelta = 50;
-    else if (windowLength <= 2000) tDelta = 100;
-    else if (windowLength <= 5000) tDelta = 250;
-    else if (windowLength <= 10000) tDelta = 500;
-    else tDelta = 1000;
-    var numNotches = Math.floor(windowLength / tDelta);
+    console.log("visible frames: ", visibleFrames);
+    console.log("window length (msecs): ", windowLength);
+    var magnitude = Math.pow(10, Math.ceil(Math.log10(windowLength)));
+    var xDelta = windowLength / magnitude;   // value in the range [0.1, 1]
+    if (xDelta < 0.13) xDelta = 0.1;
+    else if (xDelta < 0.25) xDelta = 0.25;
+    else if (xDelta < 0.5) xDelta = 0.5;
+    else xDelta = 1;
+    xDelta = xDelta * magnitude / 10;
+    var numXNotches = Math.floor(windowLength / xDelta);
     var notchLength = Math.floor((gridCanvas.height - waveformCanvas.height) / 2);
+    var unit = "ms";
+    if (xDelta >= 100) {
+        xDelta /= 1000;
+        unit = "s";
+    }
     ctx.fillStyle = "black";
     ctx.font = "bold " + notchLength + "px sans-serif";
     ctx.textBaseline = "top";
     ctx.textAlign = "center";
     ctx.beginPath();
-    for (let i = 1; i < numNotches; i++) {  // notches
-        let w = Math.floor(i * (width / numNotches));
+    for (let i = 1; i < numXNotches; i++) {  // notches
+        let w = Math.floor(i * (width / numXNotches));
         ctx.moveTo(w, height - (notchLength/2));
-        ctx.lineTo(w, height + (notchLength/2));
-        ctx.fillText((tDelta * (i - numNotches)) + "ms", w, height + notchLength);
+        ctx.lineTo(w, height + (notchLength / 2));
+        let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
+        ctx.fillText(text, w, height + notchLength);
     }
     ctx.stroke();
 
@@ -134,12 +138,15 @@ function drawGrid(sampleRate = 44100) {
     // draw the y-axis
     ctx.textBaseline = "middle";
     ctx.textAlign = "start";
+    var numYNotches = 4;            // set to even to include 0
+    var yDelta = 2 / numYNotches;   // values in the range [-1, 1]
+    var yGutter = Math.floor((gridCanvas.width - waveformCanvas.width) - notchLength / 2);  // drawable horizontal space
     ctx.beginPath();
-    for (let i = 1; i < 10; i++) {
-        let h = Math.floor(i * (height / 10));
+    for (let i = 1; i < numYNotches; i++) {
+        let h = Math.floor(i * (height / numYNotches));
         ctx.moveTo(width - (notchLength/2), h);
         ctx.lineTo(width + (notchLength/2), h);
-        ctx.fillText((1 - (i / 10)).toFixed(1), width + notchLength, h);
+        ctx.fillText(Math.round(10 * (1 - i * yDelta))/10, width + notchLength, h, yGutter);
     }
     ctx.stroke();
 }
@@ -155,7 +162,7 @@ function drawWaveform(sampleRate = 44100) {
     // throttle RAF to capture the as many audio samples as possible
     fpsInterval = 1000 / (sampleRate / bufferSize);  // fps = sampleRate/bufferSize
     then = window.performance.now();
-    drawHandle = drawFrame();
+    drawHandle = requestAnimationFrame(drawFrame);
 }
 function drawFrame(timestamp) {
     drawHandle = requestAnimationFrame(drawFrame);
