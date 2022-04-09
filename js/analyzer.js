@@ -75,16 +75,16 @@ function onResize(entries) {
 
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var analyzer = new AnalyserNode(audioCtx);
-const bufferSize = 512; // lower = faster fps, smoother waveform scrolling
+const bufferSize = 2048; // lower = faster fps, smoother waveform scrolling
 var buffer = new Float32Array(bufferSize);
+var sampleRate = 44100;
 var visibleFrames = 1;
-var fpsInterval, now, then, elapsed;
 var waveformCanvas = document.getElementById('waveform-layer');
 var waveformCtx = waveformCanvas.getContext('2d');
 var drawHandle;
 var prevSample = 0;
 
-function drawGrid(sampleRate = 44100) {
+function drawGrid() {
     var gridCanvas = document.getElementById('grid-layer');
     var ctx = gridCanvas.getContext('2d');
     var width = gridCanvas.width;
@@ -150,7 +150,9 @@ function drawGrid(sampleRate = 44100) {
     }
     ctx.stroke();
 }
-function drawWaveform(sampleRate = 44100) {
+
+var fpsInterval, now, then, elapsed;
+function drawWaveform() {
     // prevent browser anti-aliasing which will distort the copied data
     waveformCtx.mozImageSmoothingEnabled = false;
     waveformCtx.webkitImageSmoothingEnabled = false;
@@ -160,45 +162,83 @@ function drawWaveform(sampleRate = 44100) {
     waveformCtx.strokeStyle = "blue";
 
     // throttle RAF to capture the as many audio samples as possible
-    fpsInterval = 1000 / (sampleRate / bufferSize);  // fps = sampleRate/bufferSize
+    //fpsInterval = 1000 / (sampleRate / bufferSize);  // fps = sampleRate/bufferSize
     then = window.performance.now();
-    drawHandle = requestAnimationFrame(drawFrame);
+    drawHandle = requestAnimationFrame(drawFrame2);
 }
-function drawFrame(timestamp) {
-    drawHandle = requestAnimationFrame(drawFrame);
-    now = timestamp;
-    elapsed = now - then;
-    if (elapsed > fpsInterval) {
-        then = now - (elapsed % fpsInterval);
+//function drawFrame(timestamp) {
+//    drawHandle = requestAnimationFrame(drawFrame);
+//    now = timestamp;
+//    elapsed = now - then;
+//    if (true || elapsed > fpsInterval) {
+//        then = now - (elapsed % fpsInterval);
 
-        var width = waveformCanvas.width;
-        var height = waveformCanvas.height;
-        var frameWidth = width / visibleFrames;
-        var deltaX = frameWidth / bufferSize;
+//        var width = waveformCanvas.width;
+//        var height = waveformCanvas.height;
+//        var frameWidth = width / visibleFrames;
+//        var deltaX = frameWidth / bufferSize;
 
-        // move the previous waveform over
-        waveformCtx.globalCompositeOperation = 'copy';
-        waveformCtx.drawImage(waveformCanvas, -frameWidth, 0, width, height);
-        waveformCtx.globalCompositeOperation = 'source-over';
+//        // move the previous waveform over
+//        waveformCtx.globalCompositeOperation = 'copy';
+//        waveformCtx.drawImage(waveformCanvas, -frameWidth, 0, width, height);
+//        waveformCtx.globalCompositeOperation = 'source-over';
 
-        analyzer.getFloatTimeDomainData(buffer);
+//        analyzer.getFloatTimeDomainData(buffer);
 
-        // move to the previous sample
-        waveformCtx.beginPath();
-        var x = width - frameWidth - deltaX;
-        var y = (height / 2) * (1 - prevSample);
-        prevSample = buffer[bufferSize - 1];
-        waveformCtx.moveTo(x, y);
+//        // move to the previous sample
+//        waveformCtx.beginPath();
+//        var x = width - frameWidth - deltaX;
+//        var y = (height / 2) * (1 - prevSample);
+//        prevSample = buffer[bufferSize - 1];
+//        waveformCtx.moveTo(x, y);
 
-        // line to each subsequent sample
-        for (let i = 0; i < bufferSize; i++) {
-            x += deltaX;
-            y = (height / 2) * (1 - buffer[i]);
-            waveformCtx.lineTo(x, y);
-            //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
-        }
-        waveformCtx.stroke();
+//        // liSne to each subsequent sample
+//        for (let i = 0; i < bufferSize; i++) {
+//            x += deltaX;
+//            y = (height / 2) * (1 - buffer[i]);
+//            waveformCtx.lineTo(x, y);
+//            //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
+//        }
+//        waveformCtx.stroke();
+//    }
+//}
+
+var then = 0;
+function drawFrame2(now) {
+    drawHandle = requestAnimationFrame(drawFrame2);
+
+    var deltaTime = now - then;
+    then = now;
+
+    var width = waveformCanvas.width;
+    var height = waveformCanvas.height;
+    var frameWidth = width / visibleFrames;
+    var numSamples = Math.floor(0.001 * deltaTime * sampleRate);
+    if (numSamples <= 0 || numSamples > bufferSize) numSamples = bufferSize;
+    var deltaX = frameWidth / numSamples;
+
+    // move the previous waveform over
+    waveformCtx.globalCompositeOperation = 'copy';
+    waveformCtx.drawImage(waveformCanvas, -frameWidth, 0, width, height);
+    waveformCtx.globalCompositeOperation = 'source-over';
+
+    analyzer.getFloatTimeDomainData(buffer);
+
+    // move to the previous sample
+    waveformCtx.beginPath();
+    var x = width - frameWidth - deltaX;
+    var y = (height / 2) * (1 - prevSample);
+    prevSample = buffer[numSamples-1];
+    waveformCtx.moveTo(x, y);
+
+    // liSne to each subsequent sample
+    for (let i = 0; i < numSamples; i++) {
+        x += deltaX;
+        y = (height / 2) * (1 - buffer[i]);
+        waveformCtx.lineTo(x, y);
+        //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
     }
+    waveformCtx.stroke();
 }
 
 var audioEle = document.getElementById('audio-source');
