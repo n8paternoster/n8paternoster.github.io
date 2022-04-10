@@ -75,17 +75,19 @@ function onResize(entries) {
 
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var analyzer = new AnalyserNode(audioCtx);
-const bufferSize = 2048; // lower = faster fps, smoother waveform scrolling
+const bufferSize = 2048;
 var buffer = new Float32Array(bufferSize);
 var sampleRate = 44100;
-var visibleFrames = 1;
+const minLength = 1 / 60;
+const maxLength = 5;
+var windowLength = minLength;
+var gridCanvas = document.getElementById('grid-layer');
 var waveformCanvas = document.getElementById('waveform-layer');
 var waveformCtx = waveformCanvas.getContext('2d');
 var drawHandle;
 var prevSample = 0;
 
 function drawGrid() {
-    var gridCanvas = document.getElementById('grid-layer');
     var ctx = gridCanvas.getContext('2d');
     var width = gridCanvas.width;
     var height = gridCanvas.height;
@@ -103,11 +105,11 @@ function drawGrid() {
     ctx.strokeRect(1, 1, width - 2, height - 2);
 
     // draw the x-axis
-    var windowLength = (bufferSize * visibleFrames) / sampleRate * 1000;    // in msecs
-    console.log("visible frames: ", visibleFrames);
-    console.log("window length (msecs): ", windowLength);
     var magnitude = Math.pow(10, Math.ceil(Math.log10(windowLength)));
     var xDelta = windowLength / magnitude;   // value in the range [0.1, 1]
+    console.log("windowLength: ", windowLength);
+    console.log("magnitude: ", magnitude);
+    console.log("xDelta: ", xDelta);
     if (xDelta < 0.13) xDelta = 0.1;
     else if (xDelta < 0.25) xDelta = 0.25;
     else if (xDelta < 0.5) xDelta = 0.5;
@@ -115,10 +117,12 @@ function drawGrid() {
     xDelta = xDelta * magnitude / 10;
     var numXNotches = Math.floor(windowLength / xDelta);
     var notchLength = Math.floor((gridCanvas.height - waveformCanvas.height) / 2);
-    var unit = "ms";
-    if (xDelta >= 100) {
-        xDelta /= 1000;
-        unit = "s";
+    console.log("adjusted xDelta: ", xDelta);
+    console.log("numXNotches: ", numXNotches);
+    var unit = "s";
+    if (xDelta < 0.1) {
+        xDelta *= 1000;
+        unit = "ms";
     }
     ctx.fillStyle = "black";
     ctx.font = "bold " + notchLength + "px sans-serif";
@@ -151,7 +155,6 @@ function drawGrid() {
     ctx.stroke();
 }
 
-var fpsInterval, now, then, elapsed;
 function drawWaveform() {
     // prevent browser anti-aliasing which will distort the copied data
     waveformCtx.mozImageSmoothingEnabled = false;
@@ -161,10 +164,7 @@ function drawWaveform() {
     waveformCtx.lineWidth = 2;
     waveformCtx.strokeStyle = "blue";
 
-    // throttle RAF to capture the as many audio samples as possible
-    //fpsInterval = 1000 / (sampleRate / bufferSize);  // fps = sampleRate/bufferSize
-    then = window.performance.now();
-    drawHandle = requestAnimationFrame(drawFrame2);
+    drawHandle = requestAnimationFrame(drawFrame);
 }
 //function drawFrame(timestamp) {
 //    drawHandle = requestAnimationFrame(drawFrame);
@@ -204,17 +204,18 @@ function drawWaveform() {
 //}
 
 var then = 0;
-function drawFrame2(now) {
-    drawHandle = requestAnimationFrame(drawFrame2);
+function drawFrame(now) {
+    drawHandle = requestAnimationFrame(drawFrame);
 
-    var deltaTime = now - then;
+    var elapsed = now - then;
     then = now;
 
     var width = waveformCanvas.width;
     var height = waveformCanvas.height;
-    var frameWidth = width / visibleFrames;
-    var numSamples = Math.floor(0.001 * deltaTime * sampleRate);
+    var numSamples = Math.floor(0.001 * elapsed * sampleRate);
     if (numSamples <= 0 || numSamples > bufferSize) numSamples = bufferSize;
+    var frameWidth = width * (numSamples / (windowLength * sampleRate));
+    if (frameWidth > width) frameWidth = width;
     var deltaX = frameWidth / numSamples;
 
     // move the previous waveform over
@@ -228,7 +229,7 @@ function drawFrame2(now) {
     waveformCtx.beginPath();
     var x = width - frameWidth - deltaX;
     var y = (height / 2) * (1 - prevSample);
-    prevSample = buffer[numSamples-1];
+    prevSample = buffer[numSamples - 1];
     waveformCtx.moveTo(x, y);
 
     // liSne to each subsequent sample
@@ -240,6 +241,48 @@ function drawFrame2(now) {
     }
     waveformCtx.stroke();
 }
+
+//function drawFrame(now) {
+//    drawHandle = requestAnimationFrame(drawFrame);
+
+//    var elapsed = now - then;
+//    console.log("elapsed: ", elapsed);
+//    if (elapsed < (1000 / maxFPS - 1)) {
+//        console.log("skipped");
+//        return;
+//    }
+//    then = now;
+
+//    var width = waveformCanvas.width;
+//    var height = waveformCanvas.height;
+//    var frameWidth = width / visibleFrames;
+//    var numSamples = Math.floor(0.001 * elapsed * sampleRate);
+//    if (numSamples <= 0 || numSamples > bufferSize) numSamples = bufferSize;
+//    var deltaX = frameWidth / numSamples;
+
+//    // move the previous waveform over
+//    waveformCtx.globalCompositeOperation = 'copy';
+//    waveformCtx.drawImage(waveformCanvas, -frameWidth, 0, width, height);
+//    waveformCtx.globalCompositeOperation = 'source-over';
+
+//    analyzer.getFloatTimeDomainData(buffer);
+
+//    // move to the previous sample
+//    waveformCtx.beginPath();
+//    var x = width - frameWidth - deltaX;
+//    var y = (height / 2) * (1 - prevSample);
+//    prevSample = buffer[numSamples-1];
+//    waveformCtx.moveTo(x, y);
+
+//    // liSne to each subsequent sample
+//    for (let i = 0; i < numSamples; i++) {
+//        x += deltaX;
+//        y = (height / 2) * (1 - buffer[i]);
+//        waveformCtx.lineTo(x, y);
+//        //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
+//    }
+//    waveformCtx.stroke();
+//}
 
 var audioEle = document.getElementById('audio-source');
 audioEle.addEventListener('play', function () {
@@ -257,6 +300,9 @@ document.getElementById('x-scale').addEventListener('input', function (e) {
     //const b = Math.pow(a, 1 / a);
     //visibleFrames = Math.floor(e.target.min * Math.pow(b, e.target.value));
     visibleFrames = e.target.value;
+
+    windowLength = minLength + (e.target.value) * (maxLength - minLength);
+    if (windowLength > maxLength) windowLength = maxLength;
     drawGrid();
 });
 document.addEventListener('DOMContentLoaded', e => {
