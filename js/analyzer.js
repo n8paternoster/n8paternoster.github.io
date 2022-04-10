@@ -73,12 +73,13 @@ function onResize(entries) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+var audioSrc;
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var analyzer = new AnalyserNode(audioCtx);
 const bufferSize = 2048;
 var buffer = new Float32Array(bufferSize);
 var sampleRate = 44100;
-const minLength = 1 / 60;
+const minLength = 1 / 200;  // 5ms, faster than 'most' device refresh rates
 const maxLength = 5;
 var windowLength = minLength;
 var gridCanvas = document.getElementById('grid-layer');
@@ -284,6 +285,23 @@ function drawFrame(now) {
 //    waveformCtx.stroke();
 //}
 
+
+let mic = document.getElementById('microphone');
+mic.addEventListener('click', function () {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    var constraints = { audio: true, video: false };
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (mediaStream) {
+            if (audioSrc) audioSrc.disconnect();
+            audioSrc = audioCtx.createMediaStreamSource(mediaStream);
+            audioSrc.connect(analyzer);
+        }).catch(function (err) {
+            console.log(err.name + ": " + err.message);
+        });
+});
+
 var audioEle = document.getElementById('audio-source');
 audioEle.addEventListener('play', function () {
     if (audioCtx.state === 'suspended') {
@@ -334,8 +352,8 @@ document.addEventListener('DOMContentLoaded', e => {
     }
 
     // setup audio graph
-    var source = audioCtx.createMediaElementSource(audioEle);
-    source.connect(analyzer);
+    audioSrc = audioCtx.createMediaElementSource(audioEle);
+    audioSrc.connect(analyzer);
     analyzer.connect(audioCtx.destination);
     analyzer.fftSize = bufferSize;
     analyzer.smoothingTimeConstant = 0; // TODO - change this?
