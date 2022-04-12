@@ -353,20 +353,37 @@ var visualizer = new Visualizer(analyzer);
 //    waveformCtx.stroke();
 //}
 
-let mic = document.getElementById('microphone');
-mic.addEventListener('click', function () {
+async function getMediaStream() {
+    if (!window.navigator.mediaDevices) {
+        throw new Error("This browser does not support web audio or has web audio disabled");
+    }
+    try {
+        const constraints = { audio: true, video: false };
+        const stream = await window.navigator.mediaDevices.getUserMedia(constraints);
+        return stream;
+    } catch (e) {
+        switch (e.name) {
+            case "NotAllowedError":
+                throw new Error("Access to the microphone was denied. Enable permission in the browser settings.");
+            case "NotFoundError":
+                throw new Error("No microphone found.");
+            default:
+                throw e;
+        }
+    }
+}
+document.getElementById('microphone').addEventListener('click', async function () {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
-    var constraints = { audio: true, video: false };
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(function (mediaStream) {
-            if (audioSrc) audioSrc.disconnect();
-            audioSrc = audioCtx.createMediaStreamSource(mediaStream);
-            audioSrc.connect(analyzer);
-        }).catch(function (err) {
-            console.log(err.name + ": " + err.message);
-        });
+    try {
+        const stream = await getMediaStream();
+        if (audioSrc) audioSrc.disconnect();
+        audioSrc = audioCtx.createMediaStreamSource(stream);
+        audioSrc.connect(analyzer);
+    } catch (e) {
+        console.log(e.message);
+    }
 });
 
 var audioEle = document.getElementById('audio-source');
@@ -374,17 +391,12 @@ audioEle.addEventListener('play', function () {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
-    //drawWaveform();
     visualizer.startAnimation();
 });
 audioEle.addEventListener('pause', function () {
-    //cancelAnimationFrame(drawHandle);
     visualizer.stopAnimation();
 });
 document.getElementById('x-scale').addEventListener('input', function (e) {
-    //windowLength = minLength + (e.target.value) * (maxLength - minLength);
-    //if (windowLength > maxLength) windowLength = maxLength;
-    //drawGrid();
     visualizer.setWindowLength(e.target.value);
 });
 document.addEventListener('DOMContentLoaded', e => {
