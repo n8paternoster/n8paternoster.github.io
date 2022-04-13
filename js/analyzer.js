@@ -75,14 +75,14 @@ function onResize(entries) {
 
 class Visualizer {
     static bufferSize = 2048;
+    static binCount = 256;
     static minLength = 1 / 200;
     static maxLength = 5;
 
     analyzer;
     domain = 'time';
-    sampleRate = 44100;
     timeBuffer = new Float32Array(Visualizer.bufferSize);
-    freqBuffer = new Float32Array(Visualizer.bufferSize / 2);
+    freqBuffer = new Float32Array(Visualizer.binCount);
     windowLength = Visualizer.minLength;
     gridCanvas = document.getElementById('grid-layer');
     waveformCanvas = document.getElementById('waveform-layer');
@@ -90,7 +90,7 @@ class Visualizer {
     constructor(analyzerNode) {
         this.analyzer = analyzerNode;
         this.analyzer.fftSize = Visualizer.bufferSize;
-        this.analyzer.minDecibels = -90;
+        this.analyzer.minDecibels = -130;
         this.analyzer.maxDecibels = -10;
         //this.analyzer.smoothingTimeConstant = 0; // TODO - change this?
 
@@ -113,8 +113,10 @@ class Visualizer {
         this.ctx.strokeStyle = "blue";
 
         if (this.domain === 'time') {
+            this.analyzer.fftSize = Visualizer.bufferSize;
             this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
         } else if (this.domain === 'frequency') {
+            this.analyzer.fftSize = Visualizer.binCount * 2;
             this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
         }
     }
@@ -195,9 +197,9 @@ class Visualizer {
 
         var width = this.waveformCanvas.width;
         var height = this.waveformCanvas.height;
-        var numSamples = Math.floor(0.001 * elapsed * this.sampleRate);
+        var numSamples = Math.floor(0.001 * elapsed * this.analyzer.context.sampleRate);
         if (numSamples <= 0 || numSamples > Visualizer.bufferSize) numSamples = Visualizer.bufferSize;
-        var frameWidth = width * (numSamples / (this.windowLength * this.sampleRate));
+        var frameWidth = width * (numSamples / (this.windowLength * this.analyzer.context.sampleRate));
         if (frameWidth > width) frameWidth = width;
         var deltaX = frameWidth / numSamples;
 
@@ -243,7 +245,7 @@ class Visualizer {
         // draw the x-axis
         const numXNotches = 10;
         var minFreq = 20;
-        var maxFreq = Math.min(20000, Math.floor(analyzer.context.sampleRate / 2));
+        var maxFreq = Math.min(20000, Math.floor(this.analyzer.context.sampleRate / 2));
         var xDelta = Math.floor((maxFreq - minFreq) / numXNotches);
         var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
         var unit = "Hz";
@@ -277,6 +279,7 @@ class Visualizer {
         var startBin = Math.round(20 / deltaF);
         var endBin = Math.round(20000 / deltaF);
         var numBins = endBin - startBin + 1;
+        var numBins = this.analyzer.frequencyBinCount;
 
         this.analyzer.getFloatFrequencyData(this.freqBuffer);
 
@@ -285,12 +288,17 @@ class Visualizer {
         var x = 0;
         let barHeight;
         let range = this.analyzer.maxDecibels - this.analyzer.minDecibels;
-        for (let i = startBin; i <= endBin; i++) {
-            barHeight = ((this.freqBuffer[i]-this.analyzer.minDecibels)/range)*height;
+        //for (let i = startBin; i <= endBin; i++) {
+        let blue = true;
+        for (let i = 0; i < numBins; i++) {
+            barHeight = ((this.freqBuffer[i] - this.analyzer.minDecibels) / range) * height;
+            if (blue) this.ctx.fillStyle = 'blue';
+            else this.ctx.fillStyle = 'red';
+            if (blue) blue = false;
+            else blue = true;
             this.ctx.fillRect(x, height - barHeight, barWidth, height);
             x += barWidth;
         }
-        console.log("a: ", this.freqBuffer[1]);
     }
 }
 
