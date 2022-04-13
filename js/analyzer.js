@@ -61,7 +61,7 @@ function redrawCanvas(canvas) {
         ctx.lineWidth = 2;
         ctx.strokeStyle = "blue";
     } else if (canvas.id === "grid-layer") {
-        visualizer.drawGrid();
+        visualizer.drawWaveformOverlay();
     }
 }
 function onResize(entries) {
@@ -79,8 +79,10 @@ class Visualizer {
     static maxLength = 5;
 
     analyzer;
+    domain = 'time';
     sampleRate = 44100;
-    buffer = new Float32Array(Visualizer.bufferSize);
+    timeBuffer = new Float32Array(Visualizer.bufferSize);
+    freqBuffer = new Float32Array(Visualizer.bufferSize / 2);
     windowLength = Visualizer.minLength;
     gridCanvas = document.getElementById('grid-layer');
     waveformCanvas = document.getElementById('waveform-layer');
@@ -88,24 +90,45 @@ class Visualizer {
     constructor(analyzerNode) {
         this.analyzer = analyzerNode;
         this.analyzer.fftSize = Visualizer.bufferSize;
-        this.analyzer.smoothingTimeConstant = 0; // TODO - change this?
+        this.analyzer.minDecibels = -90;
+        this.analyzer.maxDecibels = -10;
+        //this.analyzer.smoothingTimeConstant = 0; // TODO - change this?
 
-        this.drawFrame = this.drawFrame.bind(this);
+        this.drawWaveformFrame = this.drawWaveformFrame.bind(this);
+        this.drawFrequencyFrame = this.drawFrequencyFrame.bind(this);
     }
-
-    
 
     drawHandle;
     prevSample = 0;
     then = 0;
     ctx = this.waveformCanvas.getContext('2d');
 
+    startAnimation() {
+        // prevent browser anti-aliasing which will distort the copied data
+        this.ctx.mozImageSmoothingEnabled = false;
+        this.ctx.webkitImageSmoothingEnabled = false;
+        this.ctx.msImageSmoothingEnabled = false;
+        this.ctx.imageSmoothingEnabled = false;
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = "blue";
+
+        if (this.domain === 'time') {
+            this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
+        } else if (this.domain === 'frequency') {
+            this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
+        }
+    }
+    stopAnimation() {
+        cancelAnimationFrame(this.drawHandle);
+    }
+
     setWindowLength(percent) {
+        if (this.domain !== 'time') return;
         this.windowLength = Visualizer.minLength + percent * (Visualizer.maxLength - Visualizer.minLength);
         if (this.windowLength > Visualizer.maxLength) this.windowLength = Visualizer.maxLength;
-        this.drawGrid();
+        this.drawWaveformOverlay();
     }
-    drawGrid() {
+    drawWaveformOverlay() {
         var ctx = this.gridCanvas.getContext('2d');
         var width = this.waveformCanvas.width;
         var height = this.waveformCanvas.height;
@@ -164,22 +187,8 @@ class Visualizer {
         }
         ctx.stroke();
     }
-    startAnimation() {
-        // prevent browser anti-aliasing which will distort the copied data
-        this.ctx.mozImageSmoothingEnabled = false;
-        this.ctx.webkitImageSmoothingEnabled = false;
-        this.ctx.msImageSmoothingEnabled = false;
-        this.ctx.imageSmoothingEnabled = false;
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeStyle = "blue";
-
-        this.drawHandle = requestAnimationFrame(this.drawFrame);
-    }
-    stopAnimation() {
-        cancelAnimationFrame(this.drawHandle);
-    }
-    drawFrame(now) {
-        this.drawHandle = requestAnimationFrame(this.drawFrame);
+    drawWaveformFrame(now) {
+        this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
 
         var elapsed = now - this.then;
         this.then = now;
@@ -197,23 +206,91 @@ class Visualizer {
         this.ctx.drawImage(this.waveformCanvas, -frameWidth, 0, width, height);
         this.ctx.globalCompositeOperation = 'source-over';
 
-        this.analyzer.getFloatTimeDomainData(this.buffer);
+        this.analyzer.getFloatTimeDomainData(this.timeBuffer);
 
         // move to the previous sample
         this.ctx.beginPath();
         var x = width - frameWidth - deltaX;
         var y = (height / 2) * (1 - this.prevSample);
-        this.prevSample = this.buffer[numSamples - 1];
+        this.prevSample = this.timeBuffer[numSamples - 1];
         this.ctx.moveTo(x, y);
 
         // line to each subsequent sample
         for (let i = 0; i < numSamples; i++) {
             x += deltaX;
-            y = (height / 2) * (1 - this.buffer[i]);
+            y = (height / 2) * (1 - this.timeBuffer[i]);
             this.ctx.lineTo(x, y);
-            //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
+            //if (timeBuffer[i] >= 1 || timeBuffer[i] <= -1) console.log(timeBuffer[i]);
         }
         this.ctx.stroke();
+    }
+
+    drawFrequencyOverlay() {
+        var ctx = this.gridCanvas.getContext('2d');
+        var width = this.waveformCanvas.width;
+        var height = this.waveformCanvas.height;
+
+        // set the background
+        ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+        ctx.fillStyle = "rgb(230, 230, 230)";
+        ctx.fillRect(0, 0, width, height);
+
+        // draw the border
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "black";
+        ctx.strokeRect(1, 1, width - 2, height - 2);
+
+        // draw the x-axis
+        const numXNotches = 10;
+        var minFreq = 20;
+        var maxFreq = Math.min(20000, Math.floor(analyzer.context.sampleRate / 2));
+        var xDelta = Math.floor((maxFreq - minFreq) / numXNotches);
+        var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
+        var unit = "Hz";
+        ctx.fillStyle = "black";
+        ctx.font = "bold " + notchLength + "px sans-serif";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "center";
+        ctx.beginPath();
+        for (let i = 1; i < numXNotches; i++) {
+            // linear
+            let w = Math.floor(i * (width / numXNotches));
+            ctx.moveTo(w, height - (notchLength / 2));
+            ctx.lineTo(w, height + (notchLength / 2));
+            let text = Number(xDelta * i) + unit;
+            ctx.fillText(text, w, height + notchLength);
+        }
+        ctx.stroke();
+    }
+    drawFrequencyFrame(now) {
+        this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
+
+        var elapsed = now - this.then;
+        this.then = now;
+
+        var width = this.waveformCanvas.width;
+        var height = this.waveformCanvas.height;
+        this.ctx.clearRect(0, 0, width, height);
+
+        // Only display frequency values in the audible range
+        var deltaF = this.analyzer.context.sampleRate / this.analyzer.fftSize;
+        var startBin = Math.round(20 / deltaF);
+        var endBin = Math.round(20000 / deltaF);
+        var numBins = endBin - startBin + 1;
+
+        this.analyzer.getFloatFrequencyData(this.freqBuffer);
+
+        this.ctx.fillStyle = 'red';
+        var barWidth = width / numBins;
+        var x = 0;
+        let barHeight;
+        let range = this.analyzer.maxDecibels - this.analyzer.minDecibels;
+        for (let i = startBin; i <= endBin; i++) {
+            barHeight = ((this.freqBuffer[i]-this.analyzer.minDecibels)/range)*height;
+            this.ctx.fillRect(x, height - barHeight, barWidth, height);
+            x += barWidth;
+        }
+        console.log("a: ", this.freqBuffer[1]);
     }
 }
 
@@ -221,137 +298,6 @@ var audioSrc;
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var analyzer = new AnalyserNode(audioCtx);
 var visualizer = new Visualizer(analyzer);
-
-//const bufferSize = 2048;
-//var buffer = new Float32Array(bufferSize);
-//var sampleRate = 44100;
-//const minLength = 1 / 200;  // 5ms, faster than 'most' device refresh rates
-//const maxLength = 5;
-//var windowLength = minLength;
-//var gridCanvas = document.getElementById('grid-layer');
-//var waveformCanvas = document.getElementById('waveform-layer');
-//var waveformCtx = waveformCanvas.getContext('2d');
-//var drawHandle;
-//var prevSample = 0;
-
-//function drawGrid() {
-//    var ctx = gridCanvas.getContext('2d');
-//    var width = gridCanvas.width;
-//    var height = gridCanvas.height;
-//    width = waveformCanvas.width;
-//    height = waveformCanvas.height;
-
-//    // set the background
-//    ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-//    ctx.fillStyle = "rgb(230, 230, 230)";
-//    ctx.fillRect(0, 0, width, height);
-
-//    // draw the border
-//    ctx.lineWidth = 2;
-//    ctx.strokeStyle = "black";
-//    ctx.strokeRect(1, 1, width - 2, height - 2);
-
-//    // draw the x-axis
-//    var magnitude = Math.pow(10, Math.ceil(Math.log10(windowLength)));
-//    var xDelta = windowLength / magnitude;   // value in the range [0.1, 1]
-//    console.log("windowLength: ", windowLength);
-//    console.log("magnitude: ", magnitude);
-//    console.log("xDelta: ", xDelta);
-//    if (xDelta < 0.13) xDelta = 0.1;
-//    else if (xDelta < 0.25) xDelta = 0.25;
-//    else if (xDelta < 0.5) xDelta = 0.5;
-//    else xDelta = 1;
-//    xDelta = xDelta * magnitude / 10;
-//    var numXNotches = Math.floor(windowLength / xDelta);
-//    var notchLength = Math.floor((gridCanvas.height - waveformCanvas.height) / 2);
-//    console.log("adjusted xDelta: ", xDelta);
-//    console.log("numXNotches: ", numXNotches);
-//    var unit = "s";
-//    if (xDelta < 0.1) {
-//        xDelta *= 1000;
-//        unit = "ms";
-//    }
-//    ctx.fillStyle = "black";
-//    ctx.font = "bold " + notchLength + "px sans-serif";
-//    ctx.textBaseline = "top";
-//    ctx.textAlign = "center";
-//    ctx.beginPath();
-//    for (let i = 1; i < numXNotches; i++) {  // notches
-//        let w = Math.floor(i * (width / numXNotches));
-//        ctx.moveTo(w, height - (notchLength/2));
-//        ctx.lineTo(w, height + (notchLength / 2));
-//        let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
-//        ctx.fillText(text, w, height + notchLength);
-//    }
-//    ctx.stroke();
-
-
-//    // draw the y-axis
-//    ctx.textBaseline = "middle";
-//    ctx.textAlign = "start";
-//    var numYNotches = 4;            // set to even to include 0
-//    var yDelta = 2 / numYNotches;   // values in the range [-1, 1]
-//    var yGutter = Math.floor((gridCanvas.width - waveformCanvas.width) - notchLength / 2);  // drawable horizontal space
-//    ctx.beginPath();
-//    for (let i = 1; i < numYNotches; i++) {
-//        let h = Math.floor(i * (height / numYNotches));
-//        ctx.moveTo(width - (notchLength/2), h);
-//        ctx.lineTo(width + (notchLength/2), h);
-//        ctx.fillText(Math.round(10 * (1 - i * yDelta))/10, width + notchLength, h, yGutter);
-//    }
-//    ctx.stroke();
-//}
-
-//function drawWaveform() {
-//    // prevent browser anti-aliasing which will distort the copied data
-//    waveformCtx.mozImageSmoothingEnabled = false;
-//    waveformCtx.webkitImageSmoothingEnabled = false;
-//    waveformCtx.msImageSmoothingEnabled = false;
-//    waveformCtx.imageSmoothingEnabled = false;
-//    waveformCtx.lineWidth = 2;
-//    waveformCtx.strokeStyle = "blue";
-
-//    drawHandle = requestAnimationFrame(drawFrame);
-//}
-
-//var then = 0;
-//function drawFrame(now) {
-//    drawHandle = requestAnimationFrame(drawFrame);
-
-//    var elapsed = now - then;
-//    then = now;
-
-//    var width = waveformCanvas.width;
-//    var height = waveformCanvas.height;
-//    var numSamples = Math.floor(0.001 * elapsed * sampleRate);
-//    if (numSamples <= 0 || numSamples > bufferSize) numSamples = bufferSize;
-//    var frameWidth = width * (numSamples / (windowLength * sampleRate));
-//    if (frameWidth > width) frameWidth = width;
-//    var deltaX = frameWidth / numSamples;
-
-//    // move the previous waveform over
-//    waveformCtx.globalCompositeOperation = 'copy';
-//    waveformCtx.drawImage(waveformCanvas, -frameWidth, 0, width, height);
-//    waveformCtx.globalCompositeOperation = 'source-over';
-
-//    analyzer.getFloatTimeDomainData(buffer);
-
-//    // move to the previous sample
-//    waveformCtx.beginPath();
-//    var x = width - frameWidth - deltaX;
-//    var y = (height / 2) * (1 - prevSample);
-//    prevSample = buffer[numSamples - 1];
-//    waveformCtx.moveTo(x, y);
-
-//    // liSne to each subsequent sample
-//    for (let i = 0; i < numSamples; i++) {
-//        x += deltaX;
-//        y = (height / 2) * (1 - buffer[i]);
-//        waveformCtx.lineTo(x, y);
-//        //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
-//    }
-//    waveformCtx.stroke();
-//}
 
 async function getMediaStream() {
     if (!window.navigator.mediaDevices) {
@@ -399,6 +345,15 @@ audioEle.addEventListener('pause', function () {
 document.getElementById('x-scale').addEventListener('input', function (e) {
     visualizer.setWindowLength(e.target.value);
 });
+document.getElementById('time-button').addEventListener('click', function () {
+    visualizer.domain = 'time';
+    visualizer.drawWaveformOverlay();
+});
+document.getElementById('frequency-button').addEventListener('click', function () {
+    visualizer.domain = 'frequency';
+    visualizer.drawFrequencyOverlay();
+});
+
 document.addEventListener('DOMContentLoaded', e => {
 
     // Observe the canvases on the page and adjust size for 'pixel-perfect' device rendering
