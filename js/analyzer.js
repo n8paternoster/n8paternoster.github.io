@@ -74,15 +74,14 @@ function onResize(entries) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Visualizer {
-    static bufferSize = 2048;
-    static binCount = 256;
+    static bufferSize = 2048;   // 2048 samples, 1024 frequency bins
+    static numDisplayedBins = 256;
     static minLength = 1 / 200;
     static maxLength = 5;
 
     analyzer;
     domain = 'time';
-    timeBuffer = new Float32Array(Visualizer.bufferSize);
-    freqBuffer = new Float32Array(Visualizer.binCount);
+    buffer = new Float32Array(Visualizer.bufferSize);
     windowLength = Visualizer.minLength;
     gridCanvas = document.getElementById('grid-layer');
     waveformCanvas = document.getElementById('waveform-layer');
@@ -90,7 +89,7 @@ class Visualizer {
     constructor(analyzerNode) {
         this.analyzer = analyzerNode;
         this.analyzer.fftSize = Visualizer.bufferSize;
-        this.analyzer.minDecibels = -130;
+        this.analyzer.minDecibels = -90;
         this.analyzer.maxDecibels = -10;
         //this.analyzer.smoothingTimeConstant = 0; // TODO - change this?
 
@@ -113,10 +112,8 @@ class Visualizer {
         this.ctx.strokeStyle = "blue";
 
         if (this.domain === 'time') {
-            this.analyzer.fftSize = Visualizer.bufferSize;
             this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
         } else if (this.domain === 'frequency') {
-            this.analyzer.fftSize = Visualizer.binCount * 2;
             this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
         }
     }
@@ -208,21 +205,21 @@ class Visualizer {
         this.ctx.drawImage(this.waveformCanvas, -frameWidth, 0, width, height);
         this.ctx.globalCompositeOperation = 'source-over';
 
-        this.analyzer.getFloatTimeDomainData(this.timeBuffer);
+        this.analyzer.getFloatTimeDomainData(this.buffer);
 
         // move to the previous sample
         this.ctx.beginPath();
         var x = width - frameWidth - deltaX;
         var y = (height / 2) * (1 - this.prevSample);
-        this.prevSample = this.timeBuffer[numSamples - 1];
+        this.prevSample = this.buffer[numSamples - 1];
         this.ctx.moveTo(x, y);
 
         // line to each subsequent sample
         for (let i = 0; i < numSamples; i++) {
             x += deltaX;
-            y = (height / 2) * (1 - this.timeBuffer[i]);
+            y = (height / 2) * (1 - this.buffer[i]);
             this.ctx.lineTo(x, y);
-            //if (timeBuffer[i] >= 1 || timeBuffer[i] <= -1) console.log(timeBuffer[i]);
+            //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
         }
         this.ctx.stroke();
     }
@@ -275,30 +272,36 @@ class Visualizer {
         this.ctx.clearRect(0, 0, width, height);
 
         // Only display frequency values in the audible range
-        var deltaF = this.analyzer.context.sampleRate / this.analyzer.fftSize;
-        var startBin = Math.round(20 / deltaF);
-        var endBin = Math.round(20000 / deltaF);
-        var numBins = endBin - startBin + 1;
-        var numBins = this.analyzer.frequencyBinCount;
+        var binDelta = this.analyzer.context.sampleRate / this.analyzer.fftSize;
+        var startBin = Math.round(20 / binDelta);
+        var endBin = Math.round(20000 / binDelta);
+        var numAudibleBins = endBin - startBin + 1;
 
-        this.analyzer.getFloatFrequencyData(this.freqBuffer);
+        this.analyzer.getFloatFrequencyData(this.buffer);
 
         this.ctx.fillStyle = 'red';
-        var barWidth = width / numBins;
-        var x = 0;
+        this.ctx.lineWidth = 2;
+
+        var barWidth = width / numAudibleBins;
         let barHeight;
-        let range = this.analyzer.maxDecibels - this.analyzer.minDecibels;
-        //for (let i = startBin; i <= endBin; i++) {
+        var x = 0;
+        let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
+        let logRange = Math.log10(20000) - Math.log10(20);
         let blue = true;
-        for (let i = 0; i < numBins; i++) {
-            barHeight = ((this.freqBuffer[i] - this.analyzer.minDecibels) / range) * height;
-            if (blue) this.ctx.fillStyle = 'blue';
-            else this.ctx.fillStyle = 'red';
-            if (blue) blue = false;
-            else blue = true;
+        for (let i = startBin; i <= endBin; i++) {
+            let f = i * binDelta;
+            //console.log("Bin ", i, " represents ", f, "Hz");
+            this.ctx.fillStyle = 'rgb(' + Math.floor(f + 100) + ',50,50)';
+            barWidth = (Math.log10((i + 1) * binDelta) - Math.log10(f)) / logRange * width;
+            barHeight = ((this.buffer[Math.floor(i)] - this.analyzer.minDecibels) / dynRange) * height;
+            //if (blue) this.ctx.fillStyle = 'blue';
+            //else this.ctx.fillStyle = 'red';
+            blue = !blue;
             this.ctx.fillRect(x, height - barHeight, barWidth, height);
             x += barWidth;
         }
+        //console.log(x);
+        //console.log(width);
     }
 }
 
