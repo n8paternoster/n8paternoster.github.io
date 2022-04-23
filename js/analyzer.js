@@ -74,27 +74,30 @@ function onResize(entries) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Visualizer {
-    static bufferSize = 2048;   // 2048 samples, 1024 frequency bins
+    static timeBufferSize = 2048;
+    static freqBufferSize = 16384;  // linearly spaced frequency bins from 0Hz - 1/2 sample rate
     static numDisplayedBins = 256;
     static minLength = 1 / 200;
     static maxLength = 5;
 
     analyzer;
     domain = 'time';
-    buffer = new Float32Array(Visualizer.bufferSize);
+    buffer = new Float32Array(Visualizer.timeBufferSize);
+    freqBuffer = new Float32Array(Visualizer.freqBufferSize);
     windowLength = Visualizer.minLength;
     gridCanvas = document.getElementById('grid-layer');
     waveformCanvas = document.getElementById('waveform-layer');
 
     constructor(analyzerNode) {
         this.analyzer = analyzerNode;
-        this.analyzer.fftSize = Visualizer.bufferSize;
+        this.analyzer.fftSize = Visualizer.timeBufferSize;
         this.analyzer.minDecibels = -90;
         this.analyzer.maxDecibels = -10;
         //this.analyzer.smoothingTimeConstant = 0; // TODO - change this?
 
         this.drawWaveformFrame = this.drawWaveformFrame.bind(this);
         this.drawFrequencyFrame = this.drawFrequencyFrame.bind(this);
+        this.drawLogFrequencyFrame = this.drawLogFrequencyFrame.bind(this);
     }
 
     drawHandle;
@@ -112,9 +115,12 @@ class Visualizer {
         this.ctx.strokeStyle = "blue";
 
         if (this.domain === 'time') {
+            this.analyzer.fftSize = Visualizer.timeBufferSize;
             this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
         } else if (this.domain === 'frequency') {
-            this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
+            this.analyzer.fftSize = Visualizer.freqBufferSize * 2;
+            //this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
+            this.drawHandle = requestAnimationFrame(this.drawLogFrequencyFrame);
         }
     }
     stopAnimation() {
@@ -195,7 +201,7 @@ class Visualizer {
         var width = this.waveformCanvas.width;
         var height = this.waveformCanvas.height;
         var numSamples = Math.floor(0.001 * elapsed * this.analyzer.context.sampleRate);
-        if (numSamples <= 0 || numSamples > Visualizer.bufferSize) numSamples = Visualizer.bufferSize;
+        if (numSamples <= 0 || numSamples > Visualizer.timeBufferSize) numSamples = Visualizer.timeBufferSize;
         var frameWidth = width * (numSamples / (this.windowLength * this.analyzer.context.sampleRate));
         if (frameWidth > width) frameWidth = width;
         var deltaX = frameWidth / numSamples;
@@ -290,18 +296,55 @@ class Visualizer {
         let blue = true;
         for (let i = startBin; i <= endBin; i++) {
             let f = i * binDelta;
-            //console.log("Bin ", i, " represents ", f, "Hz");
+            if (f > 5135 && f < 5200) this.ctx.fillStyle = 'yellow';
+            else 
             this.ctx.fillStyle = 'rgb(' + Math.floor(f + 100) + ',50,50)';
             barWidth = (Math.log10((i + 1) * binDelta) - Math.log10(f)) / logRange * width;
             barHeight = ((this.buffer[Math.floor(i)] - this.analyzer.minDecibels) / dynRange) * height;
-            //if (blue) this.ctx.fillStyle = 'blue';
-            //else this.ctx.fillStyle = 'red';
             blue = !blue;
             this.ctx.fillRect(x, height - barHeight, barWidth, height);
             x += barWidth;
         }
-        //console.log(x);
-        //console.log(width);
+    }
+
+    drawLogFrequencyFrame(now) {
+        this.drawHandle = requestAnimationFrame(this.drawLogFrequencyFrame);
+
+        var elapsed = now - this.then;
+        this.then = now;
+
+        var width = this.waveformCanvas.width;
+        var height = this.waveformCanvas.height;
+        this.ctx.clearRect(0, 0, width, height);
+
+        var linearStep = (this.analyzer.context.sampleRate/2) / Visualizer.freqBufferSize;
+        var numLogBins = Math.round(Math.log10(20000) / (Math.log10(linearStep / 20 + 1)));
+        var logStep = Math.log10(20000) / numLogBins;
+        var startBin = Math.round(numLogBins * Math.log10(20) / Math.log10(20000));
+        var numDisplayBins = numLogBins - startBin;
+        console.log("linear step: ", linearStep);
+        console.log("numLogBins: ", numLogBins);
+        console.log("log step: ", logStep);
+        console.log("start bin: ", startBin);
+        console.log("num display bins: ", numDisplayBins);
+
+        this.analyzer.getFloatFrequencyData(this.freqBuffer);
+
+        this.ctx.fillStyle = 'red';
+        this.ctx.lineWidth = 2;
+
+        var barWidth = width / numDisplayBins;
+        let barHeight;
+        var x = 0;
+        let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
+        for (let b = startBin; b <= numLogBins; b++) {
+            let f = Math.pow(10, b * logStep);
+            let i = Math.round(f / linearStep);
+            //console.log("bin ", b, ": ", f, "hz", ", index ", i, ": ", i*linearStep);
+            barHeight = ((this.freqBuffer[i] - this.analyzer.minDecibels) / dynRange) * height;
+            this.ctx.fillRect(x, height - barHeight, barWidth, height);
+            x += barWidth;
+        }
     }
 }
 
@@ -397,6 +440,6 @@ document.addEventListener('DOMContentLoaded', e => {
     audioSrc = audioCtx.createMediaElementSource(audioEle);
     audioSrc.connect(analyzer);
     analyzer.connect(audioCtx.destination);
-    //analyzer.fftSize = bufferSize;
+    //analyzer.fftSize = timeBufferSize;
     //analyzer.smoothingTimeConstant = 0; // TODO - change this?
 });
