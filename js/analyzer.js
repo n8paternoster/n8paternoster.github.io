@@ -267,6 +267,43 @@ class Visualizer {
         }
         ctx.stroke();
     }
+    drawLogFrequencyOverlay() {
+        var ctx = this.gridCanvas.getContext('2d');
+        var width = this.waveformCanvas.width;
+        var height = this.waveformCanvas.height;
+
+        // set the background
+        ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+        ctx.fillStyle = "rgb(230, 230, 230)";
+        ctx.fillRect(0, 0, width, height);
+
+        // draw the border
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "black";
+        ctx.strokeRect(1, 1, width - 2, height - 2);
+
+        // draw the x-axis
+        var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
+        ctx.fillStyle = "black";
+        ctx.font = "bold " + notchLength + "px sans-serif";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "center";
+
+        for (let f = 30, m = 10; f < 20000; f += m) {
+            
+            m = Math.pow(10, Math.floor(Math.log10(f)));    // magnitude
+            let d = Math.floor(f / m);  // first digit of f
+            let x = Math.floor((Math.log10(f) - Math.log10(20)) / 3 * width);
+            
+            ctx.lineWidth = (d === 1) ? 2 : 0.5;
+            ctx.beginPath();
+            ctx.moveTo(x, height);
+            ctx.lineTo(x, 0);
+            ctx.stroke();
+            if (d <= 3 || d === 5 || d === 7)
+                ctx.fillText(f, x, height + notchLength/2);
+        }
+    }
     drawFrequencyFrame(now) {
         this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
 
@@ -306,7 +343,6 @@ class Visualizer {
             x += barWidth;
         }
     }
-
     drawLogFrequencyFrame(now) {
         this.drawHandle = requestAnimationFrame(this.drawLogFrequencyFrame);
 
@@ -330,7 +366,7 @@ class Visualizer {
 
         this.analyzer.getFloatFrequencyData(this.freqBuffer);
 
-        this.ctx.fillStyle = 'red';
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.75)';
         this.ctx.lineWidth = 2;
 
         var barWidth = width / numDisplayBins;
@@ -405,7 +441,8 @@ document.getElementById('time-button').addEventListener('click', function () {
 });
 document.getElementById('frequency-button').addEventListener('click', function () {
     visualizer.domain = 'frequency';
-    visualizer.drawFrequencyOverlay();
+    //visualizer.drawFrequencyOverlay();
+    visualizer.drawLogFrequencyOverlay();
 });
 
 document.addEventListener('DOMContentLoaded', e => {
