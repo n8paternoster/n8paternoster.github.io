@@ -357,29 +357,34 @@ class Visualizer {
         var numLogBins = Math.round(Math.log10(20000) / (Math.log10(linearStep / 20 + 1)));
         var logStep = Math.log10(20000) / numLogBins;
         var startBin = Math.round(numLogBins * Math.log10(20) / Math.log10(20000));
-        var numDisplayBins = numLogBins - startBin;
-        console.log("linear step: ", linearStep);
-        console.log("numLogBins: ", numLogBins);
-        console.log("log step: ", logStep);
-        console.log("start bin: ", startBin);
-        console.log("num display bins: ", numDisplayBins);
+        var numDisplayBins = numLogBins - startBin + 1;
+        //console.log("linear step: ", linearStep);
+        //console.log("numLogBins: ", numLogBins);
+        //console.log("log step: ", logStep);
+        //console.log("start bin: ", startBin);
+        //console.log("num display bins: ", numDisplayBins);
 
         this.analyzer.getFloatFrequencyData(this.freqBuffer);
-
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.75)';
         this.ctx.lineWidth = 2;
 
         var barWidth = width / numDisplayBins;
         let barHeight;
         var x = 0;
         let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
+        let hue = 300;
+        let hueDelta = 300 / numDisplayBins;
+        let prevI = Math.round(Math.pow(10, startBin * logStep) / linearStep) - 1;
         for (let b = startBin; b <= numLogBins; b++) {
             let f = Math.pow(10, b * logStep);
             let i = Math.round(f / linearStep);
-            //console.log("bin ", b, ": ", f, "hz", ", index ", i, ": ", i*linearStep);
-            barHeight = ((this.freqBuffer[i] - this.analyzer.minDecibels) / dynRange) * height;
+            let val = Math.max(...this.freqBuffer.slice(prevI + 1, i + 1));
+            //console.log("bin ", b, ": ", f, "hz", ", index ", i, ": ", i * linearStep, "prevI: ", prevI, "max val: ", val);
+            barHeight = ((val - this.analyzer.minDecibels) / dynRange) * height;
+            this.ctx.fillStyle = 'hsla(' + hue + ', 100%, 45%, 0.85)';
             this.ctx.fillRect(x, height - barHeight, barWidth, height);
+            hue -= hueDelta;
             x += barWidth;
+            prevI = i;
         }
     }
 }
