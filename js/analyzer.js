@@ -61,7 +61,8 @@ function redrawCanvas(canvas) {
         ctx.lineWidth = 2;
         ctx.strokeStyle = "blue";
     } else if (canvas.id === "grid-layer") {
-        visualizer.drawWaveformOverlay();
+        //visualizer.drawWaveformOverlay();
+        visualizer.drawOverlay();
     }
 }
 function onResize(entries) {
@@ -91,8 +92,8 @@ class Visualizer {
     constructor(analyzerNode) {
         this.analyzer = analyzerNode;
         this.analyzer.fftSize = Visualizer.timeBufferSize;
-        this.analyzer.minDecibels = -90;
-        this.analyzer.maxDecibels = -10;
+        this.analyzer.minDecibels = -100;
+        this.analyzer.maxDecibels = 0;
         //this.analyzer.smoothingTimeConstant = 0; // TODO - change this?
 
         this.drawWaveformFrame = this.drawWaveformFrame.bind(this);
@@ -127,13 +128,7 @@ class Visualizer {
         cancelAnimationFrame(this.drawHandle);
     }
 
-    setWindowLength(percent) {
-        if (this.domain !== 'time') return;
-        this.windowLength = Visualizer.minLength + percent * (Visualizer.maxLength - Visualizer.minLength);
-        if (this.windowLength > Visualizer.maxLength) this.windowLength = Visualizer.maxLength;
-        this.drawWaveformOverlay();
-    }
-    drawWaveformOverlay() {
+    drawOverlay() {
         var ctx = this.gridCanvas.getContext('2d');
         var width = this.waveformCanvas.width;
         var height = this.waveformCanvas.height;
@@ -149,49 +144,88 @@ class Visualizer {
         ctx.strokeRect(1, 1, width - 2, height - 2);
 
         // draw the x-axis
-        var magnitude = Math.pow(10, Math.ceil(Math.log10(this.windowLength)));
-        var xDelta = this.windowLength / magnitude;   // value in the range [0.1, 1]
-        if (xDelta < 0.13) xDelta = 0.1;
-        else if (xDelta < 0.25) xDelta = 0.25;
-        else if (xDelta < 0.5) xDelta = 0.5;
-        else xDelta = 1;
-        xDelta = xDelta * magnitude / 10;
-        var numXNotches = Math.floor(this.windowLength / xDelta);
-        var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
-        var unit = "s";
-        if (xDelta < 0.1) {
-            xDelta *= 1000;
-            unit = "ms";
-        }
+        var gap = Math.floor((this.gridCanvas.height - height) / 2);
         ctx.fillStyle = "black";
-        ctx.font = "bold " + notchLength + "px sans-serif";
+        ctx.font = "bold " + gap + "px sans-serif";
         ctx.textBaseline = "top";
         ctx.textAlign = "center";
-        ctx.beginPath();
-        for (let i = 1; i < numXNotches; i++) {  // notches
-            let w = Math.floor(i * (width / numXNotches));
-            ctx.moveTo(w, height - (notchLength / 2));
-            ctx.lineTo(w, height + (notchLength / 2));
-            let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
-            ctx.fillText(text, w, height + notchLength);
+        if (this.domain === 'time') {
+            let magnitude = Math.pow(10, Math.ceil(Math.log10(this.windowLength)));
+            let xDelta = this.windowLength / magnitude;   // in the range [0.1, 1]
+            if (xDelta < 0.13) xDelta = 0.1;
+            else if (xDelta < 0.25) xDelta = 0.25;
+            else if (xDelta < 0.5) xDelta = 0.5;
+            else xDelta = 1;
+            xDelta = xDelta * magnitude / 10;
+            let numXNotches = Math.floor(this.windowLength / xDelta);
+            let unit = "s";
+            if (xDelta < 0.1) {
+                xDelta *= 1000;
+                unit = "ms";
+            }
+            ctx.beginPath();
+            for (let i = 1; i < numXNotches; i++) {  // notches
+                let w = Math.floor(i * (width / numXNotches));
+                ctx.moveTo(w, height - (gap / 2));
+                ctx.lineTo(w, height + (gap / 2));
+                let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
+                ctx.fillText(text, w, height + gap);
+            }
+            ctx.stroke();
+        } else if (this.domain === 'frequency') {
+            for (let f = 30, m = 10; f < 20000; f += m) {
+                m = Math.pow(10, Math.floor(Math.log10(f)));    // magnitude
+                let d = Math.floor(f / m);  // first digit of f
+                let x = Math.floor((Math.log10(f) - Math.log10(20)) / 3 * width);
+                ctx.lineWidth = (d === 1) ? 2 : 0.5;
+                ctx.beginPath();
+                ctx.moveTo(x, height);
+                ctx.lineTo(x, 0);
+                ctx.stroke();
+                if (d <= 3 || d === 5 || d === 7)
+                    ctx.fillText(f, x, height + gap / 2);
+            }
         }
-        ctx.stroke();
 
         // draw the y-axis
         ctx.textBaseline = "middle";
         ctx.textAlign = "start";
-        var numYNotches = 4;            // set to even to include 0
-        var yDelta = 2 / numYNotches;   // values in the range [-1, 1]
-        var yGutter = Math.floor((this.gridCanvas.width - width) - notchLength / 2);  // drawable horizontal space
-        ctx.beginPath();
-        for (let i = 1; i < numYNotches; i++) {
-            let h = Math.floor(i * (height / numYNotches));
-            ctx.moveTo(width - (notchLength / 2), h);
-            ctx.lineTo(width + (notchLength / 2), h);
-            ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + notchLength, h, yGutter);
+        if (this.domain === 'time') {
+            let numYNotches = 4;            // must be even to include 0
+            let yDelta = 2 / numYNotches;   // values in the range [-1, 1]
+            let yGutter = Math.floor((this.gridCanvas.width - width) - gap / 2);  // drawable horizontal space
+            ctx.beginPath();
+            for (let i = 1; i < numYNotches; i++) {
+                let h = Math.floor(i * (height / numYNotches));
+                ctx.moveTo(width - (gap / 2), h);
+                ctx.lineTo(width + (gap / 2), h);
+                ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + gap, h, yGutter);
+            }
+            ctx.stroke();
+        } else if (this.domain === 'frequency') {
+            let dynRange = this.analyzer.minDecibels - this.analyzer.maxDecibels;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
+                if (db === this.analyzer.maxDecibels) continue;
+                console.log(db);
+                let y = Math.floor((db - this.analyzer.maxDecibels) / dynRange * height);
+                console.log(db, dynRange, y);
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.fillText(db, width + gap / 2, y);
+            }
+            ctx.stroke();
         }
-        ctx.stroke();
     }
+
+    setWindowLength(percent) {
+        if (this.domain !== 'time') return;
+        this.windowLength = Visualizer.minLength + percent * (Visualizer.maxLength - Visualizer.minLength);
+        if (this.windowLength > Visualizer.maxLength) this.windowLength = Visualizer.maxLength;
+        this.drawWaveformOverlay();
+    }
+    
     drawWaveformFrame(now) {
         this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
 
@@ -228,81 +262,6 @@ class Visualizer {
             //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
         }
         this.ctx.stroke();
-    }
-
-    drawFrequencyOverlay() {
-        var ctx = this.gridCanvas.getContext('2d');
-        var width = this.waveformCanvas.width;
-        var height = this.waveformCanvas.height;
-
-        // set the background
-        ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
-        ctx.fillStyle = "rgb(230, 230, 230)";
-        ctx.fillRect(0, 0, width, height);
-
-        // draw the border
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "black";
-        ctx.strokeRect(1, 1, width - 2, height - 2);
-
-        // draw the x-axis
-        const numXNotches = 10;
-        var minFreq = 20;
-        var maxFreq = Math.min(20000, Math.floor(this.analyzer.context.sampleRate / 2));
-        var xDelta = Math.floor((maxFreq - minFreq) / numXNotches);
-        var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
-        var unit = "Hz";
-        ctx.fillStyle = "black";
-        ctx.font = "bold " + notchLength + "px sans-serif";
-        ctx.textBaseline = "top";
-        ctx.textAlign = "center";
-        ctx.beginPath();
-        for (let i = 1; i < numXNotches; i++) {
-            // linear
-            let w = Math.floor(i * (width / numXNotches));
-            ctx.moveTo(w, height - (notchLength / 2));
-            ctx.lineTo(w, height + (notchLength / 2));
-            let text = Number(xDelta * i) + unit;
-            ctx.fillText(text, w, height + notchLength);
-        }
-        ctx.stroke();
-    }
-    drawLogFrequencyOverlay() {
-        var ctx = this.gridCanvas.getContext('2d');
-        var width = this.waveformCanvas.width;
-        var height = this.waveformCanvas.height;
-
-        // set the background
-        ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
-        ctx.fillStyle = "rgb(230, 230, 230)";
-        ctx.fillRect(0, 0, width, height);
-
-        // draw the border
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "black";
-        ctx.strokeRect(1, 1, width - 2, height - 2);
-
-        // draw the x-axis
-        var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
-        ctx.fillStyle = "black";
-        ctx.font = "bold " + notchLength + "px sans-serif";
-        ctx.textBaseline = "top";
-        ctx.textAlign = "center";
-
-        for (let f = 30, m = 10; f < 20000; f += m) {
-            
-            m = Math.pow(10, Math.floor(Math.log10(f)));    // magnitude
-            let d = Math.floor(f / m);  // first digit of f
-            let x = Math.floor((Math.log10(f) - Math.log10(20)) / 3 * width);
-            
-            ctx.lineWidth = (d === 1) ? 2 : 0.5;
-            ctx.beginPath();
-            ctx.moveTo(x, height);
-            ctx.lineTo(x, 0);
-            ctx.stroke();
-            if (d <= 3 || d === 5 || d === 7)
-                ctx.fillText(f, x, height + notchLength/2);
-        }
     }
     drawFrequencyFrame(now) {
         this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
@@ -387,6 +346,158 @@ class Visualizer {
             prevI = i;
         }
     }
+
+    //drawWaveformOverlay() {
+    //    var ctx = this.gridCanvas.getContext('2d');
+    //    var width = this.waveformCanvas.width;
+    //    var height = this.waveformCanvas.height;
+
+    //    // set the background
+    //    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    //    ctx.fillStyle = "rgb(230, 230, 230)";
+    //    ctx.fillRect(0, 0, width, height);
+
+    //    // draw the border
+    //    ctx.lineWidth = 2;
+    //    ctx.strokeStyle = "black";
+    //    ctx.strokeRect(1, 1, width - 2, height - 2);
+
+    //    // draw the x-axis
+    //    var magnitude = Math.pow(10, Math.ceil(Math.log10(this.windowLength)));
+    //    var xDelta = this.windowLength / magnitude;   // value in the range [0.1, 1]
+    //    if (xDelta < 0.13) xDelta = 0.1;
+    //    else if (xDelta < 0.25) xDelta = 0.25;
+    //    else if (xDelta < 0.5) xDelta = 0.5;
+    //    else xDelta = 1;
+    //    xDelta = xDelta * magnitude / 10;
+    //    var numXNotches = Math.floor(this.windowLength / xDelta);
+    //    var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
+    //    var unit = "s";
+    //    if (xDelta < 0.1) {
+    //        xDelta *= 1000;
+    //        unit = "ms";
+    //    }
+    //    ctx.fillStyle = "black";
+    //    ctx.font = "bold " + notchLength + "px sans-serif";
+    //    ctx.textBaseline = "top";
+    //    ctx.textAlign = "center";
+    //    ctx.beginPath();
+    //    for (let i = 1; i < numXNotches; i++) {  // notches
+    //        let w = Math.floor(i * (width / numXNotches));
+    //        ctx.moveTo(w, height - (notchLength / 2));
+    //        ctx.lineTo(w, height + (notchLength / 2));
+    //        let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
+    //        ctx.fillText(text, w, height + notchLength);
+    //    }
+    //    ctx.stroke();
+
+    //    // draw the y-axis
+    //    ctx.textBaseline = "middle";
+    //    ctx.textAlign = "start";
+    //    var numYNotches = 4;            // set to even to include 0
+    //    var yDelta = 2 / numYNotches;   // values in the range [-1, 1]
+    //    var yGutter = Math.floor((this.gridCanvas.width - width) - notchLength / 2);  // drawable horizontal space
+    //    ctx.beginPath();
+    //    for (let i = 1; i < numYNotches; i++) {
+    //        let h = Math.floor(i * (height / numYNotches));
+    //        ctx.moveTo(width - (notchLength / 2), h);
+    //        ctx.lineTo(width + (notchLength / 2), h);
+    //        ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + notchLength, h, yGutter);
+    //    }
+    //    ctx.stroke();
+    //}
+    //drawFrequencyOverlay() {
+    //    var ctx = this.gridCanvas.getContext('2d');
+    //    var width = this.waveformCanvas.width;
+    //    var height = this.waveformCanvas.height;
+
+    //    // set the background
+    //    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    //    ctx.fillStyle = "rgb(230, 230, 230)";
+    //    ctx.fillRect(0, 0, width, height);
+
+    //    // draw the border
+    //    ctx.lineWidth = 2;
+    //    ctx.strokeStyle = "black";
+    //    ctx.strokeRect(1, 1, width - 2, height - 2);
+
+    //    // draw the x-axis
+    //    const numXNotches = 10;
+    //    var minFreq = 20;
+    //    var maxFreq = Math.min(20000, Math.floor(this.analyzer.context.sampleRate / 2));
+    //    var xDelta = Math.floor((maxFreq - minFreq) / numXNotches);
+    //    var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
+    //    var unit = "Hz";
+    //    ctx.fillStyle = "black";
+    //    ctx.font = "bold " + notchLength + "px sans-serif";
+    //    ctx.textBaseline = "top";
+    //    ctx.textAlign = "center";
+    //    ctx.beginPath();
+    //    for (let i = 1; i < numXNotches; i++) {
+    //        // linear
+    //        let w = Math.floor(i * (width / numXNotches));
+    //        ctx.moveTo(w, height - (notchLength / 2));
+    //        ctx.lineTo(w, height + (notchLength / 2));
+    //        let text = Number(xDelta * i) + unit;
+    //        ctx.fillText(text, w, height + notchLength);
+    //    }
+    //    ctx.stroke();
+    //}
+    //drawLogFrequencyOverlay() {
+    //    var ctx = this.gridCanvas.getContext('2d');
+    //    var width = this.waveformCanvas.width;
+    //    var height = this.waveformCanvas.height;
+
+    //    // set the background
+    //    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    //    ctx.fillStyle = "rgb(230, 230, 230)";
+    //    ctx.fillRect(0, 0, width, height);
+
+    //    // draw the border
+    //    ctx.lineWidth = 2;
+    //    ctx.strokeStyle = "black";
+    //    ctx.strokeRect(1, 1, width - 2, height - 2);
+
+    //    // draw the x-axis
+    //    var gap = Math.floor((this.gridCanvas.height - height) / 2);
+    //    ctx.fillStyle = "black";
+    //    ctx.font = "bold " + gap + "px sans-serif";
+    //    ctx.textBaseline = "top";
+    //    ctx.textAlign = "center";
+
+    //    for (let f = 30, m = 10; f < 20000; f += m) {
+
+    //        m = Math.pow(10, Math.floor(Math.log10(f)));    // magnitude
+    //        let d = Math.floor(f / m);  // first digit of f
+    //        let x = Math.floor((Math.log10(f) - Math.log10(20)) / 3 * width);
+
+    //        ctx.lineWidth = (d === 1) ? 2 : 0.5;
+    //        ctx.beginPath();
+    //        ctx.moveTo(x, height);
+    //        ctx.lineTo(x, 0);
+    //        ctx.stroke();
+    //        if (d <= 3 || d === 5 || d === 7)
+    //            ctx.fillText(f, x, height + gap / 2);
+    //    }
+
+    //    // draw the y-axis
+    //    var dynRange = this.analyzer.minDecibels - this.analyzer.maxDecibels;
+    //    ctx.lineWidth = 1;
+    //    ctx.textBaseline = "middle";
+    //    ctx.textAlign = "start";
+    //    ctx.beginPath();
+    //    for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
+    //        if (db === this.analyzer.maxDecibels) continue;
+    //        console.log(db);
+    //        let y = Math.floor((db - this.analyzer.maxDecibels) / dynRange * height);
+    //        console.log(db, dynRange, y);
+    //        ctx.moveTo(0, y);
+    //        ctx.lineTo(width, y);
+    //        ctx.fillText(db, width + gap / 2, y);
+    //    }
+    //    ctx.stroke();
+
+    //}
 }
 
 var audioSrc;
@@ -442,12 +553,14 @@ document.getElementById('x-scale').addEventListener('input', function (e) {
 });
 document.getElementById('time-button').addEventListener('click', function () {
     visualizer.domain = 'time';
-    visualizer.drawWaveformOverlay();
+    //visualizer.drawWaveformOverlay();
+    visualizer.drawOverlay();
 });
 document.getElementById('frequency-button').addEventListener('click', function () {
     visualizer.domain = 'frequency';
     //visualizer.drawFrequencyOverlay();
-    visualizer.drawLogFrequencyOverlay();
+    //visualizer.drawLogFrequencyOverlay();
+    visualizer.drawOverlay();
 });
 
 document.addEventListener('DOMContentLoaded', e => {
