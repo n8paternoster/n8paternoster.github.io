@@ -49,27 +49,17 @@ function resizeCanvasToParentPixels(canvas) {
     canvas.width = rect.width;
     canvas.height = rect.height;
 }
-function redrawCanvas(canvas) {
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (canvas.id === "waveform-layer") {
-        // prevent browser anti-aliasing which will distort the copied data
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
-        ctx.imageSmoothingEnabled = false;
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "blue";
-    } else if (canvas.id === "grid-layer") {
-        //visualizer.drawWaveformOverlay();
-        visualizer.drawOverlay();
-    }
-}
 function onResize(entries) {
+    var running = visualizer.drawHandle !== 0;
+    visualizer.stopAnimation();
     for (const entry of entries) {
         resizeCanvasToDevicePixels(entry);
-        redrawCanvas(entry.target.canvas);
+        let canvas = entry.target.canvas;
+        let ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+    visualizer.drawOverlay();
+    if (running) visualizer.startAnimation();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,15 +67,13 @@ function onResize(entries) {
 class Visualizer {
     static timeBufferSize = 2048;
     static freqBufferSize = 16384;  // linearly spaced frequency bins from 0Hz - 1/2 sample rate
-    static numDisplayedBins = 256;
     static minLength = 1 / 200;
     static maxLength = 5;
 
     analyzer;
     domain = 'time';
-    buffer = new Float32Array(Visualizer.timeBufferSize);
-    freqBuffer = new Float32Array(Visualizer.freqBufferSize);
     windowLength = Visualizer.minLength;
+    drawHandle = 0;
     gridCanvas = document.getElementById('grid-layer');
     waveformCanvas = document.getElementById('waveform-layer');
 
@@ -95,39 +83,114 @@ class Visualizer {
         this.analyzer.minDecibels = -100;
         this.analyzer.maxDecibels = 0;
         //this.analyzer.smoothingTimeConstant = 0; // TODO - change this?
-
-        this.drawWaveformFrame = this.drawWaveformFrame.bind(this);
-        this.drawFrequencyFrame = this.drawFrequencyFrame.bind(this);
-        this.drawLogFrequencyFrame = this.drawLogFrequencyFrame.bind(this);
     }
 
-    drawHandle;
-    prevSample = 0;
-    then = 0;
-    ctx = this.waveformCanvas.getContext('2d');
-
     startAnimation() {
-        // prevent browser anti-aliasing which will distort the copied data
-        this.ctx.mozImageSmoothingEnabled = false;
-        this.ctx.webkitImageSmoothingEnabled = false;
-        this.ctx.msImageSmoothingEnabled = false;
-        this.ctx.imageSmoothingEnabled = false;
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeStyle = "blue";
+        var ctx = this.waveformCanvas.getContext('2d');
 
+        // prevent browser anti-aliasing which will distort the copied data
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
+
+        drawWaveformFrame = drawWaveformFrame.bind(this);
+        drawFrequencyFrame = drawFrequencyFrame.bind(this);
+
+        var buffer;
+        var prevSample = 0;
+        var then = 0;
+        
         if (this.domain === 'time') {
+            buffer = new Float32Array(Visualizer.timeBufferSize);
             this.analyzer.fftSize = Visualizer.timeBufferSize;
-            this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 2;
+            this.drawHandle = requestAnimationFrame(drawWaveformFrame);
         } else if (this.domain === 'frequency') {
+            buffer = new Float32Array(Visualizer.freqBufferSize);
             this.analyzer.fftSize = Visualizer.freqBufferSize * 2;
-            //this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
-            this.drawHandle = requestAnimationFrame(this.drawLogFrequencyFrame);
+            this.drawHandle = requestAnimationFrame(drawFrequencyFrame);
         }
+
+        function drawWaveformFrame(now) {
+            this.drawHandle = requestAnimationFrame(drawWaveformFrame);
+
+            var elapsed = now - then;
+            then = now;
+
+            var width = this.waveformCanvas.width;
+            var height = this.waveformCanvas.height;
+            var numSamples = Math.floor(0.001 * elapsed * this.analyzer.context.sampleRate);
+            if (numSamples <= 0 || numSamples > Visualizer.timeBufferSize) numSamples = Visualizer.timeBufferSize;
+            var frameWidth = width * (numSamples / (this.windowLength * this.analyzer.context.sampleRate));
+            if (frameWidth > width) frameWidth = width;
+            var deltaX = frameWidth / numSamples;
+
+            // move the previous waveform over
+            ctx.globalCompositeOperation = 'copy';
+            ctx.drawImage(this.waveformCanvas, -frameWidth, 0, width, height);
+            ctx.globalCompositeOperation = 'source-over';
+
+            this.analyzer.getFloatTimeDomainData(buffer);
+
+            // move to the previous sample
+            ctx.beginPath();
+            var x = width - frameWidth - deltaX;
+            var y = (height / 2) * (1 - prevSample);
+            prevSample = buffer[numSamples - 1];
+            ctx.moveTo(x, y);
+
+            // line to each subsequent sample
+            for (let i = 0; i < numSamples; i++) {
+                x += deltaX;
+                y = (height / 2) * (1 - buffer[i]);
+                ctx.lineTo(x, y);
+                //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
+            }
+            ctx.stroke();
+        };
+        function drawFrequencyFrame(now) {
+            this.drawHandle = requestAnimationFrame(drawFrequencyFrame);
+
+            var width = this.waveformCanvas.width;
+            var height = this.waveformCanvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            var linearStep = (this.analyzer.context.sampleRate / 2) / Visualizer.freqBufferSize;
+            var numLogBins = Math.round(Math.log10(20000) / (Math.log10(linearStep / 20 + 1)));
+            var logStep = Math.log10(20000) / numLogBins;
+            var startBin = Math.round(numLogBins * Math.log10(20) / Math.log10(20000));
+            var numDisplayBins = numLogBins - startBin + 1;
+
+            this.analyzer.getFloatFrequencyData(buffer);
+            ctx.lineWidth = 2;
+
+            var barWidth = width / numDisplayBins;
+            let barHeight;
+            var x = 0;
+            let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
+            let hue = 300;
+            let hueDelta = 300 / numDisplayBins;
+            let prevI = Math.round(Math.pow(10, startBin * logStep) / linearStep) - 1;
+            for (let b = startBin; b <= numLogBins; b++) {
+                let f = Math.pow(10, b * logStep);
+                let i = Math.round(f / linearStep);
+                let val = Math.max(...buffer.slice(prevI + 1, i + 1));
+                //console.log("bin ", b, ": ", f, "hz", ", index ", i, ": ", i * linearStep, "prevI: ", prevI, "max val: ", val);
+                barHeight = ((val - this.analyzer.minDecibels) / dynRange) * height;
+                ctx.fillStyle = 'hsla(' + hue + ', 100%, 45%, 0.85)';
+                ctx.fillRect(x, height - barHeight, barWidth, height);
+                hue -= hueDelta;
+                x += barWidth;
+                prevI = i;
+            }
+        };
     }
     stopAnimation() {
         cancelAnimationFrame(this.drawHandle);
+        this.drawHandle = 0;
     }
-
     drawOverlay() {
         var ctx = this.gridCanvas.getContext('2d');
         var width = this.waveformCanvas.width;
@@ -218,286 +281,27 @@ class Visualizer {
             ctx.stroke();
         }
     }
-
     setWindowLength(percent) {
         if (this.domain !== 'time') return;
         this.windowLength = Visualizer.minLength + percent * (Visualizer.maxLength - Visualizer.minLength);
         if (this.windowLength > Visualizer.maxLength) this.windowLength = Visualizer.maxLength;
-        this.drawWaveformOverlay();
+        this.drawOverlay();
     }
-    
-    drawWaveformFrame(now) {
-        this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
-
-        var elapsed = now - this.then;
-        this.then = now;
-
-        var width = this.waveformCanvas.width;
-        var height = this.waveformCanvas.height;
-        var numSamples = Math.floor(0.001 * elapsed * this.analyzer.context.sampleRate);
-        if (numSamples <= 0 || numSamples > Visualizer.timeBufferSize) numSamples = Visualizer.timeBufferSize;
-        var frameWidth = width * (numSamples / (this.windowLength * this.analyzer.context.sampleRate));
-        if (frameWidth > width) frameWidth = width;
-        var deltaX = frameWidth / numSamples;
-
-        // move the previous waveform over
-        this.ctx.globalCompositeOperation = 'copy';
-        this.ctx.drawImage(this.waveformCanvas, -frameWidth, 0, width, height);
-        this.ctx.globalCompositeOperation = 'source-over';
-
-        this.analyzer.getFloatTimeDomainData(this.buffer);
-
-        // move to the previous sample
-        this.ctx.beginPath();
-        var x = width - frameWidth - deltaX;
-        var y = (height / 2) * (1 - this.prevSample);
-        this.prevSample = this.buffer[numSamples - 1];
-        this.ctx.moveTo(x, y);
-
-        // line to each subsequent sample
-        for (let i = 0; i < numSamples; i++) {
-            x += deltaX;
-            y = (height / 2) * (1 - this.buffer[i]);
-            this.ctx.lineTo(x, y);
-            //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
-        }
-        this.ctx.stroke();
-    }
-    drawFrequencyFrame(now) {
-        this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
-
-        var elapsed = now - this.then;
-        this.then = now;
-
-        var width = this.waveformCanvas.width;
-        var height = this.waveformCanvas.height;
-        this.ctx.clearRect(0, 0, width, height);
-
-        // Only display frequency values in the audible range
-        var binDelta = this.analyzer.context.sampleRate / this.analyzer.fftSize;
-        var startBin = Math.round(20 / binDelta);
-        var endBin = Math.round(20000 / binDelta);
-        var numAudibleBins = endBin - startBin + 1;
-
-        this.analyzer.getFloatFrequencyData(this.buffer);
-
-        this.ctx.fillStyle = 'red';
-        this.ctx.lineWidth = 2;
-
-        var barWidth = width / numAudibleBins;
-        let barHeight;
-        var x = 0;
-        let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
-        let logRange = Math.log10(20000) - Math.log10(20);
-        let blue = true;
-        for (let i = startBin; i <= endBin; i++) {
-            let f = i * binDelta;
-            if (f > 5135 && f < 5200) this.ctx.fillStyle = 'yellow';
-            else 
-            this.ctx.fillStyle = 'rgb(' + Math.floor(f + 100) + ',50,50)';
-            barWidth = (Math.log10((i + 1) * binDelta) - Math.log10(f)) / logRange * width;
-            barHeight = ((this.buffer[Math.floor(i)] - this.analyzer.minDecibels) / dynRange) * height;
-            blue = !blue;
-            this.ctx.fillRect(x, height - barHeight, barWidth, height);
-            x += barWidth;
+    changeDomain(domain) {
+        if (domain === 'time' && this.domain !== 'time' ||
+            domain === 'frequency' && this.domain !== 'frequency') {
+            var running = this.drawHandle !== 0;
+            this.stopAnimation();
+            this.clearCanvas();
+            this.domain = domain;
+            visualizer.drawOverlay();
+            if (running) visualizer.startAnimation();
         }
     }
-    drawLogFrequencyFrame(now) {
-        this.drawHandle = requestAnimationFrame(this.drawLogFrequencyFrame);
-
-        var elapsed = now - this.then;
-        this.then = now;
-
-        var width = this.waveformCanvas.width;
-        var height = this.waveformCanvas.height;
-        this.ctx.clearRect(0, 0, width, height);
-
-        var linearStep = (this.analyzer.context.sampleRate/2) / Visualizer.freqBufferSize;
-        var numLogBins = Math.round(Math.log10(20000) / (Math.log10(linearStep / 20 + 1)));
-        var logStep = Math.log10(20000) / numLogBins;
-        var startBin = Math.round(numLogBins * Math.log10(20) / Math.log10(20000));
-        var numDisplayBins = numLogBins - startBin + 1;
-        //console.log("linear step: ", linearStep);
-        //console.log("numLogBins: ", numLogBins);
-        //console.log("log step: ", logStep);
-        //console.log("start bin: ", startBin);
-        //console.log("num display bins: ", numDisplayBins);
-
-        this.analyzer.getFloatFrequencyData(this.freqBuffer);
-        this.ctx.lineWidth = 2;
-
-        var barWidth = width / numDisplayBins;
-        let barHeight;
-        var x = 0;
-        let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
-        let hue = 300;
-        let hueDelta = 300 / numDisplayBins;
-        let prevI = Math.round(Math.pow(10, startBin * logStep) / linearStep) - 1;
-        for (let b = startBin; b <= numLogBins; b++) {
-            let f = Math.pow(10, b * logStep);
-            let i = Math.round(f / linearStep);
-            let val = Math.max(...this.freqBuffer.slice(prevI + 1, i + 1));
-            //console.log("bin ", b, ": ", f, "hz", ", index ", i, ": ", i * linearStep, "prevI: ", prevI, "max val: ", val);
-            barHeight = ((val - this.analyzer.minDecibels) / dynRange) * height;
-            this.ctx.fillStyle = 'hsla(' + hue + ', 100%, 45%, 0.85)';
-            this.ctx.fillRect(x, height - barHeight, barWidth, height);
-            hue -= hueDelta;
-            x += barWidth;
-            prevI = i;
-        }
+    clearCanvas() {
+        this.gridCanvas.getContext('2d').clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+        this.waveformCanvas.getContext('2d').clearRect(0, 0, this.waveformCanvas.width, this.waveformCanvas.height);
     }
-
-    //drawWaveformOverlay() {
-    //    var ctx = this.gridCanvas.getContext('2d');
-    //    var width = this.waveformCanvas.width;
-    //    var height = this.waveformCanvas.height;
-
-    //    // set the background
-    //    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
-    //    ctx.fillStyle = "rgb(230, 230, 230)";
-    //    ctx.fillRect(0, 0, width, height);
-
-    //    // draw the border
-    //    ctx.lineWidth = 2;
-    //    ctx.strokeStyle = "black";
-    //    ctx.strokeRect(1, 1, width - 2, height - 2);
-
-    //    // draw the x-axis
-    //    var magnitude = Math.pow(10, Math.ceil(Math.log10(this.windowLength)));
-    //    var xDelta = this.windowLength / magnitude;   // value in the range [0.1, 1]
-    //    if (xDelta < 0.13) xDelta = 0.1;
-    //    else if (xDelta < 0.25) xDelta = 0.25;
-    //    else if (xDelta < 0.5) xDelta = 0.5;
-    //    else xDelta = 1;
-    //    xDelta = xDelta * magnitude / 10;
-    //    var numXNotches = Math.floor(this.windowLength / xDelta);
-    //    var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
-    //    var unit = "s";
-    //    if (xDelta < 0.1) {
-    //        xDelta *= 1000;
-    //        unit = "ms";
-    //    }
-    //    ctx.fillStyle = "black";
-    //    ctx.font = "bold " + notchLength + "px sans-serif";
-    //    ctx.textBaseline = "top";
-    //    ctx.textAlign = "center";
-    //    ctx.beginPath();
-    //    for (let i = 1; i < numXNotches; i++) {  // notches
-    //        let w = Math.floor(i * (width / numXNotches));
-    //        ctx.moveTo(w, height - (notchLength / 2));
-    //        ctx.lineTo(w, height + (notchLength / 2));
-    //        let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
-    //        ctx.fillText(text, w, height + notchLength);
-    //    }
-    //    ctx.stroke();
-
-    //    // draw the y-axis
-    //    ctx.textBaseline = "middle";
-    //    ctx.textAlign = "start";
-    //    var numYNotches = 4;            // set to even to include 0
-    //    var yDelta = 2 / numYNotches;   // values in the range [-1, 1]
-    //    var yGutter = Math.floor((this.gridCanvas.width - width) - notchLength / 2);  // drawable horizontal space
-    //    ctx.beginPath();
-    //    for (let i = 1; i < numYNotches; i++) {
-    //        let h = Math.floor(i * (height / numYNotches));
-    //        ctx.moveTo(width - (notchLength / 2), h);
-    //        ctx.lineTo(width + (notchLength / 2), h);
-    //        ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + notchLength, h, yGutter);
-    //    }
-    //    ctx.stroke();
-    //}
-    //drawFrequencyOverlay() {
-    //    var ctx = this.gridCanvas.getContext('2d');
-    //    var width = this.waveformCanvas.width;
-    //    var height = this.waveformCanvas.height;
-
-    //    // set the background
-    //    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
-    //    ctx.fillStyle = "rgb(230, 230, 230)";
-    //    ctx.fillRect(0, 0, width, height);
-
-    //    // draw the border
-    //    ctx.lineWidth = 2;
-    //    ctx.strokeStyle = "black";
-    //    ctx.strokeRect(1, 1, width - 2, height - 2);
-
-    //    // draw the x-axis
-    //    const numXNotches = 10;
-    //    var minFreq = 20;
-    //    var maxFreq = Math.min(20000, Math.floor(this.analyzer.context.sampleRate / 2));
-    //    var xDelta = Math.floor((maxFreq - minFreq) / numXNotches);
-    //    var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
-    //    var unit = "Hz";
-    //    ctx.fillStyle = "black";
-    //    ctx.font = "bold " + notchLength + "px sans-serif";
-    //    ctx.textBaseline = "top";
-    //    ctx.textAlign = "center";
-    //    ctx.beginPath();
-    //    for (let i = 1; i < numXNotches; i++) {
-    //        // linear
-    //        let w = Math.floor(i * (width / numXNotches));
-    //        ctx.moveTo(w, height - (notchLength / 2));
-    //        ctx.lineTo(w, height + (notchLength / 2));
-    //        let text = Number(xDelta * i) + unit;
-    //        ctx.fillText(text, w, height + notchLength);
-    //    }
-    //    ctx.stroke();
-    //}
-    //drawLogFrequencyOverlay() {
-    //    var ctx = this.gridCanvas.getContext('2d');
-    //    var width = this.waveformCanvas.width;
-    //    var height = this.waveformCanvas.height;
-
-    //    // set the background
-    //    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
-    //    ctx.fillStyle = "rgb(230, 230, 230)";
-    //    ctx.fillRect(0, 0, width, height);
-
-    //    // draw the border
-    //    ctx.lineWidth = 2;
-    //    ctx.strokeStyle = "black";
-    //    ctx.strokeRect(1, 1, width - 2, height - 2);
-
-    //    // draw the x-axis
-    //    var gap = Math.floor((this.gridCanvas.height - height) / 2);
-    //    ctx.fillStyle = "black";
-    //    ctx.font = "bold " + gap + "px sans-serif";
-    //    ctx.textBaseline = "top";
-    //    ctx.textAlign = "center";
-
-    //    for (let f = 30, m = 10; f < 20000; f += m) {
-
-    //        m = Math.pow(10, Math.floor(Math.log10(f)));    // magnitude
-    //        let d = Math.floor(f / m);  // first digit of f
-    //        let x = Math.floor((Math.log10(f) - Math.log10(20)) / 3 * width);
-
-    //        ctx.lineWidth = (d === 1) ? 2 : 0.5;
-    //        ctx.beginPath();
-    //        ctx.moveTo(x, height);
-    //        ctx.lineTo(x, 0);
-    //        ctx.stroke();
-    //        if (d <= 3 || d === 5 || d === 7)
-    //            ctx.fillText(f, x, height + gap / 2);
-    //    }
-
-    //    // draw the y-axis
-    //    var dynRange = this.analyzer.minDecibels - this.analyzer.maxDecibels;
-    //    ctx.lineWidth = 1;
-    //    ctx.textBaseline = "middle";
-    //    ctx.textAlign = "start";
-    //    ctx.beginPath();
-    //    for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
-    //        if (db === this.analyzer.maxDecibels) continue;
-    //        console.log(db);
-    //        let y = Math.floor((db - this.analyzer.maxDecibels) / dynRange * height);
-    //        console.log(db, dynRange, y);
-    //        ctx.moveTo(0, y);
-    //        ctx.lineTo(width, y);
-    //        ctx.fillText(db, width + gap / 2, y);
-    //    }
-    //    ctx.stroke();
-
-    //}
 }
 
 var audioSrc;
@@ -548,20 +352,11 @@ audioEle.addEventListener('play', function () {
 audioEle.addEventListener('pause', function () {
     visualizer.stopAnimation();
 });
-document.getElementById('x-scale').addEventListener('input', function (e) {
-    visualizer.setWindowLength(e.target.value);
-});
-document.getElementById('time-button').addEventListener('click', function () {
-    visualizer.domain = 'time';
-    //visualizer.drawWaveformOverlay();
-    visualizer.drawOverlay();
-});
-document.getElementById('frequency-button').addEventListener('click', function () {
-    visualizer.domain = 'frequency';
-    //visualizer.drawFrequencyOverlay();
-    //visualizer.drawLogFrequencyOverlay();
-    visualizer.drawOverlay();
-});
+document.getElementById('x-scale').addEventListener('input', (e) =>
+    visualizer.setWindowLength(e.target.value)
+);
+document.getElementById('time-button').addEventListener('click', () => visualizer.changeDomain('time'));
+document.getElementById('frequency-button').addEventListener('click', () => visualizer.changeDomain('frequency'));
 
 document.addEventListener('DOMContentLoaded', e => {
 
@@ -584,10 +379,14 @@ document.addEventListener('DOMContentLoaded', e => {
     if (!supportsDevicePixelContextBox) {
         // if device-pixel-content-box is not supported, then zooming the page will not notify us of canvases whose CSS size has not changed even though the number of native pixels they cover has
         window.addEventListener('resize', () => {
+            var running = visualizer.drawHandle !== 0;
+            visualizer.stopAnimation();
             for (const canvas of canvases) {
                 resizeCanvasToParentPixels(canvas);
-                redrawCanvas(canvas);
+                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
             }
+            visualizer.drawOverlay();
+            if (running) visualizer.startAnimation();
         });
     }
 
@@ -595,6 +394,307 @@ document.addEventListener('DOMContentLoaded', e => {
     audioSrc = audioCtx.createMediaElementSource(audioEle);
     audioSrc.connect(analyzer);
     analyzer.connect(audioCtx.destination);
-    //analyzer.fftSize = timeBufferSize;
-    //analyzer.smoothingTimeConstant = 0; // TODO - change this?
 });
+
+
+
+
+
+
+
+
+
+
+/*
+oldstartAnimation() {
+    // prevent browser anti-aliasing which will distort the copied data
+    this.ctx.mozImageSmoothingEnabled = false;
+    this.ctx.webkitImageSmoothingEnabled = false;
+    this.ctx.msImageSmoothingEnabled = false;
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = "blue";
+
+    if (this.domain === 'time') {
+        this.analyzer.fftSize = Visualizer.timeBufferSize;
+        this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
+    } else if (this.domain === 'frequency') {
+        this.analyzer.fftSize = Visualizer.freqBufferSize * 2;
+        //this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
+        this.drawHandle = requestAnimationFrame(this.drawLogFrequencyFrame);
+    }
+}
+olddrawWaveformFrame(now) {
+    this.drawHandle = requestAnimationFrame(this.drawWaveformFrame);
+
+    var elapsed = now - this.then;
+    this.then = now;
+
+    var width = this.waveformCanvas.width;
+    var height = this.waveformCanvas.height;
+    var numSamples = Math.floor(0.001 * elapsed * this.analyzer.context.sampleRate);
+    if (numSamples <= 0 || numSamples > Visualizer.timeBufferSize) numSamples = Visualizer.timeBufferSize;
+    var frameWidth = width * (numSamples / (this.windowLength * this.analyzer.context.sampleRate));
+    if (frameWidth > width) frameWidth = width;
+    var deltaX = frameWidth / numSamples;
+
+    // move the previous waveform over
+    this.ctx.globalCompositeOperation = 'copy';
+    this.ctx.drawImage(this.waveformCanvas, -frameWidth, 0, width, height);
+    this.ctx.globalCompositeOperation = 'source-over';
+
+    this.analyzer.getFloatTimeDomainData(this.buffer);
+
+    // move to the previous sample
+    this.ctx.beginPath();
+    var x = width - frameWidth - deltaX;
+    var y = (height / 2) * (1 - this.prevSample);
+    this.prevSample = this.buffer[numSamples - 1];
+    this.ctx.moveTo(x, y);
+
+    // line to each subsequent sample
+    for (let i = 0; i < numSamples; i++) {
+        x += deltaX;
+        y = (height / 2) * (1 - this.buffer[i]);
+        this.ctx.lineTo(x, y);
+        //if (buffer[i] >= 1 || buffer[i] <= -1) console.log(buffer[i]);
+    }
+    this.ctx.stroke();
+}
+drawFrequencyFrame(now) {
+    this.drawHandle = requestAnimationFrame(this.drawFrequencyFrame);
+
+    var elapsed = now - this.then;
+    this.then = now;
+
+    var width = this.waveformCanvas.width;
+    var height = this.waveformCanvas.height;
+    this.ctx.clearRect(0, 0, width, height);
+
+    // Only display frequency values in the audible range
+    var binDelta = this.analyzer.context.sampleRate / this.analyzer.fftSize;
+    var startBin = Math.round(20 / binDelta);
+    var endBin = Math.round(20000 / binDelta);
+    var numAudibleBins = endBin - startBin + 1;
+
+    this.analyzer.getFloatFrequencyData(this.buffer);
+
+    this.ctx.fillStyle = 'red';
+    this.ctx.lineWidth = 2;
+
+    var barWidth = width / numAudibleBins;
+    let barHeight;
+    var x = 0;
+    let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
+    let logRange = Math.log10(20000) - Math.log10(20);
+    let blue = true;
+    for (let i = startBin; i <= endBin; i++) {
+        let f = i * binDelta;
+        if (f > 5135 && f < 5200) this.ctx.fillStyle = 'yellow';
+        else
+            this.ctx.fillStyle = 'rgb(' + Math.floor(f + 100) + ',50,50)';
+        barWidth = (Math.log10((i + 1) * binDelta) - Math.log10(f)) / logRange * width;
+        barHeight = ((this.buffer[Math.floor(i)] - this.analyzer.minDecibels) / dynRange) * height;
+        blue = !blue;
+        this.ctx.fillRect(x, height - barHeight, barWidth, height);
+        x += barWidth;
+    }
+}
+drawLogFrequencyFrame(now) {
+    this.drawHandle = requestAnimationFrame(this.drawLogFrequencyFrame);
+
+    var elapsed = now - this.then;
+    this.then = now;
+
+    var width = this.waveformCanvas.width;
+    var height = this.waveformCanvas.height;
+    this.ctx.clearRect(0, 0, width, height);
+
+    var linearStep = (this.analyzer.context.sampleRate / 2) / Visualizer.freqBufferSize;
+    var numLogBins = Math.round(Math.log10(20000) / (Math.log10(linearStep / 20 + 1)));
+    var logStep = Math.log10(20000) / numLogBins;
+    var startBin = Math.round(numLogBins * Math.log10(20) / Math.log10(20000));
+    var numDisplayBins = numLogBins - startBin + 1;
+    //console.log("linear step: ", linearStep);
+    //console.log("numLogBins: ", numLogBins);
+    //console.log("log step: ", logStep);
+    //console.log("start bin: ", startBin);
+    //console.log("num display bins: ", numDisplayBins);
+
+    this.analyzer.getFloatFrequencyData(this.freqBuffer);
+    this.ctx.lineWidth = 2;
+
+    var barWidth = width / numDisplayBins;
+    let barHeight;
+    var x = 0;
+    let dynRange = this.analyzer.maxDecibels - this.analyzer.minDecibels;
+    let hue = 300;
+    let hueDelta = 300 / numDisplayBins;
+    let prevI = Math.round(Math.pow(10, startBin * logStep) / linearStep) - 1;
+    for (let b = startBin; b <= numLogBins; b++) {
+        let f = Math.pow(10, b * logStep);
+        let i = Math.round(f / linearStep);
+        let val = Math.max(...this.freqBuffer.slice(prevI + 1, i + 1));
+        //console.log("bin ", b, ": ", f, "hz", ", index ", i, ": ", i * linearStep, "prevI: ", prevI, "max val: ", val);
+        barHeight = ((val - this.analyzer.minDecibels) / dynRange) * height;
+        this.ctx.fillStyle = 'hsla(' + hue + ', 100%, 45%, 0.85)';
+        this.ctx.fillRect(x, height - barHeight, barWidth, height);
+        hue -= hueDelta;
+        x += barWidth;
+        prevI = i;
+    }
+}
+
+drawWaveformOverlay() {
+    var ctx = this.gridCanvas.getContext('2d');
+    var width = this.waveformCanvas.width;
+    var height = this.waveformCanvas.height;
+
+    // set the background
+    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    ctx.fillStyle = "rgb(230, 230, 230)";
+    ctx.fillRect(0, 0, width, height);
+
+    // draw the border
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(1, 1, width - 2, height - 2);
+
+    // draw the x-axis
+    var magnitude = Math.pow(10, Math.ceil(Math.log10(this.windowLength)));
+    var xDelta = this.windowLength / magnitude;   // value in the range [0.1, 1]
+    if (xDelta < 0.13) xDelta = 0.1;
+    else if (xDelta < 0.25) xDelta = 0.25;
+    else if (xDelta < 0.5) xDelta = 0.5;
+    else xDelta = 1;
+    xDelta = xDelta * magnitude / 10;
+    var numXNotches = Math.floor(this.windowLength / xDelta);
+    var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
+    var unit = "s";
+    if (xDelta < 0.1) {
+        xDelta *= 1000;
+        unit = "ms";
+    }
+    ctx.fillStyle = "black";
+    ctx.font = "bold " + notchLength + "px sans-serif";
+    ctx.textBaseline = "top";
+    ctx.textAlign = "center";
+    ctx.beginPath();
+    for (let i = 1; i < numXNotches; i++) {  // notches
+        let w = Math.floor(i * (width / numXNotches));
+        ctx.moveTo(w, height - (notchLength / 2));
+        ctx.lineTo(w, height + (notchLength / 2));
+        let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
+        ctx.fillText(text, w, height + notchLength);
+    }
+    ctx.stroke();
+
+    // draw the y-axis
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "start";
+    var numYNotches = 4;            // set to even to include 0
+    var yDelta = 2 / numYNotches;   // values in the range [-1, 1]
+    var yGutter = Math.floor((this.gridCanvas.width - width) - notchLength / 2);  // drawable horizontal space
+    ctx.beginPath();
+    for (let i = 1; i < numYNotches; i++) {
+        let h = Math.floor(i * (height / numYNotches));
+        ctx.moveTo(width - (notchLength / 2), h);
+        ctx.lineTo(width + (notchLength / 2), h);
+        ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + notchLength, h, yGutter);
+    }
+    ctx.stroke();
+}
+drawFrequencyOverlay() {
+    var ctx = this.gridCanvas.getContext('2d');
+    var width = this.waveformCanvas.width;
+    var height = this.waveformCanvas.height;
+
+    // set the background
+    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    ctx.fillStyle = "rgb(230, 230, 230)";
+    ctx.fillRect(0, 0, width, height);
+
+    // draw the border
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(1, 1, width - 2, height - 2);
+
+    // draw the x-axis
+    const numXNotches = 10;
+    var minFreq = 20;
+    var maxFreq = Math.min(20000, Math.floor(this.analyzer.context.sampleRate / 2));
+    var xDelta = Math.floor((maxFreq - minFreq) / numXNotches);
+    var notchLength = Math.floor((this.gridCanvas.height - height) / 2);
+    var unit = "Hz";
+    ctx.fillStyle = "black";
+    ctx.font = "bold " + notchLength + "px sans-serif";
+    ctx.textBaseline = "top";
+    ctx.textAlign = "center";
+    ctx.beginPath();
+    for (let i = 1; i < numXNotches; i++) {
+        // linear
+        let w = Math.floor(i * (width / numXNotches));
+        ctx.moveTo(w, height - (notchLength / 2));
+        ctx.lineTo(w, height + (notchLength / 2));
+        let text = Number(xDelta * i) + unit;
+        ctx.fillText(text, w, height + notchLength);
+    }
+    ctx.stroke();
+}
+drawLogFrequencyOverlay() {
+    var ctx = this.gridCanvas.getContext('2d');
+    var width = this.waveformCanvas.width;
+    var height = this.waveformCanvas.height;
+
+    // set the background
+    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    ctx.fillStyle = "rgb(230, 230, 230)";
+    ctx.fillRect(0, 0, width, height);
+
+    // draw the border
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(1, 1, width - 2, height - 2);
+
+    // draw the x-axis
+    var gap = Math.floor((this.gridCanvas.height - height) / 2);
+    ctx.fillStyle = "black";
+    ctx.font = "bold " + gap + "px sans-serif";
+    ctx.textBaseline = "top";
+    ctx.textAlign = "center";
+
+    for (let f = 30, m = 10; f < 20000; f += m) {
+
+        m = Math.pow(10, Math.floor(Math.log10(f)));    // magnitude
+        let d = Math.floor(f / m);  // first digit of f
+        let x = Math.floor((Math.log10(f) - Math.log10(20)) / 3 * width);
+
+        ctx.lineWidth = (d === 1) ? 2 : 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x, height);
+        ctx.lineTo(x, 0);
+        ctx.stroke();
+        if (d <= 3 || d === 5 || d === 7)
+            ctx.fillText(f, x, height + gap / 2);
+    }
+
+    // draw the y-axis
+    var dynRange = this.analyzer.minDecibels - this.analyzer.maxDecibels;
+    ctx.lineWidth = 1;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "start";
+    ctx.beginPath();
+    for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
+        if (db === this.analyzer.maxDecibels) continue;
+        console.log(db);
+        let y = Math.floor((db - this.analyzer.maxDecibels) / dynRange * height);
+        console.log(db, dynRange, y);
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.fillText(db, width + gap / 2, y);
+    }
+    ctx.stroke();
+
+}
+
+*/
