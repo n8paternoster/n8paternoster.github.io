@@ -207,9 +207,10 @@ class Visualizer {
         ctx.strokeRect(1, 1, width - 2, height - 2);
 
         // draw the x-axis
-        var gap = Math.floor((this.gridCanvas.height - height) / 2);
+        var xGap = Math.floor((this.gridCanvas.height - height) / 2);
+        var notchLength = xGap;
         ctx.fillStyle = "black";
-        ctx.font = "bold " + gap + "px sans-serif";
+        ctx.font = "bold " + xGap + "px sans-serif";
         ctx.textBaseline = "top";
         ctx.textAlign = "center";
         if (this.domain === 'time') {
@@ -229,10 +230,10 @@ class Visualizer {
             ctx.beginPath();
             for (let i = 1; i < numXNotches; i++) {  // notches
                 let w = Math.floor(i * (width / numXNotches));
-                ctx.moveTo(w, height - (gap / 2));
-                ctx.lineTo(w, height + (gap / 2));
+                ctx.moveTo(w, height - (notchLength / 2));
+                ctx.lineTo(w, height + (notchLength / 2));
                 let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
-                ctx.fillText(text, w, height + gap);
+                ctx.fillText(text, w, height + xGap);
             }
             ctx.stroke();
         } else if (this.domain === 'frequency') {
@@ -246,23 +247,23 @@ class Visualizer {
                 ctx.lineTo(x, 0);
                 ctx.stroke();
                 if (d <= 3 || d === 5 || d === 7)
-                    ctx.fillText(f, x, height + gap / 2);
+                    ctx.fillText(f, x, height + xGap / 2);
             }
         }
 
         // draw the y-axis
         ctx.textBaseline = "middle";
         ctx.textAlign = "start";
+        var yGap = Math.floor((this.gridCanvas.width - width) / 2);
         if (this.domain === 'time') {
             let numYNotches = 4;            // must be even to include 0
             let yDelta = 2 / numYNotches;   // values in the range [-1, 1]
-            let yGutter = Math.floor((this.gridCanvas.width - width) - gap / 2);  // drawable horizontal space
             ctx.beginPath();
             for (let i = 1; i < numYNotches; i++) {
                 let h = Math.floor(i * (height / numYNotches));
-                ctx.moveTo(width - (gap / 2), h);
-                ctx.lineTo(width + (gap / 2), h);
-                ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + gap, h, yGutter);
+                ctx.moveTo(width - (notchLength / 2), h);
+                ctx.lineTo(width + (notchLength / 2), h);
+                ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + notchLength, h);
             }
             ctx.stroke();
         } else if (this.domain === 'frequency') {
@@ -276,7 +277,7 @@ class Visualizer {
                 console.log(db, dynRange, y);
                 ctx.moveTo(0, y);
                 ctx.lineTo(width, y);
-                ctx.fillText(db, width + gap / 2, y);
+                ctx.fillText(db, width + yGap / 2, y);
             }
             ctx.stroke();
         }
