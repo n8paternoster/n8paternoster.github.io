@@ -24,3 +24,11 @@
 #waveform-layer {
     z-index: 2;
 }
+
+#controls {
+    display: inline-flex;
+    flex-direction: column;
+    padding: 1em;
+    border: 0.1em solid black;
+    background-color: red;
+}
