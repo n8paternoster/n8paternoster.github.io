@@ -32,3 +32,13 @@
     border: 0.1em solid black;
     background-color: red;
 }
+
+.control-row {
+    display: inline-flex;
+    flex-direction: row;
+    height: 1.5rem;
+}
+
+#audio-source {
+    display: inline;
+}

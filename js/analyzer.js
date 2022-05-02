@@ -77,8 +77,8 @@ class Visualizer {
     gridCanvas = document.getElementById('grid-layer');
     waveformCanvas = document.getElementById('waveform-layer');
 
-    constructor(analyzerNode) {
-        this.analyzer = analyzerNode;
+    constructor(node) {
+        this.analyzer = node;
         this.analyzer.fftSize = Visualizer.timeBufferSize;
         this.analyzer.minDecibels = -100;
         this.analyzer.maxDecibels = 0;
@@ -305,12 +305,19 @@ class Visualizer {
     }
 }
 
-var audioSource;
-var audioStream;
-var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-var analyzer = new AnalyserNode(audioCtx);
-var visualizer = new Visualizer(analyzer);
+// [sourceNode or streamNode] -> [analyzerNode] -> [context destination]
+var audioEle = document.getElementById('audio-source');
+var audioCtx, analyzerNode, sourceNode, mediaStream, streamNode;
+var visualizer;
 
+function setupGraph() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    sourceNode = new MediaElementAudioSourceNode(audioCtx, { mediaElement: audioEle });
+    analyzerNode = new AnalyserNode(audioCtx);
+    sourceNode.connect(analyzerNode);
+    analyzerNode.connect(audioCtx.destination);
+    visualizer = new Visualizer(analyzerNode);
+}
 async function getMediaStream() {
     if (!window.navigator.mediaDevices) {
         throw new Error("This browser does not support web audio or has web audio disabled");
@@ -330,21 +337,7 @@ async function getMediaStream() {
         }
     }
 }
-document.getElementById('microphone').addEventListener('click', async function () {
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-    try {
-        const stream = await getMediaStream();
-        if (audioSource) audioSource.disconnect();
-        audioSource = audioCtx.createMediaStreamSource(stream);
-        audioSource.connect(analyzer);
-    } catch (e) {
-        console.log(e.message);
-    }
-});
 
-var audioEle = document.getElementById('audio-source');
 audioEle.addEventListener('play', function () {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
@@ -364,25 +357,21 @@ document.getElementById('audio-input').addEventListener('change', async function
     switch (e.target.value) {
         case 'microphone':
             try {
-                if (!audioStream) {
-                    const stream = await getMediaStream();
-                    audioStream = audioCtx.createMediaStreamSource(stream);
-                }
-                if (audioSource) audioSource.disconnect();
-                audioEle.src = "";
-                audioStream.connect(analyzer);
+                if (!mediaStream) mediaStream = await getMediaStream();
+                if (!streamNode) streamNode = audioCtx.createMediaStreamSource(mediaStream);
+                if (sourceNode) sourceNode.disconnect();
+                audioEle.srcObject = mediaStream;
+                streamNode.connect(analyzerNode);
             } catch (e) {
                 console.log(e.message);
             }
             break;
         case 'africa':
-            if (!audioSource) {
-                audioSource = audioCtx.createMediaElementSource(audioEle);
-            }
-            if (audioStream) audioStream.disconnect();
+            if (!sourceNode) sourceNode = audioCtx.createMediaElementSource(audioEle);
+            if (streamNode) streamNode.disconnect();
             audioEle.src = "../project-assets/audio-analyzer/africa-toto.wav";
             audioEle.load();
-            audioSource.connect(analyzer);
+            sourceNode.connect(analyzerNode);
             break;
     }
 });
@@ -421,8 +410,5 @@ document.addEventListener('DOMContentLoaded', e => {
         });
     }
 
-    // setup audio graph
-    audioSource = audioCtx.createMediaElementSource(audioEle);
-    audioSource.connect(analyzer);
-    analyzer.connect(audioCtx.destination);
+    setupGraph();
 });
