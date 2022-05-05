@@ -26,7 +26,7 @@
 }
 
 #controls {
-    display: inline-flex;
+    //display: flex;
     flex-direction: column;
     padding: 1em;
     border: 0.1em solid black;
@@ -34,9 +34,13 @@
 }
 
 .control-row {
-    display: inline-flex;
+    //display: flex;
     flex-direction: row;
     height: 1.5rem;
+}
+
+.control-row > * {
+    height: 100%;
 }
 
 #audio-source {
