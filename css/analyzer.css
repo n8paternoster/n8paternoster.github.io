@@ -26,20 +26,25 @@
 }
 
 #controls {
-    //display: flex;
+    display: flex;
     flex-direction: column;
+    gap: 20px;
     padding: 1em;
     border: 0.1em solid black;
     background-color: red;
+    max-width: 75%;
+    margin: 0 auto;
 }
 
 .control-row {
-    //display: flex;
+    display: flex;
     flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
     height: 1.5rem;
 }
 
-.control-row > * {
+.control-row * {
     height: 100%;
 }
 
