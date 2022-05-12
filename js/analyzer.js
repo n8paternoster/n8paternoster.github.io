@@ -370,13 +370,21 @@ document.getElementById('audio-input').addEventListener('change', async function
             if (!sourceNode) sourceNode = audioCtx.createMediaElementSource(audioEle);
             if (streamNode) streamNode.disconnect();
             audioEle.src = "../project-assets/audio-analyzer/africa-toto.wav";
-            audioEle.load();
+            //audioEle.load();
             sourceNode.connect(analyzerNode);
             break;
     }
 });
-document.getElementById('time-button').addEventListener('click', () => visualizer.changeDomain('time'));
-document.getElementById('frequency-button').addEventListener('click', () => visualizer.changeDomain('frequency'));
+document.getElementById('time-button').addEventListener('click', (e) => {
+    visualizer.changeDomain('time');
+    e.target.classList.add('active-domain');
+    document.getElementById('frequency-button').classList.remove('active-domain');
+});
+document.getElementById('frequency-button').addEventListener('click', (e) => {
+    visualizer.changeDomain('frequency');
+    e.target.classList.add('active-domain');
+    document.getElementById('time-button').classList.remove('active-domain');
+});
 
 document.addEventListener('DOMContentLoaded', e => {
 

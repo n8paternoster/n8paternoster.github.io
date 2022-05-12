@@ -35,21 +35,24 @@
                     <canvas id="grid-layer"></canvas>
                 </div>
             </div>
-            <div id="controls">
-                <div class="control-row">
-                    <select name="input" id="audio-input">
-                        <option value="africa">Africa</option>
-                        <option>Input2</option>
-                        <option value="microphone">Microphone</option>
-                    </select>
-                    <audio id="audio-source" controls src="../project-assets/audio-analyzer/africa-toto.wav">audio</audio>
-                    <div>
-                        <button id="time-button">Time</button>
-                        <button id="frequency-button">Frequency</button>
+            <div id="controls-container">
+                <div id="controls">
+                    <div class="control-row">
+                        <select name="input" id="audio-input">
+                            <option value="africa">Africa</option>
+                            <option>Input2</option>
+                            <option value="microphone">Microphone</option>
+                        </select>
+                        <audio id="audio-source" controls src="../project-assets/audio-analyzer/africa-toto.wav">audio</audio>
                     </div>
-                </div>
-                <div class="control-row">
-                    <input type="range" id="x-scale" name="period" min="0" max="1" value="0" step=".01" />
+                    <div class="control-row">
+                        <div id="audio-domain">
+                            <button id="time-button" class="active-domain">Time</button>
+                            <button id="frequency-button">Frequency</button>
+                        </div>
+                        <label for="length">Length</label>
+                        <input type="range" id="x-scale" name="length" min="0" max="1" value="0" step=".01" />
+                    </div>
                 </div>
             </div>
         </div>
