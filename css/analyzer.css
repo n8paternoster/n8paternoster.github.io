@@ -36,7 +36,6 @@
     padding: 1em;
     border: 0.1em solid black;
     background-color: #49a440;
-    margin: 0 auto;
 }
 
 .control-row {
@@ -47,9 +46,31 @@
     justify-content: center;
     align-items: center;
     height: 1.5rem;
+    line-height: 1.5rem;    /* vertical center inline (text) elements */
 }
 
 .control-row * {
+    height: 100%;
+}
+
+.control-row button {
+    display: inline-block;
+    border: 0.1em solid black;
+    cursor: pointer;
+}
+
+.control-row label, .control-row button {
+    font-family: Arial;
+}
+
+.control-row-group {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.control-row-group * {
     height: 100%;
 }
 
@@ -61,8 +82,4 @@
     background-color: #ac3fc4;
 }
 
-#audio-domain button {
-    display: inline-block;
-    border: 0.1em solid black;
-    cursor: pointer;
-}
+

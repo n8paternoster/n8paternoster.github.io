@@ -354,24 +354,30 @@ document.getElementById('audio-input').addEventListener('change', async function
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
+    var isPlaying = !audioEle.paused;
     switch (e.target.value) {
         case 'microphone':
             try {
+                audioEle.pause();
                 if (!mediaStream) mediaStream = await getMediaStream();
                 if (!streamNode) streamNode = audioCtx.createMediaStreamSource(mediaStream);
                 if (sourceNode) sourceNode.disconnect();
                 audioEle.srcObject = mediaStream;
                 streamNode.connect(analyzerNode);
+                if (isPlaying) audioEle.play();
             } catch (e) {
                 console.log(e.message);
             }
             break;
         case 'africa':
+            audioEle.pause();
             if (!sourceNode) sourceNode = audioCtx.createMediaElementSource(audioEle);
             if (streamNode) streamNode.disconnect();
             audioEle.src = "../project-assets/audio-analyzer/africa-toto.wav";
-            //audioEle.load();
+            audioEle.load();
             sourceNode.connect(analyzerNode);
+            
+            if (isPlaying) audioEle.play();
             break;
     }
 });
