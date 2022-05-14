@@ -190,6 +190,7 @@ class Visualizer {
     stopAnimation() {
         cancelAnimationFrame(this.drawHandle);
         this.drawHandle = 0;
+        this.waveformCanvas.getContext('2d').clearRect(0, 0, this.waveformCanvas.width, this.waveformCanvas.height);  
     }
     drawOverlay() {
         var ctx = this.gridCanvas.getContext('2d');
@@ -283,10 +284,9 @@ class Visualizer {
         }
     }
     setWindowLength(percent) {
-        if (this.domain !== 'time') return;
         this.windowLength = Visualizer.minLength + percent * (Visualizer.maxLength - Visualizer.minLength);
         if (this.windowLength > Visualizer.maxLength) this.windowLength = Visualizer.maxLength;
-        this.drawOverlay();
+        if (this.domain === 'time') this.drawOverlay();
     }
     changeDomain(domain) {
         if (domain === 'time' && this.domain !== 'time' ||
@@ -323,8 +323,7 @@ async function getMediaStream() {
         throw new Error("This browser does not support web audio or has web audio disabled");
     }
     try {
-        const constraints = { audio: true, video: false };
-        const stream = await window.navigator.mediaDevices.getUserMedia(constraints);
+        const stream = await window.navigator.mediaDevices.getUserMedia({ audio: true });
         return stream;
     } catch (e) {
         switch (e.name) {
@@ -338,14 +337,26 @@ async function getMediaStream() {
     }
 }
 
-audioEle.addEventListener('play', function () {
+audioEle.addEventListener('play', function (e) {
+    e.preventDefault();
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
+    if (mediaStream) {
+        const tracks = mediaStream.getAudioTracks();
+        tracks[0].enabled = true;
+    }
+    audioEle.play();
     visualizer.startAnimation();
 });
-audioEle.addEventListener('pause', function () {
+audioEle.addEventListener('pause', function (e) {
+    e.preventDefault();
+    audioEle.pause();
     visualizer.stopAnimation();
+    if (mediaStream) {
+        const tracks = mediaStream.getAudioTracks();
+        tracks[0].enabled = false;
+    }
 });
 document.getElementById('x-scale').addEventListener('input', (e) =>
     visualizer.setWindowLength(e.target.value)
@@ -354,32 +365,36 @@ document.getElementById('audio-input').addEventListener('change', async function
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
-    var isPlaying = !audioEle.paused;
+    audioEle.pause();
+    visualizer.stopAnimation();
+    if (streamNode) {
+        const tracks = mediaStream.getAudioTracks();
+        tracks[0].enabled = false;
+    }
     switch (e.target.value) {
         case 'microphone':
             try {
-                audioEle.pause();
                 if (!mediaStream) mediaStream = await getMediaStream();
                 if (!streamNode) streamNode = audioCtx.createMediaStreamSource(mediaStream);
                 if (sourceNode) sourceNode.disconnect();
+                audioEle.src = null;
                 audioEle.srcObject = mediaStream;
                 streamNode.connect(analyzerNode);
-                if (isPlaying) audioEle.play();
+                const tracks = mediaStream.getAudioTracks();
+                tracks[0].enabled = true;
             } catch (e) {
                 console.log(e.message);
             }
             break;
         case 'africa':
-            audioEle.pause();
             if (!sourceNode) sourceNode = audioCtx.createMediaElementSource(audioEle);
             if (streamNode) streamNode.disconnect();
+            audioEle.srcObject = null;
             audioEle.src = "../project-assets/audio-analyzer/africa-toto.wav";
-            audioEle.load();
             sourceNode.connect(analyzerNode);
-            
-            if (isPlaying) audioEle.play();
             break;
     }
+    audioEle.load();
 });
 document.getElementById('time-button').addEventListener('click', (e) => {
     visualizer.changeDomain('time');
