@@ -207,9 +207,39 @@ class Visualizer {
         ctx.strokeStyle = "black";
         ctx.strokeRect(1, 1, width - 2, height - 2);
 
-        // draw the x-axis
+        // find the font size that will fit the y-axis labels on screen
         var xGap = Math.floor((this.gridCanvas.height - height) / 2);
-        var notchLength = xGap;
+        var yGap = Math.floor((this.gridCanvas.width - width) / 2);
+        var notchLength = xGap; // distance between axis and text
+        var fontSize = xGap;
+        console.log(fontSize);
+        ctx.font = "bold " + fontSize + "px sans-serif";
+        if (this.domain === 'time') {
+            let numYNotches = 4;
+            let yDelta = 2 / numYNotches;
+            for (let i = 1; i < numYNotches; i++) {
+                let text = ctx.measureText(Math.round(10 * (1 - i * yDelta)) / 10);
+                while (text.width > yGap - notchLength) {
+                    console.log(text);
+                    fontSize--;
+                    ctx.font = "bold " + fontSize + "px sans-serif";
+                    text = ctx.measureText(Math.round(10 * (1 - i * yDelta)) / 10);
+                }
+            }
+        } else if (this.domain === 'frequency') {
+            for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
+                if (db === this.analyzer.maxDecibels) continue;
+                let text = ctx.measureText(db);
+                while (text.width > yGap / 2) {
+                    fontSize--;
+                    ctx.font = "bold " + fontSize + "px sans-serif";
+                    text = ctx.measureText(db);
+                }
+            }
+        }
+        console.log(fontSize);
+
+        // draw the x-axis
         ctx.fillStyle = "black";
         ctx.font = "bold " + xGap + "px sans-serif";
         ctx.textBaseline = "top";
@@ -255,7 +285,6 @@ class Visualizer {
         // draw the y-axis
         ctx.textBaseline = "middle";
         ctx.textAlign = "start";
-        var yGap = Math.floor((this.gridCanvas.width - width) / 2);
         if (this.domain === 'time') {
             let numYNotches = 4;            // must be even to include 0
             let yDelta = 2 / numYNotches;   // values in the range [-1, 1]
