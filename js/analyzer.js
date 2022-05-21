@@ -207,41 +207,35 @@ class Visualizer {
         ctx.strokeStyle = "black";
         ctx.strokeRect(1, 1, width - 2, height - 2);
 
-        // find the font size that will fit the y-axis labels on screen
-        var xGap = Math.floor((this.gridCanvas.height - height) / 2);
-        var yGap = Math.floor((this.gridCanvas.width - width) / 2);
-        var notchLength = xGap; // distance between axis and text
-        var fontSize = xGap;
-        console.log(fontSize);
+        // find the font size that will fit all labels on screen
+        var xGap = Math.floor(this.gridCanvas.height - height);
+        var yGap = Math.floor(this.gridCanvas.width - width);
+        var notchLength = xGap / 2; // also distance between axis and text (time domain) and 2x the distance between axis and text (freq domain)
+        var fontSize = Math.floor(xGap - notchLength/2); // max size to fit all x-axis labels
         ctx.font = "bold " + fontSize + "px sans-serif";
-        if (this.domain === 'time') {
-            let numYNotches = 4;
-            let yDelta = 2 / numYNotches;
-            for (let i = 1; i < numYNotches; i++) {
-                let text = ctx.measureText(Math.round(10 * (1 - i * yDelta)) / 10);
-                while (text.width > yGap - notchLength) {
-                    console.log(text);
-                    fontSize--;
-                    ctx.font = "bold " + fontSize + "px sans-serif";
-                    text = ctx.measureText(Math.round(10 * (1 - i * yDelta)) / 10);
-                }
-            }
-        } else if (this.domain === 'frequency') {
-            for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
-                if (db === this.analyzer.maxDecibels) continue;
-                let text = ctx.measureText(db);
-                while (text.width > yGap / 2) {
-                    fontSize--;
-                    ctx.font = "bold " + fontSize + "px sans-serif";
-                    text = ctx.measureText(db);
-                }
+        ctx.fillStyle = "black";
+        let numYNotches = 4;
+        let yDelta = 2 / numYNotches;
+        for (let i = 1; i < numYNotches; i++) {
+            let label = Math.round(10 * (1 - i * yDelta)) / 10;
+            let text = ctx.measureText(label);
+            while (text.width > yGap - notchLength) {
+                fontSize--;
+                ctx.font = "bold " + fontSize + "px sans-serif";
+                text = ctx.measureText(label);
             }
         }
-        console.log(fontSize);
-
+        for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
+            if (db === this.analyzer.maxDecibels) continue;
+            let text = ctx.measureText(db);
+            while (text.width > yGap - notchLength) {
+                fontSize--;
+                ctx.font = "bold " + fontSize + "px sans-serif";
+                text = ctx.measureText(db);
+            }
+        }
+        
         // draw the x-axis
-        ctx.fillStyle = "black";
-        ctx.font = "bold " + xGap + "px sans-serif";
         ctx.textBaseline = "top";
         ctx.textAlign = "center";
         if (this.domain === 'time') {
@@ -264,7 +258,7 @@ class Visualizer {
                 ctx.moveTo(w, height - (notchLength / 2));
                 ctx.lineTo(w, height + (notchLength / 2));
                 let text = Number((xDelta * (i - numXNotches)).toFixed(2)) + unit;
-                ctx.fillText(text, w, height + xGap);
+                ctx.fillText(text, w, height + notchLength);
             }
             ctx.stroke();
         } else if (this.domain === 'frequency') {
@@ -278,7 +272,7 @@ class Visualizer {
                 ctx.lineTo(x, 0);
                 ctx.stroke();
                 if (d <= 3 || d === 5 || d === 7)
-                    ctx.fillText(f, x, height + xGap / 2);
+                    ctx.fillText(f, x, height + notchLength / 2);
             }
         }
 
@@ -286,8 +280,6 @@ class Visualizer {
         ctx.textBaseline = "middle";
         ctx.textAlign = "start";
         if (this.domain === 'time') {
-            let numYNotches = 4;            // must be even to include 0
-            let yDelta = 2 / numYNotches;   // values in the range [-1, 1]
             ctx.beginPath();
             for (let i = 1; i < numYNotches; i++) {
                 let h = Math.floor(i * (height / numYNotches));
@@ -307,7 +299,7 @@ class Visualizer {
                 console.log(db, dynRange, y);
                 ctx.moveTo(0, y);
                 ctx.lineTo(width, y);
-                ctx.fillText(db, width + yGap / 2, y);
+                ctx.fillText(db, width + notchLength/2, y);
             }
             ctx.stroke();
         }
