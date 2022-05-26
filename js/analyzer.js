@@ -1,67 +1,4 @@
 ﻿// Functions to achieve "pixel-perfect" canvas rendering; this is necessary since animating the waveform involves many consecutive redraws of the waveform canvas and even a tiny fraction mismatch between the css pixel size and the device's physical pixel size will be amplified and result in various aliasing problems
-//function clientToDeviceRect(cssRect) {
-//    const dpr = window.devicePixelRatio;
-//    const deviceRect = {};
-//    for (const k in cssRect) {
-//        if (k == 'toJSON') continue;
-//        deviceRect[k] = Math.round(cssRect[k] * dpr);
-//    }
-//    return deviceRect;
-//}
-//function snapToDeviceRect(ele, deviceRect) {
-//    const dpr = window.devicePixelRatio;
-//    ele.style.position = 'absolute';
-//    elee.style.top = deviceRect.top % 1 / dpr + 'px';
-//    ele.style.left = deviceRect.left % 1 / dpr + 'px';
-//    ele.style.width = deviceRect.width / dpr + 'px';
-//    ele.style.height = deviceRect.height / dpr + 'px';
-//}
-//function snapToParentPixels(ele) {
-//    // fallback for devices that don't support 'device-pixel-content-box' (accessing an element's size in device pixels directly)
-//    const clientRect = ele.parentNode.getBoundingClientRect();
-//    const deviceRect = clientToDeviceRect(clientRect);
-//    // Chrome doesn't snap non-DPR-multiple canvases properly, snapping only to evens.
-//    const evenOnly = false;
-//    if (evenOnly) {
-//        const dpr = window.devicePixelRatio;
-//        for (const k of ['width', 'height']) {
-//            let cur = deviceRect[k];
-//            if (cur >= dpr) {
-//                cur -= cur % dpr;
-//            }
-//            deviceRect[k] = cur;
-//        }
-//    }
-//    snapToDeviceRect(ele, deviceRect);
-//    return deviceRect;
-//}
-//function resizeCanvasToDevicePixels(entry) {
-//    const canvas = entry.target.canvas;
-//    if (entry.devicePixelContentBoxSize) {
-//        canvas.width = entry.devicePixelContentBoxSize[0].inlineSize;
-//        canvas.height = entry.devicePixelContentBoxSize[0].blockSize;
-//    } else {
-//        resizeCanvasToParentPixels(canvas);
-//    }
-//}
-//function resizeCanvasToParentPixels(canvas) {
-//    const rect = snapToParentPixels(canvas);
-//    canvas.width = rect.width;
-//    canvas.height = rect.height;
-//}
-//function onResize(entries) {
-//    var running = visualizer.drawHandle !== 0;
-//    visualizer.stopAnimation();
-//    for (const entry of entries) {
-//        resizeCanvasToDevicePixels(entry);
-//        let canvas = entry.target.canvas;
-//        let ctx = canvas.getContext('2d');
-//        ctx.clearRect(0, 0, canvas.width, canvas.height);
-//    }
-//    visualizer.drawOverlay();
-//    if (running) visualizer.startAnimation();
-//}
-
 
 function clientToDeviceRect(cssRect) {
     const dpr = window.devicePixelRatio;
@@ -331,7 +268,7 @@ class Visualizer {
         // measure the text of every label to find the largest font size that will fit everything on screen
         var xGap = Math.floor(this.gridCanvas.height - this.waveformCanvas.height);
         var yGap = Math.floor(this.gridCanvas.width - this.waveformCanvas.width);
-        var fontSize = Math.floor(xGap - notchLength / 2); // max size to fit all x-axis labels
+        var fontSize = Math.floor(xGap - 0.75*notchLength); // max size to fit all x-axis labels
         
         let availWidth = yGap - notchLength;
         if (availWidth < 0 || fontSize < 0) return 0;
@@ -386,8 +323,10 @@ class Visualizer {
         let ctx = this.gridCanvas.getContext('2d');
         ctx.textBaseline = "top";
         ctx.textAlign = "center";
+        let y = height + 0.5*notchLength; // text vertical position
         switch (this.mode) {
             case 'time':
+                y = height + 0.75*notchLength;  // more space for notches
             case 'spectrum':
                 let magnitude = Math.pow(10, Math.ceil(Math.log10(this.windowLength)));
                 let xDelta = this.windowLength / magnitude;   // in the range [0.1, 1]
@@ -410,11 +349,11 @@ class Visualizer {
                     if (this.mode === 'time') {
                         ctx.moveTo(w, height - (notchLength / 2));
                         ctx.lineTo(w, height + (notchLength / 2));
-                        ctx.fillText(text, w, height + notchLength);
+                        ctx.fillText(text, w, y);
                     } else {
                         ctx.moveTo(w, height);
                         ctx.lineTo(w, height - 1.5 * notchLength);
-                        ctx.fillText(text, w, height + notchLength / 2);
+                        ctx.fillText(text, w, y);
                     }
                 }
                 ctx.stroke();
@@ -431,8 +370,10 @@ class Visualizer {
                     ctx.stroke();
                     let text = (f >= 1000) ? f / 1000 + 'k' : f.toString();
                     if (d <= 3 || d === 5 || d === 7)
-                        ctx.fillText(text, x, height + notchLength / 2);
+                        ctx.fillText(text, x, y);
                 }
+                ctx.textAlign = "left";
+                ctx.fillText("Hz", 0, y);
                 break;
         }
     }
@@ -442,15 +383,17 @@ class Visualizer {
         let ctx = this.gridCanvas.getContext('2d');
         ctx.textBaseline = "middle";
         ctx.textAlign = "start";
+        let x = width + notchLength / 2;    // text horizontal position
         switch (this.mode) {
             case 'time':
+                x = width + notchLength;    // more space for notches
                 let yDelta = 2 / numYNotches;   // values from [-1, 1]
                 ctx.beginPath();
                 for (let i = 1; i < numYNotches; i++) {
                     let h = Math.floor(i * (height / numYNotches));
                     ctx.moveTo(width - (notchLength / 2), h);
                     ctx.lineTo(width + (notchLength / 2), h);
-                    ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, width + notchLength, h);
+                    ctx.fillText(Math.round(10 * (1 - i * yDelta)) / 10, x, h);
                 }
                 ctx.stroke();
                 break;
@@ -460,13 +403,14 @@ class Visualizer {
                 ctx.beginPath();
                 for (let db = 10 * Math.ceil(this.analyzer.maxDecibels / 10); db > this.analyzer.minDecibels; db -= 10) {
                     if (db === this.analyzer.maxDecibels) continue;
-                    console.log(db);
                     let y = Math.floor((db - this.analyzer.maxDecibels) / dynRange * height);
                     ctx.moveTo(0, y);
                     ctx.lineTo(width, y);
-                    ctx.fillText(db, width + notchLength / 2, y);
+                    ctx.fillText(db, x, y);
                 }
                 ctx.stroke();
+                ctx.textBaseline = "top";
+                ctx.fillText("dB", x, 0);
                 break;
             case 'spectrum':
                 ctx.strokeStyle = 'white';
@@ -481,9 +425,11 @@ class Visualizer {
                         ctx.lineTo(width - ((d === 1 ? 2 : 1) * notchLength), y);
                         ctx.stroke();
                         let text = (f >= 1000) ? f / 1000 + 'k' : f.toString();
-                        ctx.fillText(text, width + notchLength / 2, y);
+                        ctx.fillText(text, x, y);
                     }
                 }
+                ctx.textBaseline = "top";
+                ctx.fillText("Hz", x, 0);
                 break;
         }
     }
@@ -576,7 +522,8 @@ async function getMediaStream() {
     }
 }
 function handleModeButtonClick(e) {
-    let windowLength = document.getElementById('x-scale').value;
+    let scaleEle = document.getElementById('x-scale');
+    let windowLength = scaleEle.value;
     switch (e.target.id) {
         case 'time-button':
             visualizer.changeMode('time', windowLength);
@@ -589,6 +536,7 @@ function handleModeButtonClick(e) {
             break;
         default: return;
     }
+    scaleEle.disabled = e.target.id === 'frequency-button';
     let buttons = e.target.parentNode.children;
     for (let i = 0; i < buttons.length; i++)
         buttons[i].classList.remove('active-domain');
@@ -655,44 +603,6 @@ document.getElementById('audio-input').addEventListener('change', async function
 document.getElementById('time-button').addEventListener('click', e => handleModeButtonClick(e));
 document.getElementById('frequency-button').addEventListener('click', e => handleModeButtonClick(e));
 document.getElementById('spectrum-button').addEventListener('click', e => handleModeButtonClick(e));
-
-//document.addEventListener('DOMContentLoaded', e => {
-
-//    // Observe the canvases on the page and adjust size for 'pixel-perfect' device rendering
-//    const canvases = document.querySelectorAll('canvas');
-//    let supportsDevicePixelContextBox = true;
-//    const resizeObserver = new ResizeObserver(onResize);
-//    for (const canvas of canvases) {
-//        canvas.parentNode.canvas = canvas;
-//        if (supportsDevicePixelContextBox) {
-//            try {
-//                resizeObserver.observe(canvas.parentNode, { box: 'device-pixel-content-box' });
-//            } catch (e) {
-//                supportsDevicePixelContextBox = false;
-//            }
-//        } else {
-//            resizeObserver.observe(canvas.parentNode, { box: 'border-box' });
-//        }
-//    }
-//    if (!supportsDevicePixelContextBox) {
-//        // if device-pixel-content-box is not supported, then zooming the page will not notify us of canvases whose CSS size has not changed even though the number of native pixels they cover has
-//        window.addEventListener('resize', () => {
-//            var running = visualizer.drawHandle !== 0;
-//            visualizer.stopAnimation();
-//            for (const canvas of canvases) {
-//                resizeCanvasToParentPixels(canvas);
-//                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
-//            }
-//            visualizer.drawOverlay();
-//            if (running) visualizer.startAnimation();
-//        });
-//    }
-
-//    setupGraph();
-//});
-
-
-
 
 document.addEventListener('DOMContentLoaded', e => {
     setupGraph();
