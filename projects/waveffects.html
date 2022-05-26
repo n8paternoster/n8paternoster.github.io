@@ -28,12 +28,16 @@
         <!-- Page content -->
         <div class="content wide-content">
             <div id="visualizer">
-                <div id="waveform-container" class="canvas-container">
+                <!--<div id="waveform-container" class="canvas-container">
                     <canvas id="waveform-layer"></canvas>
                 </div>
-                <div class="canvas-container">
+                <div id="grid-container" class="canvas-container">
                     <canvas id="grid-layer"></canvas>
-                </div>
+                </div>-->
+                <canvas id="background-layer" class="inset-layer"></canvas>
+                <canvas id="waveform-layer" class="inset-layer"></canvas>
+                <canvas id="grid-layer"></canvas>
+                <div id="inset-rect"></div>
             </div>
             <div id="controls-container">
                 <div id="controls">
@@ -49,6 +53,7 @@
                         <div class="control-row-group">
                             <button id="time-button" class="active-domain">Time</button>
                             <button id="frequency-button">Frequency</button>
+                            <button id="spectrum-button">Spectrum</button>
                         </div>
                         <div class="control-row-group">
                             <label for="length">Length:</label>

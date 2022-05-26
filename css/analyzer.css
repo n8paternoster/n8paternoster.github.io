@@ -1,28 +1,36 @@
 ﻿#visualizer {
     width: 100%;
-    height: 60vh;
+    height: 70vh;
     position: relative;
     margin: 1em auto;
 }
 
-.canvas-container, .canvas-container canvas {
+#visualizer canvas {
     display: block;
     width: 100%;
     height: 100%;
     position: absolute;
 }
 
-#waveform-container {
+#inset-rect {
+    position: absolute;
+    visibility: hidden;
+}
+
+#inset-rect, #visualizer canvas.inset-layer {
     /* allow space to draw the x-axis and y-axis labels 'outside' the visualizer */
     height: min(100% - 20px, 95%);
     width: min(100% - 35px, 96.5%);
 }
 
-#grid-layer {
+#background-layer {
     z-index: 1;
 }
 #waveform-layer {
     z-index: 2;
+}
+#grid-layer {
+    z-index: 3;
 }
 
 #controls-container {
